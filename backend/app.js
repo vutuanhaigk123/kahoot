@@ -1,3 +1,4 @@
+/* eslint-disable import/extensions */
 /* eslint-disable no-console */
 import express from "express";
 import morgan from "morgan";
@@ -6,8 +7,8 @@ import cookieParser from "cookie-parser";
 // import env from "./utils/env.js";
 import { dirname } from "path";
 import { fileURLToPath } from "url";
-import initMw from "./middleware/init.mw";
-import router from "./route/router.route";
+import initMw from "./middleware/init.mw.js";
+import router from "./route/router.route.js";
 
 const dirNamePath = dirname(fileURLToPath(import.meta.url));
 

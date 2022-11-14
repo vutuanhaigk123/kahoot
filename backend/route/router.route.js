@@ -1,9 +1,10 @@
-import apiTest from "../api/test.api";
-import apiAuth from "../api/authen.api";
-import AuthenMW from "../middleware/authen.mw";
+/* eslint-disable import/extensions */
+import apiTest from "../api/test.api.js";
+import apiAuth from "../api/authen.api.js";
+import AuthenMW from "../middleware/authen.mw.js";
 
-import authRoute from "./authen.route";
-import matchRoute from "./match.route";
+import authRoute from "./authen.route.js";
+import matchRoute from "./match.route.js";
 
 const pathInfos = ["/about", "/test", "/test2", "*"];
 

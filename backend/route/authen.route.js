@@ -1,6 +1,7 @@
+/* eslint-disable import/extensions */
 import passport from "passport";
 import express from "express";
-import AuthMW from "../middleware/authen.mw";
+import AuthMW from "../middleware/authen.mw.js";
 
 const router = express.Router();
 

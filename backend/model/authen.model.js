@@ -1,6 +1,7 @@
+/* eslint-disable import/extensions */
 /* eslint-disable no-console */
 import jwt from "jsonwebtoken";
-import env from "../utils/env";
+import env from "../utils/env.js";
 
 function genToken(data, isLongTime = false) {
   return jwt.sign(data, env.SECRET_APP, {

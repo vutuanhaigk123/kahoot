@@ -1,8 +1,9 @@
+/* eslint-disable import/extensions */
 import session from "express-session";
 import passport from "passport";
 import FacebookStrategy from "passport-facebook";
 import fnGoogleStrategy from "passport-google-oauth";
-import env from "../utils/env";
+import env from "../utils/env.js";
 
 const GoogleStrategy = fnGoogleStrategy.OAuth2Strategy;
 

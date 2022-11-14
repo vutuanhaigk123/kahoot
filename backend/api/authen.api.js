@@ -1,8 +1,9 @@
+/* eslint-disable import/extensions */
 import express from "express";
 import passport from "passport";
-import AuthModel from "../model/authen.model";
-import CookieModel from "../model/cookie.model";
-import AuthMW from "../middleware/authen.mw";
+import AuthModel from "../model/authen.model.js";
+import CookieModel from "../model/cookie.model.js";
+import AuthMW from "../middleware/authen.mw.js";
 
 const router = express.Router();
 

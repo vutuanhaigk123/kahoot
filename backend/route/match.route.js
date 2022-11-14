@@ -1,8 +1,9 @@
+/* eslint-disable import/extensions */
 /* eslint-disable no-console */
 /* eslint-disable no-unused-vars */
 import appWs from "express-ws";
-import EvModel from "../model/event.model";
-import SocketModel from "../model/socket.model";
+import EvModel from "../model/event.model.js";
+import SocketModel from "../model/socket.model.js";
 
 const userConns = {};
 /*

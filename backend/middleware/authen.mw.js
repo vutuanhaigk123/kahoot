@@ -1,5 +1,6 @@
-import CookieModel from "../model/cookie.model";
-import AuthModel from "../model/authen.model";
+/* eslint-disable import/extensions */
+import CookieModel from "../model/cookie.model.js";
+import AuthModel from "../model/authen.model.js";
 
 const VALID_AUTH_TYPE = "Bearer";
 
