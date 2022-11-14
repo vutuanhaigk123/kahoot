@@ -4,5 +4,6 @@ backend/build
 frontend/node_modules/
 frontend/package-lock.json
 frontend/build
+frontend/.eslintcache
 package-lock.json
 node_modules/
