@@ -3,8 +3,7 @@
 import express from "express";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
-// import jwt from "jsonwebtoken";
-// import env from "./utils/env.js";
+import bodyParser from "body-parser";
 import { dirname } from "path";
 import { fileURLToPath } from "url";
 import initMw from "./middleware/init.mw.js";
@@ -16,6 +15,8 @@ const app = express();
 // const count = 0;
 app.use(morgan("dev"));
 app.use(cookieParser());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(`${dirNamePath}/build`));
 
 const port = process.env.PORT || 3001;
@@ -23,31 +24,18 @@ const port = process.env.PORT || 3001;
 initMw(app);
 router(app, dirNamePath);
 
-// console.log(
-//     jwt.sign({ a: "b" }, env.SECRET_APP, {
-//         expiresIn: "7d",
-//     })
+// const ret = await GroupModel.filterEmailsNotInGroup(
+//   ["vutuanhaigk@gmail.com", "vutuanhaigk123@gmail.comm"],
+//   "6377bb653cd0cef0e9057104"
 // );
+// console.log(ret);
 
-// try {
-//     console.log(
-//         jwt.verify(
-//             // jwt.sign({ a: "b" }, env.SECRET_APP, {
-//             //     expiresIn: "2d",
-//             // }),
-//             "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjAsImlhdCI6MTY2NjE1MzAzNiwiZXhwIjoxNjY2MTUzMDk2fQ.gTNu_0rvRF9iX2uf8a6QOoQziGe2ooLIMck7oBA2IuI",
-//             env.SECRET_APP
-//         )
-//     );
-// } catch (err) {
-//     switch (err.name) {
-//         case "TokenExpiredError":
-//             console.log("use refresh token");
-//             break;
-//         default:
-//             console.log(err);
-//     }
-// }
+// const resMap = await GroupModel.getMemberIdsInGroup([
+//   "6377b6636c13318921bd9863",
+//   "6377b6636c13318921bd9864"
+// ]);
+// console.log(resMap);
+// console.log(resMap.get("6377b6636c13318921bd9863"));
 
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`);

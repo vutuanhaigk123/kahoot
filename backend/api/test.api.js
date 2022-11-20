@@ -1,3 +1,7 @@
+/* eslint-disable no-console */
+/* eslint-disable import/extensions */
+/* eslint-disable camelcase */
+/* eslint-disable no-unused-vars */
 import express from "express";
 
 const router = express.Router();

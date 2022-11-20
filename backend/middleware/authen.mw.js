@@ -1,60 +1,55 @@
+/* eslint-disable consistent-return */
+/* eslint-disable no-fallthrough */
+/* eslint-disable no-console */
 /* eslint-disable import/extensions */
 import CookieModel from "../model/cookie.model.js";
 import AuthModel from "../model/authen.model.js";
 
-const VALID_AUTH_TYPE = "Bearer";
+const FIVE_MINS_LEFT = 5 * 60;
 
 export default {
-  // eslint-disable-next-line consistent-return
   async stopWhenNotLogon(req, res, next) {
-    let authStr = req.headers.authorization;
-    if (
-      !authStr ||
-      authStr.split(" ").length !== 2 ||
-      authStr.split(" ")[0] !== VALID_AUTH_TYPE
-    ) {
-      authStr = CookieModel.getAccessToken(req.cookies);
-      if (!authStr) {
-        return res.json({
-          code: 401,
-          message: "No permission to access"
-        });
-      }
-    }
-
-    let accessTok = authStr.split(" ")[1];
-    if (!accessTok) {
-      accessTok = authStr;
-    }
-
-    // eslint-disable-next-line prefer-const
-    let isInvalidToken = false;
-    if (accessTok) {
-      switch (AuthModel.verifyToken(accessTok)) {
-        case AuthModel.TOKEN_EXPIRED:
-          // eslint-disable-next-line no-console
-          console.log("Token expired");
-          // TO_DO
-          // renew token
-          break;
-        case AuthModel.INVALID_TOKEN:
-          return res.json({
-            code: 400,
-            message: "Invalid access token"
-          });
-        default:
-          next();
-      }
-    }
-    if (!accessTok || isInvalidToken) {
-      res.json({
+    const accessTok = AuthModel.getAccessTokenFromReq(req);
+    if (accessTok === null) {
+      return res.json({
         code: 401,
         message: "No permission to access"
       });
     }
+
+    let isExpired = false;
+    const { code, data } = AuthModel.verifyAccessToken(accessTok, false);
+    switch (code) {
+      case AuthModel.INVALID_TOKEN:
+        return res.json({
+          code: 400,
+          message: "Invalid access token"
+        });
+      case AuthModel.TOKEN_EXPIRED:
+        isExpired = true;
+      default:
+        if (isExpired || data.exp - Date.now() / 1000 <= FIVE_MINS_LEFT) {
+          // renew token
+          const { accessToken, refreshToken } =
+            await AuthModel.renewAccessToken(
+              data.uid,
+              accessTok,
+              CookieModel.getRefreshToken(req.cookies)
+            );
+          if (accessToken && refreshToken) {
+            CookieModel.setToken(res, CookieModel.ACCESS_TOKEN, accessToken);
+            CookieModel.setToken(res, CookieModel.REFRESH_TOKEN, refreshToken);
+          } else if (isExpired) {
+            return res.json({
+              code: 400,
+              message: "Invalid access token"
+            });
+          }
+        }
+        next();
+    }
   },
 
-  // eslint-disable-next-line consistent-return
   stopWhenLogon(req, res, next) {
     const authStr = req.headers.authorization;
     if (

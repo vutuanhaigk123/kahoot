@@ -5,9 +5,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "live": "cd backend/ && node app.js",
+    "live": "cd backend/ && node app.js live",
     "dev": "npm run start",
-    "start": "npm i && npm run startBE & npm run startFE",
+    "start": "npm run startBE & npm run startFE",
     "test": "echo \"Error: no test specified\" && exit 1",
     "startBE": "cd backend/ && npm i && node app.js",
     "startFE": "cd frontend/ && npm i && npm start",

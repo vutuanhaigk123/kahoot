@@ -7,3 +7,4 @@ frontend/build
 frontend/.eslintcache
 package-lock.json
 node_modules/
+backend/.env

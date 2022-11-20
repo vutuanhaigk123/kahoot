@@ -21,7 +21,7 @@ export default {
   },
 
   setToken(res, tokenName, tokenValue) {
-    res.cookie(tokenName, tokenValue, { maxAge: 900000, httpOnly: true });
+    res.cookie(tokenName, tokenValue, { maxAge: 999999999, httpOnly: true });
   },
 
   removeField(res, fieldName) {
@@ -29,7 +29,7 @@ export default {
   },
 
   setField(res, fieldName, fieldValue) {
-    res.cookie(fieldName, fieldValue, { maxAge: 900000, httpOnly: true });
+    res.cookie(fieldName, fieldValue, { maxAge: 999999999, httpOnly: true });
   },
 
   getField(cookies, fieldName) {
