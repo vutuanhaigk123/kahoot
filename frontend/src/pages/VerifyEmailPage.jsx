@@ -89,7 +89,12 @@ const SuccessMsg = () => {
         sx={{ fontSize: "120px", color: "green" }}
       ></CheckCircleIcon>
       <Typography variant="h5">Successfully confirm</Typography>
-      <Button variant="contained" color="primary">
+      <Button
+        component={Link}
+        to={PAGE_ROUTES.HOME}
+        variant="contained"
+        color="primary"
+      >
         Return home
       </Button>
     </>
