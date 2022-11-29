@@ -1,17 +1,10 @@
 import { Box, Paper, Stack } from "@mui/material";
 import React from "react";
+import BackgroundContainer from "./../misc/BackgroundContainer";
 
 const BasicForm = ({ children, maxWidth = "50%" }) => {
   return (
-    <Box
-      sx={{
-        height: "90vh",
-        backgroundImage: `url(SignUp/background.png)`,
-        backgroundSize: "cover",
-        p: 4
-      }}
-      display="flex"
-    >
+    <BackgroundContainer>
       <Paper
         elevation={20}
         sx={{
@@ -50,7 +43,7 @@ const BasicForm = ({ children, maxWidth = "50%" }) => {
           </Box>
         </Stack>
       </Paper>
-    </Box>
+    </BackgroundContainer>
   );
 };
 

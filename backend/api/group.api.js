@@ -99,7 +99,7 @@ router.get("/created-groups", AuthenMw.stopWhenNotLogon, async (req, res) => {
   });
 });
 
-router.get("/joined-groups", AuthenMw.stopWhenLogon, async (req, res) => {
+router.get("/joined-groups", AuthenMw.stopWhenNotLogon, async (req, res) => {
   const { page, limit } = req.query;
   if (!limit || parseInt(limit) <= 0 || !page || parseInt(page) < 0) {
     return res.json({
@@ -235,7 +235,8 @@ router.post("/send-invitation", AuthenMw.stopWhenNotLogon, async (req, res) => {
   MailingModel.sendGroupInvitationEmail({
     groupName: group.name,
     emails: userEmails,
-    token: group.inviteToken
+    token: group.inviteToken,
+    groupId
   });
   return res.json({
     status: 0
@@ -246,7 +247,7 @@ router.get("/:groupId", AuthenMw.stopWhenNotLogon, async (req, res) => {
   const gId = req.params.groupId;
   const ownerId = AuthenModel.getUidFromReq(req);
   const group = await GroupModel.findByIdAndUid(gId, ownerId);
-  console.log(group.members[0]);
+
   if (!group) {
     return res.json({
       status: 0,

@@ -4,6 +4,8 @@ import express from "express";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
 import bodyParser from "body-parser";
+import { createServer } from "http";
+import { Server } from "socket.io";
 import { dirname } from "path";
 import { fileURLToPath } from "url";
 import initMw from "./middleware/init.mw.js";
@@ -21,22 +23,17 @@ app.use(express.static(`${dirNamePath}/build`));
 
 const port = process.env.PORT || 3001;
 
-initMw(app);
-router(app, dirNamePath);
-
-// const ret = await GroupModel.filterEmailsNotInGroup(
-//   ["vutuanhaigk@gmail.com", "vutuanhaigk123@gmail.comm"],
-//   "6377bb653cd0cef0e9057104"
-// );
-// console.log(ret);
-
-// const resMap = await GroupModel.getMemberIdsInGroup([
-//   "6377b6636c13318921bd9863",
-//   "6377b6636c13318921bd9864"
-// ]);
-// console.log(resMap);
-// console.log(resMap.get("6377b6636c13318921bd9863"));
-
-app.listen(port, () => {
+const httpServer = createServer(app);
+const ws = new Server(httpServer, {
+  cors: {
+    origin: "http://localhost:3000",
+    methods: ["GET", "POST"],
+    credentials: true
+  }
+});
+httpServer.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`);
 });
+
+initMw(app);
+router(app, ws, dirNamePath);

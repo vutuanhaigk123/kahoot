@@ -11,12 +11,18 @@ import FormHeader from "./../components/form/FormHeader";
 import FormContent from "./../components/form/FormContent";
 import FormButton from "./../components/button/FormButton";
 import { PAGE_ROUTES, SUBMIT_STATUS } from "../commons/constants";
-import Popup from "../components/notification/Popup";
+import PopupMsg from "../components/notification/PopupMsg";
 import { API } from "./../commons/constants";
+import usePopup from "./../hooks/usePopup";
 
 function SignupPage() {
+  const { open, handleClosePopup, handleOpenPopup } = usePopup();
   // Form
   const [status, setStatus] = React.useState({});
+  console.log(
+    "🚀 ~ file: SignUpPage.jsx ~ line 22 ~ SignupPage ~ status",
+    status
+  );
   const schema = yup.object({
     name: yup.string().required("Required"),
     email: yup.string().email("Email not valid").required("Required"),
@@ -61,6 +67,7 @@ function SignupPage() {
         // Store data
         // dispatch(login(resp.data));
       }
+      handleOpenPopup();
     } catch (error) {
       console.log(
         "🚀 ~ file: SignUpPage.jsx ~ line 68 ~ onSubmit ~ error",
@@ -71,9 +78,14 @@ function SignupPage() {
 
   return (
     <BasicForm maxWidth="65%">
-      {Object.keys(status).length > 0 ? (
-        <Popup type={status.type}>{status.msg}</Popup>
-      ) : null}
+      <PopupMsg
+        status={status.type}
+        isOpen={open}
+        handleClosePopup={handleClosePopup}
+        navigateTo={PAGE_ROUTES.LOGIN}
+      >
+        {status.msg}
+      </PopupMsg>
       <form onSubmit={handleSubmit(onSubmit)}>
         <FormHeader
           title="Sign up"
@@ -134,11 +146,16 @@ function SignupPage() {
 
           {/* Sign up button */}
           <FormButton>Register</FormButton>
-          <Typography variant="caption" align="center" sx={{ mt: 2 }}>
+          <Typography variant="caption" align="center">
             Already have an account?{" "}
-            <Link to={PAGE_ROUTES.LOGIN} style={{ color: "#005ef6" }}>
+            <Typography
+              component={Link}
+              variant="inherit"
+              to={PAGE_ROUTES.LOGIN}
+              color="primary"
+            >
               Login
-            </Link>
+            </Typography>
           </Typography>
         </FormContent>
       </form>

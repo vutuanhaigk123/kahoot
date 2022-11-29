@@ -7,21 +7,33 @@ import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
 import CancelRoundedIcon from "@mui/icons-material/CancelRounded";
 import { Box, Typography } from "@mui/material";
 import { SUBMIT_STATUS } from "../../commons/constants";
+import { useNavigate } from "react-router-dom";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
-const Popup = ({ children, type }) => {
-  const [open, setOpen] = React.useState(true);
+const PopupMsg = ({
+  children,
+  status,
+  isOpen,
+  handleClosePopup,
+  navigateTo
+}) => {
+  const navigate = useNavigate();
 
   const handleClose = () => {
-    setOpen(false);
+    // Close the popup
+    handleClosePopup();
+    // Navigate to a page on success
+    if (status === SUBMIT_STATUS.SUCCESS && navigateTo) {
+      navigate(navigateTo);
+    }
   };
 
   return (
     <Dialog
-      open={open}
+      open={isOpen}
       TransitionComponent={Transition}
       keepMounted
       onClose={handleClose}
@@ -36,7 +48,7 @@ const Popup = ({ children, type }) => {
           padding: "10px 50px 10px 50px"
         }}
       >
-        {type === SUBMIT_STATUS.ERROR ? (
+        {status === SUBMIT_STATUS.ERROR ? (
           <CancelRoundedIcon
             color="error"
             sx={{ fontSize: "60px" }}
@@ -59,4 +71,4 @@ const Popup = ({ children, type }) => {
   );
 };
 
-export default Popup;
+export default PopupMsg;

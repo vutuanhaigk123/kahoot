@@ -14,7 +14,7 @@ const FormHeader = ({ title, caption }) => {
       }}
     >
       <Avatar
-        src="pageIcon.png"
+        src="/pageIcon.png"
         sx={{
           width: "100px",
           height: "100px",

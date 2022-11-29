@@ -232,6 +232,9 @@ export default {
 
   async filterEmailsNotInGroup(emailList, gId) {
     const uidExistMap = await UserModel.findUidsByEmailList(emailList);
+    if (!uidExistMap) {
+      return emailList;
+    }
     const alreadyMemberMap = await getMemberIdsInGroup(
       [...uidExistMap.values()],
       gId
@@ -284,7 +287,7 @@ export default {
           kickArr.push(element._id);
           group.members.splice(i, 1);
           i -= 1;
-        } else if (role === ROLE.co_owner) {
+        } else {
           element.role = role;
         }
       }

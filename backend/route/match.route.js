@@ -1,69 +1,94 @@
+/* eslint-disable no-underscore-dangle */
 /* eslint-disable import/extensions */
 /* eslint-disable no-console */
 /* eslint-disable no-unused-vars */
 import appWs from "express-ws";
-import EvModel from "../model/event.model.js";
+import HashMap from "hashmap";
+import { parse } from "cookie";
 import SocketModel from "../model/socket.model.js";
-
-const userConns = {};
-/*
-    Structure: allow only one connection per user
-    userConns = {
-        userId: websocket connection
-    }
-*/
+import AuthenModel from "../model/authen.model.js";
+import CookieModel from "../model/cookie.model.js";
+import EventModel from "../model/event.model.js";
+import MatchModel from "../model/match.model.js";
+import AuthenMw from "../middleware/authen.mw.js";
 
 const matchingQueue = [];
 
-async function stopWhenNotLogon(ws, req, next) {
-  // eslint-disable-next-line no-constant-condition
-  if (true) {
-    return next();
+function getUidFromWs(socket) {
+  if (socket.handshake.headers.cookie) {
+    const cookies = parse(socket.handshake.headers.cookie);
+    return AuthenModel.getUidFromToken(cookies[CookieModel.ACCESS_TOKEN]);
   }
-  return ws.terminate();
+  return null;
 }
 
-function initConnection(ws, req) {
-  const userId = 1;
-  console.log(Object.keys(userConns).length);
-  if (typeof userConns[`${userId}`] === "undefined") {
-    // Init new connection
-    console.log("init");
-    userConns[`${userId}`] = {};
-  } else {
-    // Send KICK_CODE to old connection
-    console.log("kick");
-    userConns[`${userId}`].ws.terminate();
-    SocketModel.sendMsg(
-      userConns[`${userId}`],
-      EvModel.build_KICK_CODE_packet()
-    );
+function initConnection(socket) {
+  const userId = getUidFromWs(socket);
+  console.log(userId);
+  if (!userId) {
+    return false;
   }
-  userConns[`${userId}`].ws = ws;
+  SocketModel.saveSocketConn(userId, socket);
+  return true;
 }
 
-export default async (path, appBase) => {
-  const wsInstance = appWs(appBase);
-  const { app } = wsInstance;
-
-  app.ws(
-    path,
-    // eslint-disable-next-line spaced-comment
-    /*stopWhenNotLogon,*/ async (ws, req) => {
-      initConnection(ws, req);
-
-      ws.on("message", async (message) => {
-        console.log(JSON.parse(message));
-        console.log(Object.keys(userConns).length);
-        ws.send("received");
-      });
-
-      ws.on("close", () => {
-        // const userId = req.session.passport.user._id;
-        const userId = 1;
-        console.log("closed");
-        delete userConns[`${userId}`];
-      });
+async function sendInitData(socket) {
+  // join or create room
+  const { room, cmd } = socket.request._query;
+  const userId = getUidFromWs(socket);
+  const result = await MatchModel.joinMatch(userId, room);
+  if (result) {
+    const { curState, curQues, data, joinedUser } = result;
+    SocketModel.sendEvent(userId, EventModel.INIT_CONNECTION, {
+      curState,
+      curQues,
+      data
+    });
+    socket.join(room);
+    if (curState === MatchModel.STATE_LOBBY && joinedUser) {
+      SocketModel.sendBroadcastRoom(
+        userId,
+        room,
+        EventModel.JOIN_ROOM,
+        joinedUser
+      );
     }
-  );
+  } else {
+    SocketModel.removeSocketConn(userId);
+  }
+}
+
+export default async (path, ws) => {
+  // middleware: stop when not logged in
+  ws.use((socket, next) => {
+    AuthenMw.wsStopWhenNotLogon(socket, next);
+  });
+
+  // middleware: stop when: invalid cmd || invalid room
+  ws.use(async (socket, next) => {
+    AuthenMw.wsStopWhenInvalidQuery(socket, next);
+  });
+
+  ws.on("connection", async (socket) => {
+    if (!initConnection(socket)) {
+      socket.disconnect(true);
+    }
+
+    console.log("Connected");
+
+    await sendInitData(socket);
+
+    socket.on("error", (err) => {
+      SocketModel.removeSocketConn(getUidFromWs(socket));
+    });
+
+    socket.conn.on("close", (reason) => {
+      const { room } = socket.request._query;
+      socket.leave(room);
+      const userId = getUidFromWs(socket);
+      MatchModel.leaveLobby(userId, room, ws);
+      SocketModel.removeSocketConn(userId);
+      console.log("closed");
+    });
+  });
 };

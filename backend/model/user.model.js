@@ -119,8 +119,7 @@ export default {
   },
 
   async create({ email, name, addr, password }) {
-    const salt = bcrypt.genSaltSync(10);
-    const pwd = bcrypt.hashSync(password, salt);
+    const pwd = this.encryptPassword(password);
     const uid = getNewObjectId().toString();
     const { accessToken, refreshToken } = AuthenModel.genNewTokens(uid);
     const user = new User({
@@ -142,6 +141,11 @@ export default {
       };
     }
     return null;
+  },
+
+  encryptPassword(password) {
+    const salt = bcrypt.genSaltSync(10);
+    return bcrypt.hashSync(password, salt);
   },
 
   isSamePassword(password, orgPwd) {

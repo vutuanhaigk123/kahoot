@@ -1,52 +1,66 @@
 import React from "react";
-import { Avatar, Box, Button, Paper, Typography } from "@mui/material";
+import { Avatar, Box, Button, Typography } from "@mui/material";
+import BackgroundContainer from "./../components/misc/BackgroundContainer";
+import { useSelector } from "react-redux";
+import { Link } from "react-router-dom";
+import { PAGE_ROUTES } from "../commons/constants";
 
 const HomePage = () => {
+  const { user } = useSelector((state) => state.auth);
+
   return (
-    <Box
-      sx={{
-        height: "90vh",
-        backgroundImage: `url(SignUp/background.png)`,
-        backgroundSize: "cover",
-        p: 4
-      }}
-      display="flex"
-    >
+    <BackgroundContainer url="/HomePage/homePagePic.jpg">
       <Box
-        elevation={20}
         sx={{
           margin: "auto",
           width: "40%",
-          textAlign: "center"
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: 2
         }}
       >
         <Avatar
-          src="pageIcon.png"
+          src="/pageIcon.png"
           sx={{
             margin: "auto",
-            width: "100px",
-            height: "100px",
+            width: "200px",
+            height: "200px",
             "& .MuiAvatar-img": {
               objectFit: "scale-down"
             }
           }}
         ></Avatar>
-        <Typography variant="h2" color="primary">
-          Trang chủ
+        <Typography variant="h2" color="#fbf7d1">
+          Ready to learn
         </Typography>
-        <Typography variant="h4" color="primary">
-          Kahoot tuổi tôm - Chưa có ý :(
-        </Typography>
-        <Paper sx={{ width: "50%", height: 40, margin: "auto" }}>
-          <Button
-            variant="contained"
-            sx={{ color: "white", backgroundColor: "black" }}
-          >
-            Submit
-          </Button>
-        </Paper>
+        <Button
+          component={Link}
+          to={Object.keys(user).length === 0 ? PAGE_ROUTES.LOGIN : "#"}
+          variant="contained"
+          color="secondary"
+          sx={{ maxWidth: "30%" }}
+        >
+          Get started
+        </Button>
+
+        {/* <Box sx={{ width: "100%" }}>
+          <Box
+            component="img"
+            src="/HomePage/homePagePic.png"
+            alt="abc"
+            sx={{
+              width: "100%",
+              height: "100%",
+              objectFit: "scale-down",
+              borderRadius: 2
+              // borderColor: "black"
+            }}
+          />
+        </Box> */}
       </Box>
-    </Box>
+    </BackgroundContainer>
   );
 };
 

@@ -15,12 +15,12 @@ import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../redux-toolkit/authSlice";
 import { API, PAGE_ROUTES } from "../commons/constants";
 
-const pages = ["Link-1", "Link-2", "Link-3"];
-const settings = ["Profile", "Account", "Dashboard"];
+const pages = [{ link: PAGE_ROUTES.GROUP, text: "Group" }];
+const settings = [{ link: PAGE_ROUTES.PROFILE, text: "Profile" }];
 
 const Header = () => {
   const navigate = useNavigate();
-  const { user } = useSelector((state) => state.auth);
+  const { user } = useSelector((state) => state?.auth);
   const dispatch = useDispatch();
   console.log("🚀 ~ file: Header.jsx ~ line 22 ~ Header ~ user", user);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
@@ -41,20 +41,28 @@ const Header = () => {
   const handleSignOut = async (e) => {
     try {
       const resp = await axios.post(API.LOGOUT);
-      console.log("🚀 ~ file: Header.jsx ~ line 44 ~ handleSignOut ~ resp", resp)
+      console.log(
+        "🚀 ~ file: Header.jsx ~ line 44 ~ handleSignOut ~ resp",
+        resp
+      );
       dispatch(logout());
+      handleCloseUserMenu();
+      navigate(PAGE_ROUTES.LOGIN);
     } catch (error) {
-    console.log("🚀 ~ file: Header.jsx ~ line 47 ~ handleSignOut ~ error", error)
+      console.log(
+        "🚀 ~ file: Header.jsx ~ line 47 ~ handleSignOut ~ error",
+        error
+      );
     }
   };
 
   return (
-    <AppBar position="static" sx={{ bgcolor: "#0075e7" }}>
+    <AppBar position="static" color="primary">
       <Container maxWidth="xl">
         <Toolbar disableGutters>
           {/* Normal view */}
           <Icon sx={{ display: { xs: "none", md: "flex" }, mr: 1 }}>
-            <img src="pageIcon.png" alt="" height={25} width={25} />
+            <img src="/pageIcon.png" alt="" height={25} width={25} />
           </Icon>
           <Typography
             variant="h6"
@@ -82,15 +90,17 @@ const Header = () => {
           <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
             {pages.map((page) => (
               <Button
-                key={page}
-                sx={{ my: 2, color: "white", display: "block" }}
+                key={page.text}
+                component={Link}
+                to={`${page.link}`}
+                sx={{
+                  my: 2,
+                  color: "white",
+                  display: "block",
+                  textDecoration: "none"
+                }}
               >
-                <Link
-                  style={{ textDecoration: "none", color: "white" }}
-                  to={`/${page}`}
-                >
-                  {page}
-                </Link>
+                {page.text}
               </Button>
             ))}
           </Box>
@@ -107,10 +117,10 @@ const Header = () => {
             }}
           >
             {user?.data?.name ? (
-              <Typography>Hi, {user.data.name}</Typography>
+              <Typography>Hi, {user?.data?.name}</Typography>
             ) : null}
 
-            <Tooltip title="Open settings">
+            <Tooltip title={`${user?.data ? "Open settings" : ""}`}>
               <IconButton
                 onClick={user?.data ? handleOpenUserMenu : handleAvatarClick}
                 sx={{ p: 0 }}
@@ -154,15 +164,13 @@ const Header = () => {
               onClose={handleCloseUserMenu}
             >
               {settings.map((setting) => (
-                <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                  <Typography textAlign="center">
-                    <Link
-                      style={{ textDecoration: "none", color: "black" }}
-                      to={`/${setting}`}
-                    >
-                      {setting}
-                    </Link>
-                  </Typography>
+                <MenuItem
+                  key={setting.link}
+                  component={Link}
+                  to={`${setting.link}`}
+                  onClick={handleCloseUserMenu}
+                >
+                  {setting.text}
                 </MenuItem>
               ))}
               <MenuItem onClick={() => handleSignOut()}>Logout</MenuItem>

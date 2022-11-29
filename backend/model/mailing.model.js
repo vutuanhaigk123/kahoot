@@ -42,8 +42,8 @@ export default {
     await sendEmail(mailMsg);
   },
 
-  async sendGroupInvitationEmail({ groupName, emails, token }) {
-    const invitationLink = `${env.DOMAIN}/mailing/group-invitation?token=${token}`;
+  async sendGroupInvitationEmail({ groupName, emails, token, groupId }) {
+    const invitationLink = `${env.DOMAIN}/group/join?id=${groupId}&token=${token}`;
     const personalization = { to: [], cc: [] };
     for (let i = 0; i < emails.length; i += 1) {
       const email = emails[i];

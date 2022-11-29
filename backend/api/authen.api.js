@@ -107,26 +107,40 @@ router.post("/google", async (req, res) => {
 
 router.post("/register", async (req, res) => {
   const { email, name, addr, password } = req.body;
-  if (!email || !name || !password || !addr) {
+  if (
+    !email ||
+    email.trim().length === 0 ||
+    !name ||
+    name.trim().length === 0 ||
+    !password ||
+    password.trim().length === 0 ||
+    !addr ||
+    addr.trim().length === 0
+  ) {
     return res.json({
       status: 400,
       message: "Missing fields"
     });
   }
-  if (!UserModel.isValidEmail(email)) {
+  if (!UserModel.isValidEmail(email.trim())) {
     return res.json({
       status: 422,
       message: "Invalid data"
     });
   }
-  const user = await UserModel.findByEmail(email);
+  const user = await UserModel.findByEmail(email.trim());
   if (user) {
     return res.json({
       status: -1,
       message: "Email is existed"
     });
   }
-  const result = await UserModel.create({ email, name, addr, password });
+  const result = await UserModel.create({
+    email: email.trim(),
+    name: name.trim(),
+    addr: addr.trim(),
+    password: password.trim()
+  });
   if (!result) {
     return res.json({
       status: 500

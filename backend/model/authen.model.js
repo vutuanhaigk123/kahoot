@@ -3,6 +3,7 @@
 /* eslint-disable import/extensions */
 /* eslint-disable no-console */
 import jwt from "jsonwebtoken";
+import SocketModel from "./socket.model.js";
 import env from "../utils/env.js";
 import CookieModel from "./cookie.model.js";
 import UserModel from "./user.model.js";
@@ -232,6 +233,9 @@ export default {
     if (refreshTokenData !== this.VALID_TOKEN) {
       return false;
     }
+
+    // remove websocket connection
+    SocketModel.removeSocketConn(accessTokenData.uid);
 
     // refresh token belongs to uid && uid must be exist in db
     const user = await UserModel.findById(accessTokenData.uid);

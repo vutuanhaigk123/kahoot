@@ -1,5 +1,5 @@
 /* eslint-disable no-undef */
-import { Box, Typography } from "@mui/material";
+import { Typography } from "@mui/material";
 import React from "react";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
@@ -11,47 +11,44 @@ import BasicForm from "./../components/form/BasicForm";
 import FormHeader from "./../components/form/FormHeader";
 import FormContent from "./../components/form/FormContent";
 import FormButton from "./../components/button/FormButton";
-import Popup from "../components/notification/Popup";
-import { googleScript, PAGE_ROUTES, SUBMIT_STATUS } from "../commons/constants";
+import PopupMsg from "../components/notification/PopupMsg";
+import { PAGE_ROUTES, SUBMIT_STATUS } from "../commons/constants";
 import { useDispatch } from "react-redux";
 import { login } from "../redux-toolkit/authSlice";
-import useScript from "./../hooks/useScript";
 import { API } from "./../commons/constants";
 import { useNavigate } from "react-router-dom";
+import { GoogleLogin } from "@react-oauth/google";
+import usePopup from "./../hooks/usePopup";
 
 const SignInPage = () => {
+  const { open, handleClosePopup, handleOpenPopup } = usePopup();
+
   // Google login
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  useScript(googleScript); //Load google script for button
-  React.useEffect(() => {
-    if (typeof window === "undefined" || !window.google) {
-      return;
-    }
-
-    console.log(process.env.REACT_APP_GG_APP_ID);
-    google.accounts.id.initialize({
-      client_id: process.env.REACT_APP_GG_APP_ID,
-      callback: handleCredentialResponse
-    });
-    google.accounts.id.renderButton(
-      document.getElementById("buttonDiv"),
-      { theme: "filled_blue", size: "medium", text: "continue_with" } // customization attributes
-    );
-    google.accounts.id.prompt(); // also display the One Tap dialog
-  });
 
   async function handleCredentialResponse(response) {
-    console.log("Encoded JWT ID token: " + response.credential);
-    const result = await axios.post("/api/authen/google", {
-      credential: response.credential
-    });
     console.log(
-      "🚀 ~ file: SignInPage.jsx ~ line 49 ~ handleCredentialResponse ~ result",
-      result
+      "🚀 ~ file: SignInPage.jsx ~ line 47 ~ handleCredentialResponse ~ response",
+      response
     );
-    dispatch(login(result.data));
-    navigate(PAGE_ROUTES.HOME);
+    console.log("Encoded JWT ID token: " + response.credential);
+    try {
+      const result = await axios.post("/api/authen/google", {
+        credential: response.credential
+      });
+      console.log(
+        "🚀 ~ file: SignInPage.jsx ~ line 49 ~ handleCredentialResponse ~ result",
+        result
+      );
+      dispatch(login(result.data.info));
+      navigate(PAGE_ROUTES.HOME);
+    } catch (error) {
+      console.log(
+        "🚀 ~ file: SignInPage.jsx ~ line 44 ~ handleCredentialResponse ~ error",
+        error
+      );
+    }
   }
 
   // Form
@@ -85,8 +82,9 @@ const SignInPage = () => {
           msg: "Login success"
         });
         // Store data
-        dispatch(login(resp.data));
+        dispatch(login(resp.data.data));
       }
+      handleOpenPopup();
     } catch (error) {
       console.log(
         "🚀 ~ file: SignInPage.jsx ~ line 90 ~ onSubmit ~ error",
@@ -97,9 +95,14 @@ const SignInPage = () => {
 
   return (
     <BasicForm>
-      {Object.keys(status).length > 0 ? (
-        <Popup type={status.type}>{status.msg}</Popup>
-      ) : null}
+      <PopupMsg
+        status={status.type}
+        isOpen={open}
+        handleClosePopup={handleClosePopup}
+        navigateTo={PAGE_ROUTES.HOME}
+      >
+        {status.msg}
+      </PopupMsg>
       <form onSubmit={handleSubmit(onSubmit)}>
         <FormHeader title="Sign in"></FormHeader>
         <FormContent>
@@ -123,16 +126,32 @@ const SignInPage = () => {
             name="password"
             control={control}
           />
-          <Typography variant="caption" align="center" sx={{ mt: 2 }}>
+          <Typography variant="caption" sx={{ m: 0, alignSelf: "start" }}>
             Don't have an account?{" "}
-            <Link to={PAGE_ROUTES.REGISTER} style={{ color: "#005ef6" }}>
+            <Typography
+              variant="inherit"
+              component={Link}
+              to={PAGE_ROUTES.REGISTER}
+              color="primary"
+            >
               Register
-            </Link>
+            </Typography>
           </Typography>
           {/* Login button */}
           <FormButton>Login</FormButton>
           {/* Continue as google */}
-          <Box align="center" id="buttonDiv" mt={2} width="100%"></Box>
+          <GoogleLogin
+            text="continue_with"
+            size="medium"
+            theme="outlined"
+            onSuccess={(credentialResponse) => {
+              console.log(credentialResponse);
+              handleCredentialResponse(credentialResponse);
+            }}
+            onError={() => {
+              console.log("Login Failed");
+            }}
+          ></GoogleLogin>
         </FormContent>
       </form>
     </BasicForm>

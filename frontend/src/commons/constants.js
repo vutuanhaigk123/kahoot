@@ -10,14 +10,46 @@ export const googleScript = "https://accounts.google.com/gsi/client";
 
 // Page routes
 export const PAGE_ROUTES = {
+  BASE: "http://localhost:3000",
   HOME: "/",
   LOGIN: "/sign-in",
-  REGISTER: "/sign-up"
+  REGISTER: "/sign-up",
+  VERIFY_EMAIL: "/mailing/verify-email",
+  GROUP: "/group",
+  PROFILE: "/profile",
+  GROUP_DETAIL: "/group/:id",
+  JOIN: "/group/join"
 };
 
 // API
 export const API = {
   LOGOUT: "/api/authen/logout",
   LOGIN: "/api/authen/login",
-  REGISTER: "/api/authen/register"
+  REGISTER: "/api/authen/register",
+  VERIFY_EMAIL: "/api/authen/verify",
+  CREATE_GROUP: "/api/group/create",
+  CREATED_GROUP: "/api/group/created-groups",
+  JOINED_GROUP: "/api/group/joined-groups",
+  PROFILE: "/api/user/profile",
+  CHANGE_PASSWORD: "/api/user/password",
+  GROUP_DETAIL: "/api/group",
+  JOIN: "/api/group/join",
+  GROUP_INVITE_EMAIL: "/api/group/send-invitation",
+  MEMBER_UPDATE: "/api/group/update-member",
+  RE_SEND_VERIFY_EMAIL: "/api/authen/send-verify-link"
+};
+
+// Group role
+export const ROLE = {
+  owner: 0,
+  co_owner: 1,
+  member: 2,
+  kick: -1
+};
+
+export const NUM_TO_ROLE = {
+  0: "Owner",
+  1: "Co-owner",
+  2: "Member",
+  "-1": "Kick"
 };
