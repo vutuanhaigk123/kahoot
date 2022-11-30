@@ -14,7 +14,7 @@ import ChangePassForm from "./../components/form/ChangePassForm";
 const ProfilePage = () => {
   const [value, setValue] = React.useState("1");
 
-  const handleChange = (newValue) => {
+  const handleChange = (event, newValue) => {
     setValue(newValue);
   };
 
