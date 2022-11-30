@@ -1,5 +1,5 @@
 import React from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
@@ -19,11 +19,17 @@ const pages = [{ link: PAGE_ROUTES.GROUP, text: "Group" }];
 const settings = [{ link: PAGE_ROUTES.PROFILE, text: "Profile" }];
 
 const Header = () => {
+  const { pathname } = useLocation();
+  console.log("🚀 ~ file: Header.jsx:23 ~ Header ~ pathname", pathname);
   const navigate = useNavigate();
   const { user } = useSelector((state) => state?.auth);
+  console.log("🚀 ~ file: Header.jsx:25 ~ Header ~ user", user);
   const dispatch = useDispatch();
-  console.log("🚀 ~ file: Header.jsx ~ line 22 ~ Header ~ user", user);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
+
+  React.useEffect(() => {
+    handleCloseUserMenu();
+  }, [pathname]);
 
   const handleAvatarClick = React.useCallback(
     () => navigate(PAGE_ROUTES.LOGIN),
@@ -46,8 +52,8 @@ const Header = () => {
         resp
       );
       dispatch(logout());
-      handleCloseUserMenu();
       navigate(PAGE_ROUTES.LOGIN);
+      handleCloseUserMenu();
     } catch (error) {
       console.log(
         "🚀 ~ file: Header.jsx ~ line 47 ~ handleSignOut ~ error",

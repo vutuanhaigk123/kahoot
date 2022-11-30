@@ -8,7 +8,7 @@ export const SUBMIT_STATUS = { ERROR: "error", SUCCESS: "success" };
 
 export const googleScript = "https://accounts.google.com/gsi/client";
 
-let DOMAIN = process.env.REACT_APP_BACKEND_DOMAIN_DEV;
+let DOMAIN = process.env.REACT_APP_FRONTEND_DOMAIN_DEV;
 if (!window.location.hostname.includes("localhost")) {
   DOMAIN = process.env.REACT_APP_BACKEND_DOMAIN;
 }

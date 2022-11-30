@@ -3,24 +3,18 @@ import BackgroundContainer from "../components/misc/BackgroundContainer";
 import { Box, Tab } from "@mui/material";
 import { TabContext, TabPanel } from "@mui/lab";
 import { TabList } from "@mui/lab";
-import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
-import { API, PAGE_ROUTES } from "../commons/constants";
+import { useDispatch } from "react-redux";
+import { API } from "../commons/constants";
 import EditProfileForm from "./../components/form/EditProfileForm";
 import { useQuery } from "react-query";
 import { handleGet } from "../utils/fetch";
 import { update } from "../redux-toolkit/authSlice";
 import ChangePassForm from "./../components/form/ChangePassForm";
 
-const tab = [
-  { label: "Edit profile", value: "1" },
-  { label: "Change password", value: "2" }
-];
-
 const ProfilePage = () => {
   const [value, setValue] = React.useState("1");
 
-  const handleChange = (event, newValue) => {
+  const handleChange = (newValue) => {
     setValue(newValue);
   };
 

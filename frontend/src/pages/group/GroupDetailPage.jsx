@@ -40,7 +40,7 @@ const GroupDetailPage = () => {
   const { user } = useSelector((state) => state.auth);
   const { id: groupId } = useParams();
   const { open, handleClosePopup, handleOpenPopup } = usePopup();
-  const { isLoading, error, data } = useQuery("group_detail", () =>
+  const { isLoading, error, data, refetch } = useQuery("group_detail", () =>
     handleGet(API.GROUP_DETAIL + `/${groupId}`)
   );
   const [rowId, setRowId] = React.useState(null);
@@ -88,17 +88,16 @@ const GroupDetailPage = () => {
       renderCell: (params) => {
         if (params.row.role === ROLE.owner || params.row._id === user.data.id)
           return null;
-        else return <UsersActions {...{ params, rowId, setRowId, groupId }} />;
+        else
+          return (
+            <UsersActions {...{ params, rowId, setRowId, groupId, refetch }} />
+          );
       },
       hide: userRole === ROLE.member
     }
   ];
 
   if (error) return "An error has occurred: " + error.message;
-  console.log(
-    "🚀 ~ file: GroupDetailPage.jsx ~ line 43 ~ GroupDetailPage ~ data",
-    data
-  );
 
   if (isLoading)
     return (
@@ -174,9 +173,9 @@ const GroupDetailPage = () => {
   }
 };
 
-const UsersActions = ({ params, rowId, setRowId, groupId }) => {
-  const [loading, setLoading] = React.useState(false);
+const UsersActions = ({ params, rowId, setRowId, groupId, refetch }) => {
   const [success, setSuccess] = React.useState(false);
+  const [loading, setLoading] = React.useState(false);
 
   const handleSubmit = async () => {
     setLoading(true);
@@ -198,6 +197,7 @@ const UsersActions = ({ params, rowId, setRowId, groupId }) => {
     if (resp) {
       setSuccess(true);
       setRowId(null);
+      refetch();
     }
 
     setLoading(false);

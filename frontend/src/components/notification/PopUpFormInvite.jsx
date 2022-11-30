@@ -3,7 +3,6 @@ import BasicButton from "./../button/BasicButton";
 import {
   Button,
   Dialog,
-  DialogTitle,
   Typography,
   DialogActions,
   TextField,
@@ -15,11 +14,8 @@ import { CopyToClipboard } from "react-copy-to-clipboard";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
-import axios from "axios";
 import { API, SUBMIT_STATUS } from "../../commons/constants";
-import TextBox from "./../input/TextBox";
 import { RemoveCircle } from "@mui/icons-material";
-import { width } from "@mui/system";
 import { handlePost } from "./../../utils/fetch";
 import usePopup from "./../../hooks/usePopup";
 import PopupMsg from "./PopupMsg";
