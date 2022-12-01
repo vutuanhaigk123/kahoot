@@ -6,10 +6,10 @@ import {
   Typography
 } from "@mui/material";
 import React from "react";
-import BackgroundContainer from "../components/misc/BackgroundContainer";
+import BackgroundContainer from "../../components/misc/BackgroundContainer";
 import { Link, useSearchParams } from "react-router-dom";
 import axios from "axios";
-import { API, PAGE_ROUTES } from "../commons/constants";
+import { API, PAGE_ROUTES } from "../../commons/constants";
 import MailIcon from "@mui/icons-material/Mail";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CancelIcon from "@mui/icons-material/Cancel";

@@ -2,7 +2,7 @@ import React from "react";
 import BackgroundContainer from "../../components/misc/BackgroundContainer";
 import BasicButton from "../../components/button/BasicButton";
 import { Box, Grid, Paper, Tab, Typography } from "@mui/material";
-import { AddCircle, Group as GroupIcon } from "@mui/icons-material";
+import { AddCircle } from "@mui/icons-material";
 import BasicCard from "../../components/card/BasicCard";
 import PopupForm from "../../components/notification/PopupForm";
 import usePopup from "../../hooks/usePopup";

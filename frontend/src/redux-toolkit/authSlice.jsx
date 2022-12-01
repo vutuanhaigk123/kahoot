@@ -1,23 +1,24 @@
 import { createSlice } from "@reduxjs/toolkit";
 
+// Structure
+// data: {
+//   id: null,
+//   email: null,
+//   name: null,
+//   addr: null,
+//   picture: null
+// },
+// token: {
+//   accessToken: null,
+//   refreshToken: null
+// },
+// provider: null,
+// status: null
+
 const authSlice = createSlice({
   name: "auth",
   initialState: {
-    user: {
-      data: {
-        id: null,
-        email: null,
-        name: null,
-        addr: null,
-        picture: null
-      },
-      token: {
-        accessToken: null,
-        refreshToken: null
-      },
-      provider: null,
-      status: null
-    }
+    user: {}
   },
   reducers: {
     login: (state, { payload }) => ({

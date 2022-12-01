@@ -4,7 +4,6 @@ import {
   Dialog,
   DialogContent,
   DialogTitle,
-  Typography,
   DialogActions
 } from "@mui/material";
 import * as yup from "yup";

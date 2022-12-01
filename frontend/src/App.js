@@ -27,19 +27,19 @@ const BasicLayout = lazy(() =>
 );
 const SignupPage = lazy(() =>
   Promise.all([
-    import("./pages/SignUpPage.jsx"),
+    import("./pages/authen/SignUpPage.jsx"),
     new Promise((resolve) => setTimeout(resolve, DELAY_TIME))
   ]).then(([module]) => module)
 );
 const SignInPage = lazy(() =>
   Promise.all([
-    import("./pages/SignInPage.jsx"),
+    import("./pages/authen/SignInPage.jsx"),
     new Promise((resolve) => setTimeout(resolve, DELAY_TIME))
   ]).then(([module]) => module)
 );
 const VerifyEmailPage = lazy(() =>
   Promise.all([
-    import("./pages/VerifyEmailPage.jsx"),
+    import("./pages/authen/VerifyEmailPage.jsx"),
     new Promise((resolve) => setTimeout(resolve, DELAY_TIME))
   ]).then(([module]) => module)
 );

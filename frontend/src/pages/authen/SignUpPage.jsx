@@ -4,16 +4,16 @@ import { useForm } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import axios from "axios";
-import TextBox from "../components/input/TextBox";
+import TextBox from "../../components/input/TextBox";
 import { Link } from "react-router-dom";
-import BasicForm from "../components/form/BasicForm";
-import FormHeader from "./../components/form/FormHeader";
-import FormContent from "./../components/form/FormContent";
-import FormButton from "./../components/button/FormButton";
-import { PAGE_ROUTES, SUBMIT_STATUS } from "../commons/constants";
-import PopupMsg from "../components/notification/PopupMsg";
-import { API } from "./../commons/constants";
-import usePopup from "./../hooks/usePopup";
+import BasicForm from "../../components/form/BasicForm";
+import FormHeader from "../../components/form/FormHeader";
+import FormContent from "../../components/form/FormContent";
+import FormButton from "../../components/button/FormButton";
+import { PAGE_ROUTES, SUBMIT_STATUS } from "../../commons/constants";
+import PopupMsg from "../../components/notification/PopupMsg";
+import { API } from "../../commons/constants";
+import usePopup from "../../hooks/usePopup";
 
 function SignupPage() {
   const { open, handleClosePopup, handleOpenPopup } = usePopup();
