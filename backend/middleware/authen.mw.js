@@ -33,12 +33,18 @@ export default {
       default:
         if (isExpired || data.exp - Date.now() / 1000 <= FIVE_MINS_LEFT) {
           // renew token
-          const { accessToken, refreshToken } =
-            await AuthModel.renewAccessToken(
-              data.uid,
-              accessTok,
-              CookieModel.getRefreshToken(req.cookies)
-            );
+          const tokens = await AuthModel.renewAccessToken(
+            data.uid,
+            accessTok,
+            CookieModel.getRefreshToken(req.cookies)
+          );
+          if (!tokens) {
+            return res.json({
+              code: 400,
+              message: "Invalid access token"
+            });
+          }
+          const { accessToken, refreshToken } = tokens;
           if (accessToken && refreshToken) {
             CookieModel.setToken(res, CookieModel.ACCESS_TOKEN, accessToken);
             CookieModel.setToken(res, CookieModel.REFRESH_TOKEN, refreshToken);

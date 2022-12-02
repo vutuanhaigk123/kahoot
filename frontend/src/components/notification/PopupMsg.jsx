@@ -18,7 +18,8 @@ const PopupMsg = ({
   status,
   isOpen,
   handleClosePopup,
-  navigateTo
+  navigateTo,
+  hasOk = true
 }) => {
   const navigate = useNavigate();
 
@@ -62,9 +63,13 @@ const PopupMsg = ({
 
         <Typography variant="h6">{children}</Typography>
         <DialogActions>
-          <Button variant="contained" onClick={handleClose}>
-            Ok
-          </Button>
+          {hasOk ? (
+            <Button variant="contained" onClick={handleClose}>
+              Ok
+            </Button>
+          ) : (
+            ""
+          )}
         </DialogActions>
       </Box>
     </Dialog>

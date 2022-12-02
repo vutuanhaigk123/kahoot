@@ -15,15 +15,19 @@ import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../redux-toolkit/authSlice";
 import { API, PAGE_ROUTES } from "../commons/constants";
 
-const pages = [{ link: PAGE_ROUTES.GROUP, text: "Group" }];
+const pages = [
+  { link: PAGE_ROUTES.GROUP, text: "Group" },
+  { link: PAGE_ROUTES.PRESENT_OWNER, text: "Owner present" },
+  { link: PAGE_ROUTES.PRESENT_PLAYER, text: "Player play" }
+];
 const settings = [{ link: PAGE_ROUTES.PROFILE, text: "Profile" }];
 
 const Header = () => {
   const { pathname } = useLocation();
-  console.log("🚀 ~ file: Header.jsx:23 ~ Header ~ pathname", pathname);
+
   const navigate = useNavigate();
   const { user } = useSelector((state) => state?.auth);
-  console.log("🚀 ~ file: Header.jsx:25 ~ Header ~ user", user);
+
   const dispatch = useDispatch();
   const [anchorElUser, setAnchorElUser] = React.useState(null);
 
@@ -47,10 +51,7 @@ const Header = () => {
   const handleSignOut = async (e) => {
     try {
       const resp = await axios.post(API.LOGOUT);
-      console.log(
-        "🚀 ~ file: Header.jsx ~ line 44 ~ handleSignOut ~ resp",
-        resp
-      );
+
       dispatch(logout());
       navigate(PAGE_ROUTES.LOGIN);
       handleCloseUserMenu();

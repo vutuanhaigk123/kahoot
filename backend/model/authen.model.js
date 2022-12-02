@@ -112,7 +112,7 @@ export default {
     }
     // TO_DO: check if refresh token is valid (use jwt.verify and check data inside)
     const isValid = this.verifyRefreshToken(refreshTok, accessTok, userId);
-    if (isValid !== this.VALID_TOKEN) {
+    if (isValid === this.INVALID_TOKEN) {
       return null;
     }
 

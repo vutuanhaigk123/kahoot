@@ -78,14 +78,20 @@ export default async (path, ws) => {
 
     await sendInitData(socket);
 
+    const { room } = socket.request._query;
+    const userId = getUidFromWs(socket);
+
+    socket.on(EventModel.SUBMIT_CHOICE, (arg) => {
+      console.log(arg);
+      MatchModel.makeChoice(userId, room, "question1", arg, ws);
+    });
+
     socket.on("error", (err) => {
       SocketModel.removeSocketConn(getUidFromWs(socket));
     });
 
     socket.conn.on("close", (reason) => {
-      const { room } = socket.request._query;
       socket.leave(room);
-      const userId = getUidFromWs(socket);
       MatchModel.leaveLobby(userId, room, ws);
       SocketModel.removeSocketConn(userId);
       console.log("closed");

@@ -1,3 +1,4 @@
+/* eslint-disable consistent-return */
 /* eslint-disable import/extensions */
 /* eslint-disable no-console */
 import HashMap from "hashmap";
@@ -78,10 +79,7 @@ const matches = new HashMap();
       }],
       answers: [{
         id: question id,
-        data: HashMap<uid, {
-          uid: user id,
-          ans: answer id
-        }>
+        data: HashMap<uid, answer id>
       }]
       
     }
@@ -104,11 +102,36 @@ function initMatch(roomId, ownerId, questions) {
     roomId,
     members: [],
     curState: STATE_LOBBY_CODE,
-    curQues: -1,
+    curQues: "question1", // value for test
     owner: ownerId,
     questions,
     answers: []
   };
+}
+
+function hasQuestion(questions, questionId) {
+  if (!questions || !questions.length) {
+    return -1;
+  }
+  return questions.findIndex((question) => question.id === questionId);
+}
+
+function isAnswerValid(answers, answerId) {
+  if (!answers || !answers.length) {
+    return false;
+  }
+  return answers.findIndex((answer) => answer.id === answerId) !== -1;
+}
+
+function getQuestion(questions, questionId) {
+  if (!questions || !questions.length) {
+    return null;
+  }
+  const index = questions.findIndex((question) => question.id === questionId);
+  if (index === -1) {
+    return null;
+  }
+  return questions[index];
 }
 
 export default {
@@ -162,10 +185,13 @@ export default {
         data = [data[0], data[1], data[2]];
       }
     }
-
+    const curQues = getQuestion(matchInfo.questions, matchInfo.curQues);
+    if (curQues) {
+      delete curQues.true_ans;
+    }
     return {
       curState: matchInfo.curState,
-      curQues: matchInfo.curQues,
+      curQues,
       data,
       joinedUser
     };
@@ -188,6 +214,50 @@ export default {
         roomId,
         EventModel.EXIT_ROOM,
         { id: userId },
+        ws
+      );
+    }
+  },
+
+  makeChoice(userId, roomId, questionId, choiceId, ws) {
+    const matchInfo = matches.get(roomId);
+    if (matchInfo && matchInfo.curState === STATE_LOBBY_CODE) {
+      const questionIndex = hasQuestion(matchInfo.questions, questionId);
+      if (questionIndex === -1) {
+        return console.log("Khong co question nay");
+      }
+      if (matchInfo.curQues !== questionId) {
+        return console.log("Khac current question:");
+      }
+      const index = matchInfo.answers.findIndex(
+        (answer) => answer.id === questionId
+      );
+      let ans = null;
+      if (index === -1) {
+        ans = { id: questionId, data: new HashMap() };
+        matchInfo.answers.push(ans);
+      }
+      if (!ans) {
+        ans = matchInfo.answers[index];
+      }
+
+      if (
+        !isAnswerValid(matchInfo.questions[questionIndex].answers, choiceId)
+      ) {
+        return console.log("Khong co choiceId nay");
+      }
+
+      const isAnswered = ans.data.get(userId);
+      if (isAnswered) {
+        return console.log("Da answered roi");
+      }
+      ans.data.set(userId, choiceId);
+
+      SocketModel.sendBroadcastRoom(
+        userId,
+        roomId,
+        EventModel.RECEIVE_CHOICE,
+        { id: userId, choiceId },
         ws
       );
     }

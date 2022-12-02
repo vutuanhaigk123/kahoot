@@ -23,7 +23,9 @@ export const PAGE_ROUTES = {
   GROUP: "/group",
   PROFILE: "/profile",
   GROUP_DETAIL: "/group/:id",
-  JOIN: "/group/join"
+  JOIN: "/group/join",
+  PRESENT_OWNER: "/presentation/owner/id",
+  PRESENT_PLAYER: "/presentation/id"
 };
 
 // API
