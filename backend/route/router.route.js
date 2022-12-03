@@ -5,6 +5,7 @@ import apiTest from "../api/test.api.js";
 import apiAuth from "../api/authen.api.js";
 import apiGroup from "../api/group.api.js";
 import apiUser from "../api/user.api.js";
+import apiPresentation from "../api/presentation.api.js";
 
 import authRoute from "./authen.route.js";
 import matchRoute from "./match.route.js";
@@ -19,6 +20,7 @@ export default (app, ws, __dirname) => {
   app.use("/api/authen/", apiAuth);
   app.use("/api/group", apiGroup);
   app.use("/api/user", apiUser);
+  app.use("/api/presentation", apiPresentation);
 
   // Served react route
 
