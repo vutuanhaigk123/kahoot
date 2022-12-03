@@ -111,6 +111,9 @@ const Panel = ({ value, data, formType, refetch }) => {
             isOpen={open}
             handleClose={handleClosePopup}
             refetch={refetch}
+            api={API.CREATE_GROUP}
+            header="What will we call your group ?"
+            label="Group's name"
           ></PopupForm>
         ) : null}
 
