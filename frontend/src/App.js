@@ -54,7 +54,7 @@ const ProfilePage = lazy(() =>
 );
 const GroupDetailPage = lazy(() =>
   Promise.all([
-    import("./pages/group/GroupDetailPage.jsx"),
+    import("./pages/group/group-detail/GroupDetailPage.jsx"),
     new Promise((resolve) => setTimeout(resolve, DELAY_TIME))
   ]).then(([module]) => module)
 );
@@ -73,6 +73,13 @@ const PresentationOwnerPage = lazy(() =>
 const PresentationPlayerPage = lazy(() =>
   Promise.all([
     import("./pages/presentation/PresentationPlayerPage.jsx"),
+    new Promise((resolve) => setTimeout(resolve, DELAY_TIME))
+  ]).then(([module]) => module)
+);
+
+const SlidesEdit = lazy(() =>
+  Promise.all([
+    import("./pages/group/slides/SlidesEditPage.jsx"),
     new Promise((resolve) => setTimeout(resolve, DELAY_TIME))
   ]).then(([module]) => module)
 );
@@ -163,6 +170,14 @@ function App() {
             element={
               <Protected isLoggedIn={user?.data} isStopWhenLogon={false}>
                 <PresentationPlayerPage />
+              </Protected>
+            }
+          />
+          <Route
+            path={PAGE_ROUTES.SLIDES_EDIT}
+            element={
+              <Protected isLoggedIn={user?.data} isStopWhenLogon={false}>
+                <SlidesEdit />
               </Protected>
             }
           />

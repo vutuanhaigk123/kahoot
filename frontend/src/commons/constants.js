@@ -25,7 +25,9 @@ export const PAGE_ROUTES = {
   GROUP_DETAIL: "/group/:id",
   JOIN: "/group/join",
   PRESENT_OWNER: "/presentation/owner/id",
-  PRESENT_PLAYER: "/presentation/id"
+  PRESENT_PLAYER: "/presentation/id",
+  SLIDES: "/slides",
+  SLIDES_EDIT: "/slides/:id"
 };
 
 // API

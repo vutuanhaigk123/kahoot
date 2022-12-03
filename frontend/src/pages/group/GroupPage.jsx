@@ -147,7 +147,11 @@ const Panel = ({ value, data, formType, refetch }) => {
         </Paper>
         {/* Add group button */}
         {formType === FormType.CREATE ? (
-          <BasicButton onClick={handleOpenPopup} icon={<AddCircle />}>
+          <BasicButton
+            sx={{ width: "30%", m: "auto", boxShadow: 4 }}
+            onClick={handleOpenPopup}
+            icon={<AddCircle />}
+          >
             Create group
           </BasicButton>
         ) : null}

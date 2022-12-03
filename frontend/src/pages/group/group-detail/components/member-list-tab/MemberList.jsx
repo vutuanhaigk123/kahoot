@@ -1,27 +1,23 @@
-import {
-  Avatar,
-  Box,
-  CircularProgress,
-  Fab,
-  Paper,
-  Typography
-} from "@mui/material";
-import React from "react";
-import { useParams } from "react-router-dom";
-import BackgroundContainer from "../../components/misc/BackgroundContainer";
-import BasicButton from "../../components/button/BasicButton";
-import { Group as GroupIcon, Check, Save } from "@mui/icons-material";
+import { Avatar, Box, Paper, Typography } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
+import React from "react";
 import { useQuery } from "react-query";
-import { API, PAGE_ROUTES, ROLE } from "../../commons/constants";
-import { handleGet } from "../../utils/fetch";
-import usePopup from "../../hooks/usePopup";
-import PopupFormInvite from "../../components/notification/PopUpFormInvite";
-import { handlePost } from "../../utils/fetch";
+import { useParams } from "react-router-dom";
+import {
+  API,
+  NUM_TO_ROLE,
+  PAGE_ROUTES,
+  ROLE
+} from "../../../../../commons/constants";
+import usePopup from "../../../../../hooks/usePopup";
+import { handleGet } from "../../../../../utils/fetch";
+import PopupFormInvite from "../../../../../components/notification/PopUpFormInvite";
+import Loading from "../../../../../components/Loading";
 import { useSelector } from "react-redux";
-import { NUM_TO_ROLE } from "./../../commons/constants";
-import NotFound from "../NotFound";
-import Loading from "../../components/Loading";
+import NotFound from "../../../../NotFound";
+import UsersActions from "./UsersActions";
+import BasicButton from "../../../../../components/button/BasicButton";
+import { Group } from "@mui/icons-material";
 
 const getUserRole = (uid, members) => {
   for (const member of members) {
@@ -36,15 +32,17 @@ const checkOwnerRole = (userRole) => {
   return userRole === ROLE.owner || userRole === ROLE.co_owner;
 };
 
-const GroupDetailPage = () => {
+const MemberList = () => {
   const { user } = useSelector((state) => state.auth);
-  const { id: groupId } = useParams();
   const { open, handleClosePopup, handleOpenPopup } = usePopup();
+  const { id: groupId } = useParams();
+  const [rowId, setRowId] = React.useState(null);
+  const [userRole, setUserRole] = React.useState(-1);
+
+  // Fetch data
   const { isLoading, error, data, refetch } = useQuery("group_detail", () =>
     handleGet(API.GROUP_DETAIL + `/${groupId}`)
   );
-  const [rowId, setRowId] = React.useState(null);
-  const [userRole, setUserRole] = React.useState(-1);
 
   React.useEffect(() => {
     if (data?.info && data?.info?.members) {
@@ -53,6 +51,11 @@ const GroupDetailPage = () => {
     }
   }, [data?.info, data?.info?.members, user?.data?.id]);
 
+  if (error) return "An error has occurred: " + error.message;
+
+  if (data?.info === null) return <NotFound />;
+
+  // Data grid column setup
   const columns = [
     {
       field: "photoURL",
@@ -97,28 +100,12 @@ const GroupDetailPage = () => {
     }
   ];
 
-  if (error) return "An error has occurred: " + error.message;
-
-  if (isLoading)
-    return (
-      <BackgroundContainer>
+  return (
+    <>
+      {isLoading ? (
         <Loading />
-      </BackgroundContainer>
-    );
-  else {
-    return data?.info === null ? (
-      <NotFound />
-    ) : (
-      <BackgroundContainer>
-        <Box
-          sx={{
-            margin: "auto",
-            width: "40%",
-            gap: 2,
-            display: "flex",
-            flexDirection: "column"
-          }}
-        >
+      ) : (
+        <>
           {/* Popup form */}
           <PopupFormInvite
             isOpen={open}
@@ -131,15 +118,15 @@ const GroupDetailPage = () => {
             sx={{
               display: "flex",
               alignItems: "center",
-              justifyContent: "space-between"
+              justifyContent: "space-between",
+              mb: 2
             }}
           >
             <Typography variant="h4">{data?.info?.name}</Typography>
             {checkOwnerRole(userRole) ? (
               <BasicButton
-                margin="0"
-                width="15%"
-                icon={<GroupIcon />}
+                sx={{ minWidth: "100px", boxShadow: 4 }}
+                icon={<Group />}
                 onClick={handleOpenPopup}
               >
                 Invite
@@ -167,93 +154,10 @@ const GroupDetailPage = () => {
               rowHeight={70}
             />
           </Paper>
-        </Box>
-      </BackgroundContainer>
-    );
-  }
-};
-
-const UsersActions = ({ params, rowId, setRowId, groupId, refetch }) => {
-  const [success, setSuccess] = React.useState(false);
-  const [loading, setLoading] = React.useState(false);
-
-  const handleSubmit = async () => {
-    setLoading(true);
-
-    // Get the data
-    var updatedData = {};
-    const { _id, role } = params.row;
-    const members = [{ id: _id, role }];
-    updatedData.members = JSON.stringify(members);
-    updatedData.groupId = groupId;
-
-    // Post the data
-    const resp = await handlePost(API.MEMBER_UPDATE, updatedData);
-    console.log(
-      "🚀 ~ file: GroupDetailPage.jsx ~ line 170 ~ handleSubmit ~ resp",
-      resp
-    );
-
-    if (resp) {
-      setSuccess(true);
-      setRowId(null);
-      refetch();
-    }
-
-    setLoading(false);
-  };
-
-  React.useEffect(() => {
-    if (rowId === params.id && success) setSuccess(false);
-  }, [params.id, rowId, success]);
-
-  return (
-    <Box
-      sx={{
-        m: 1,
-        position: "relative",
-        cursor: "pointer"
-      }}
-    >
-      {success ? (
-        <Fab
-          color="primary"
-          sx={{
-            width: 40,
-            height: 40,
-            bgcolor: "success.main",
-            "&:hover": { bgcolor: "success.light" }
-          }}
-        >
-          <Check />
-        </Fab>
-      ) : (
-        <Fab
-          color="primary"
-          sx={{
-            width: 40,
-            height: 40
-          }}
-          disabled={params.id !== rowId || loading}
-          onClick={handleSubmit}
-        >
-          <Save />
-        </Fab>
+        </>
       )}
-      {loading && (
-        <CircularProgress
-          size={52}
-          sx={{
-            color: "success.main",
-            position: "absolute",
-            top: -6,
-            left: -6,
-            zIndex: 1
-          }}
-        />
-      )}
-    </Box>
+    </>
   );
 };
 
-export default GroupDetailPage;
+export default MemberList;
