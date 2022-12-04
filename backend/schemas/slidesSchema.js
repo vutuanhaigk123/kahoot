@@ -6,10 +6,12 @@ const Slides = new Schema(
     _id: String,
     presentationId: String,
     question: String,
+    type: Number,
     answers: [
       {
         _id: String,
-        des: String
+        des: String,
+        choiceUids: [String]
       }
     ]
   },

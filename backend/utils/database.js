@@ -23,6 +23,10 @@ export const ROLE = {
   kick: -1
 };
 
+export const SLIDE_TYPE = {
+  multiple_choice: 0
+};
+
 export function isValidRole(role) {
   switch (role) {
     case ROLE.owner:

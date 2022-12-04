@@ -7,6 +7,7 @@ import express from "express";
 import AuthenMw from "../middleware/authen.mw.js";
 import AuthenModel from "../model/authen.model.js";
 import PresentationModel from "../model/presentation.model.js";
+import SlideModel from "../model/slide.model.js";
 
 const router = express.Router();
 
@@ -81,6 +82,35 @@ router.post("/update", async (req, res) => {
   });
 });
 
+router.post("/delete", async (req, res) => {
+  const { presentationId } = req.body;
+  const ownerId = AuthenModel.getUidFromReq(req);
+
+  if (!presentationId || presentationId.trim().length === 0) {
+    return res.json({
+      status: 400,
+      message: "Invalid fields"
+    });
+  }
+
+  const presentation = await PresentationModel.findByIdAndOwnerId(
+    presentationId,
+    ownerId
+  );
+  if (!presentation) {
+    return res.json({
+      status: 404,
+      message: "Not found presentationId"
+    });
+  }
+
+  PresentationModel.delete(ownerId, presentationId, presentation.slides);
+
+  return res.json({
+    status: 0
+  });
+});
+
 router.get("/", AuthenMw.stopWhenNotLogon, async (req, res) => {
   const ownerId = AuthenModel.getUidFromReq(req);
   if (!ownerId) {
@@ -93,6 +123,54 @@ router.get("/", AuthenMw.stopWhenNotLogon, async (req, res) => {
   return res.json({
     status: 0,
     info: presentation
+  });
+});
+
+router.get("/:id", AuthenMw.stopWhenNotLogon, async (req, res) => {
+  const presentationId = req.params.id;
+  const ownerId = AuthenModel.getUidFromReq(req);
+  if (!ownerId) {
+    return {
+      status: 400,
+      message: "Invalid access token"
+    };
+  }
+  const presentation = await PresentationModel.findByIdAndOwnerId(
+    presentationId,
+    ownerId
+  );
+  if (!presentation) {
+    return res.json({
+      status: 404,
+      message: "You do not have this content"
+    });
+  }
+  const slides = await SlideModel.getSlides(presentation.slides);
+  const slidesRes = [];
+  slides.forEach((slide) => {
+    const answersRes = [];
+    slide.answers.forEach((answer) => {
+      answersRes.push({
+        _id: answer._id,
+        des: answer.des,
+        total: answer.choiceUids.length
+      });
+    });
+    slidesRes.push({
+      _id: slide._id,
+      question: slide.question,
+      type: slide.type,
+      answers: answersRes
+    });
+  });
+
+  return res.json({
+    status: 0,
+    info: {
+      _id: presentation._id,
+      title: presentation.title,
+      slides: slidesRes
+    }
   });
 });
 
