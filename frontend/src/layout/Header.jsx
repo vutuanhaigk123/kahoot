@@ -64,7 +64,7 @@ const Header = () => {
   };
 
   return (
-    <AppBar position="static" color="primary">
+    <AppBar position="static" color="primary" sx={{ zIndex: 2 }}>
       <Container maxWidth="xl">
         <Toolbar disableGutters>
           {/* Normal view */}
