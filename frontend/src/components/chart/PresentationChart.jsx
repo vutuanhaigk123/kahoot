@@ -22,7 +22,7 @@ const PresentationChart = ({ data }) => {
         }}
       >
         <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="name" />
+        <XAxis dataKey="des" />
         <YAxis />
         <Tooltip />
 

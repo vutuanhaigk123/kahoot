@@ -1,16 +1,17 @@
-import { Paper } from "@mui/material";
+import { Paper, Typography } from "@mui/material";
 import { grey } from "@mui/material/colors";
 import React from "react";
 import BasicButton from "../../../../components/button/BasicButton";
 import { AddCircle } from "@mui/icons-material";
-import PopupForm from "../../../../components/notification/PopupForm";
 import usePopup from "../../../../hooks/usePopup";
+import { useSelector } from "react-redux";
+import CreateSlideForm from "./CreateSlideForm";
 
-const SideBar = () => {
+const SideBar = ({ refetch, setSlideIndex, slideIndex }) => {
   const { open, handleOpenPopup, handleClosePopup } = usePopup();
 
-  // To-do
-  // React query lấy dữ liệu
+  // Get data from redux store
+  const data = useSelector((state) => state.presentation);
 
   return (
     <Paper
@@ -23,29 +24,37 @@ const SideBar = () => {
         textAlign: "center"
       }}
     >
-      {/* Item */}
-      <Paper
-        sx={{
-          width: "80%",
-          height: "20%",
-          m: "auto",
-          border: 1,
-          borderColor: grey[400],
-          mb: 2
-        }}
-      ></Paper>
+      {/* Item list */}
+      {data._id
+        ? data.slides.map((slide, index) => (
+            <Paper
+              key={slide._id}
+              onClick={() => setSlideIndex(index)}
+              sx={{
+                width: "80%",
+                height: "20%",
+                m: "auto",
+                border: index !== slideIndex ? 1 : 3,
+                mb: 2,
+                display: "flex",
+                cursor: "pointer",
+                borderColor: index !== slideIndex ? grey[400] : "primary.main"
+              }}
+            >
+              <Typography m="auto">{slide.question}</Typography>
+            </Paper>
+          ))
+        : null}
+
       {/* Add slide button */}
       <BasicButton onClick={handleOpenPopup} icon={<AddCircle />} fullWidth>
         Add slide
       </BasicButton>
-      <PopupForm
+      <CreateSlideForm
         isOpen={open}
         handleClose={handleClosePopup}
-        // refetch={refetch}
-        // api={API.CREATE_GROUP}
-        header="Please enter your slide's question"
-        label="Slide's question"
-      ></PopupForm>
+        refetch={refetch}
+      ></CreateSlideForm>
     </Paper>
   );
 };

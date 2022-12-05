@@ -48,7 +48,9 @@ export const API = {
   RE_SEND_VERIFY_EMAIL: "/api/authen/send-verify-link",
   PRESENTATION_LIST: "/api/presentation",
   CREATE_PRESENTAION: "/api/presentation/create",
-  DELETE_PRESENTAION: "/api/presentation/delete"
+  DELETE_PRESENTAION: "/api/presentation/delete",
+  CREATE_SLIDE: "/api/slide/create",
+  UPDATE_SLIDE: "/api/slide/update"
 };
 
 // Group role
@@ -64,4 +66,8 @@ export const NUM_TO_ROLE = {
   1: "Co-owner",
   2: "Member",
   "-1": "Kick"
+};
+
+export const questionType = {
+  MULTIPLE_CHOICE: 0
 };

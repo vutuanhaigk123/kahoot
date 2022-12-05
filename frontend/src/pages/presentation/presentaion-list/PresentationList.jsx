@@ -131,7 +131,7 @@ const PresentationList = () => {
                     icon={<Edit />}
                     variant="contained"
                     onClick={() =>
-                      navigate(PAGE_ROUTES.Presentation + `/${item._id}`)
+                      navigate(PAGE_ROUTES.PRESENTATION + `/${item._id}`)
                     }
                   >
                     Edit
