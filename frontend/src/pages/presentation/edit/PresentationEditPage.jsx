@@ -1,7 +1,7 @@
 import { Box, Grid } from "@mui/material";
 import React from "react";
 import { useParams } from "react-router-dom";
-import BackgroundContainer from "./../../../components/misc/BackgroundContainer";
+import BackgroundContainer from "../../../components/misc/BackgroundContainer";
 import EditArea from "./components/EditArea";
 import SideBar from "./components/SideBar";
 import SlideArea from "./components/SlideArea";
@@ -25,7 +25,7 @@ const dataChart = [
   }
 ];
 
-const SlidesEditPage = () => {
+const PresentationEditPage = () => {
   const { id: slideId } = useParams();
   const [data, setData] = React.useState(dataChart);
   return (
@@ -51,4 +51,4 @@ const SlidesEditPage = () => {
   );
 };
 
-export default SlidesEditPage;
+export default PresentationEditPage;

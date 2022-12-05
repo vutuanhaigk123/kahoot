@@ -15,7 +15,15 @@ import usePopup from "./../../hooks/usePopup";
 import { handlePost } from "./../../utils/fetch";
 import BasicButton from "./../button/BasicButton";
 
-const PopupForm = ({ isOpen, handleClose, refetch, header, label, api }) => {
+const PopupForm = ({
+  isOpen,
+  handleClose,
+  refetch,
+  header,
+  label,
+  api,
+  fieldName = "name"
+}) => {
   const {
     open: openMsg,
     handleClosePopup: handleCloseMsg,
@@ -35,7 +43,7 @@ const PopupForm = ({ isOpen, handleClose, refetch, header, label, api }) => {
     resolver: yupResolver(schema)
   });
   const onSubmit = async (data) => {
-    const resp = await handlePost(api, data);
+    const resp = await handlePost(api, { [fieldName]: data.name });
     console.log("🚀 ~ file: PopupForm.jsx ~ line 34 ~ onSubmit ~ resp", resp);
     // Handle submit
     if (resp?.status !== 0) {
@@ -65,7 +73,6 @@ const PopupForm = ({ isOpen, handleClose, refetch, header, label, api }) => {
               variant="standard"
               label={label}
               type="text"
-              placeholder="Enter your group name"
               helperText={errors.name ? errors.name.message : " "}
               name="name"
               control={control}

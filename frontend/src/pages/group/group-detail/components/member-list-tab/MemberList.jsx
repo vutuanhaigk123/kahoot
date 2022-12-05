@@ -28,7 +28,7 @@ const getUserRole = (uid, members) => {
   }
 };
 
-const checkOwnerRole = (userRole) => {
+const isOwner = (userRole) => {
   return userRole === ROLE.owner || userRole === ROLE.co_owner;
 };
 
@@ -77,7 +77,7 @@ const MemberList = () => {
         { value: 2, label: "Member" },
         { value: -1, label: "Kick" }
       ],
-      editable: checkOwnerRole(userRole),
+      editable: isOwner(userRole),
       renderCell: (params) => (
         <Typography sx={{ cursor: "pointer", userSelect: "none" }}>
           {NUM_TO_ROLE[params.row.role]}
@@ -123,7 +123,7 @@ const MemberList = () => {
             }}
           >
             <Typography variant="h4">{data?.info?.name}</Typography>
-            {checkOwnerRole(userRole) ? (
+            {isOwner(userRole) ? (
               <BasicButton
                 sx={{ minWidth: "100px", boxShadow: 4 }}
                 icon={<Group />}

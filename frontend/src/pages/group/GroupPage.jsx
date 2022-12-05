@@ -15,6 +15,7 @@ import { Stack } from "@mui/system";
 import { TabContext, TabList } from "@mui/lab";
 import { TabPanel } from "@mui/lab";
 import { handleGet } from "../../utils/fetch";
+import Empty from "./components/Empty";
 
 const FormType = { CREATE: "create", JOIN: "join" };
 
@@ -138,14 +139,11 @@ const Panel = ({ value, data, formType, refetch }) => {
               ))}
             </Grid>
           ) : (
-            <Stack>
-              <Typography variant="h4">
-                {formType === FormType.CREATE
-                  ? "You don't onwed any group yet"
-                  : "You haven't joined any group yet"}
-              </Typography>
-              <Box component="img" src="/Groups/Empty.png" alt="empty"></Box>
-            </Stack>
+            <Empty>
+              {formType === FormType.CREATE
+                ? "You don't onwed any group yet"
+                : "You haven't joined any group yet"}
+            </Empty>
           )}
         </Paper>
         {/* Add group button */}

@@ -26,8 +26,8 @@ export const PAGE_ROUTES = {
   JOIN: "/group/join",
   PRESENT_OWNER: "/presentation/owner/id",
   PRESENT_PLAYER: "/presentation/id",
-  SLIDES: "/slides",
-  SLIDES_EDIT: "/slides/:id"
+  PRESENTATION: "/presentaion",
+  PRESENTATION_EDIT: "/presentaion/:id"
 };
 
 // API
@@ -45,7 +45,10 @@ export const API = {
   JOIN: "/api/group/join",
   GROUP_INVITE_EMAIL: "/api/group/send-invitation",
   MEMBER_UPDATE: "/api/group/update-member",
-  RE_SEND_VERIFY_EMAIL: "/api/authen/send-verify-link"
+  RE_SEND_VERIFY_EMAIL: "/api/authen/send-verify-link",
+  PRESENTATION_LIST: "/api/presentation",
+  CREATE_PRESENTAION: "/api/presentation/create",
+  DELETE_PRESENTAION: "/api/presentation/delete"
 };
 
 // Group role

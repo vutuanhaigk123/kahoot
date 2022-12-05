@@ -1,6 +1,6 @@
 import { Paper, Typography, TextField } from "@mui/material";
 import React from "react";
-import TextBox from "./../../../../components/input/TextBox";
+import TextBox from "../../../../components/input/TextBox";
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";

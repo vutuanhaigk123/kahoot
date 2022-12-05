@@ -9,18 +9,28 @@ import Menu from "@mui/material/Menu";
 import Container from "@mui/material/Container";
 import Avatar from "@mui/material/Avatar";
 import Tooltip from "@mui/material/Tooltip";
-import { Button, MenuItem, Icon } from "@mui/material";
+import {
+  Button,
+  MenuItem,
+  Icon,
+  ListItemIcon,
+  ListItemText
+} from "@mui/material";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../redux-toolkit/authSlice";
 import { API, PAGE_ROUTES } from "../commons/constants";
+import { AccountBox, ExitToApp } from "@mui/icons-material";
 
 const pages = [
   { link: PAGE_ROUTES.GROUP, text: "Group" },
-  { link: PAGE_ROUTES.PRESENT_OWNER, text: "Owner present" },
-  { link: PAGE_ROUTES.PRESENT_PLAYER, text: "Player play" }
+  // { link: PAGE_ROUTES.PRESENT_OWNER, text: "Owner present" },
+  // { link: PAGE_ROUTES.PRESENT_PLAYER, text: "Player play" },
+  { link: PAGE_ROUTES.PRESENTATION, text: "Presentation" }
 ];
-const settings = [{ link: PAGE_ROUTES.PROFILE, text: "Profile" }];
+const settings = [
+  { link: PAGE_ROUTES.PROFILE, text: "Profile", icon: <AccountBox /> }
+];
 
 const Header = () => {
   const { pathname } = useLocation();
@@ -177,10 +187,16 @@ const Header = () => {
                   to={`${setting.link}`}
                   onClick={handleCloseUserMenu}
                 >
-                  {setting.text}
+                  <ListItemIcon>{setting.icon}</ListItemIcon>
+                  <ListItemText>{setting.text}</ListItemText>
                 </MenuItem>
               ))}
-              <MenuItem onClick={() => handleSignOut()}>Logout</MenuItem>
+              <MenuItem onClick={() => handleSignOut()}>
+                <ListItemIcon>
+                  <ExitToApp />
+                </ListItemIcon>
+                <ListItemText>Log out</ListItemText>
+              </MenuItem>
             </Menu>
           </Box>
         </Toolbar>
