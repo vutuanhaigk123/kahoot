@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { Box } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import React from "react";
 import { useSearchParams } from "react-router-dom";
 import { useState } from "react";
@@ -8,34 +8,29 @@ import { SUBMIT_STATUS } from "../../commons/constants";
 import PresentationChart from "../../components/chart/PresentationChart";
 import PopupMsg from "../../components/notification/PopupMsg";
 
-const dataChart = [
-  {
-    name: "A",
-    total: 1
-  },
-  {
-    name: "B",
-    total: 2
-  },
-  {
-    name: "C",
-    total: 3
-  },
-  {
-    name: "D",
-    total: 4
-  }
-];
+const CREATE_ROOM_CMD = 5;
+const room = -1;
+const INIT_CONNECTION_EVENT = "1";
+const EXIT_ROOM_EVENT = "-2";
+const RECEIVE_CHOICE_EVENT = "-3";
+const CLOSE_REASON = "-999";
+const REASON_HAS_NEW_CONNECTION = "-998";
+const REASON_NOT_FOUND_CONTENT = "-997";
+const REASON_INVALID_CMD = "-995";
+const REASON_WAITING_FOR_HOST = "-994";
+const REASON_SLIDE_HAS_NO_ANS = "-993";
 
-const toIndex = (choiceId) => {
-  return dataChart.findIndex((choice) => choice.name === choiceId);
+const toIndex = (dataChart, choiceId) => {
+  console.log(dataChart);
+  return dataChart.findIndex((choice) => choice.id === choiceId);
 };
 
 const PresentationOwnerPage = () => {
   const [ws, setWs] = useState(null);
-  const [data, setData] = useState(dataChart);
+  const [data, setData] = useState([]);
   const [isConnected, setIsConnected] = useState(true);
   const [msgClose, setMsgClose] = useState("Not found content");
+  const [question, setQuestion] = useState(null);
 
   const [searchParam] = useSearchParams();
   const id = searchParam.get("id");
@@ -48,17 +43,7 @@ const PresentationOwnerPage = () => {
     if (window.location.hostname.includes("localhost")) {
       wsDomain = process.env.REACT_APP_BACKEND_DOMAIN_DEV;
     }
-    const CREATE_ROOM_CMD = 5;
-    const room = -1;
-    const INIT_CONNECTION_EVENT = "1";
-    const EXIT_ROOM_EVENT = "-2";
-    const RECEIVE_CHOICE_EVENT = "-3";
-    const CLOSE_REASON = "-999";
-    const REASON_HAS_NEW_CONNECTION = "-998";
-    const REASON_NOT_FOUND_CONTENT = "-997";
-    const REASON_INVALID_CMD = "-995";
-    const REASON_WAITING_FOR_HOST = "-994";
-    const REASON_SLIDE_HAS_NO_ANS = "-993";
+
     if (!id || !slide) {
       return () => {
         if (ws) socket.close();
@@ -72,6 +57,8 @@ const PresentationOwnerPage = () => {
 
     socket.on(INIT_CONNECTION_EVENT, (arg) => {
       setIsConnected(true);
+      setQuestion(arg.curQues.question);
+      setData(arg.curQues.answers);
       console.log("==========================================");
       console.log(arg);
     });
@@ -116,19 +103,6 @@ const PresentationOwnerPage = () => {
     //   console.log(arg);
     // });
 
-    socket.on(RECEIVE_CHOICE_EVENT, (arg) => {
-      console.log(
-        "=====================Another player has make a choice====================="
-      );
-      console.log(arg);
-      const choiceId = arg.choiceId.toString();
-      const index = toIndex(choiceId);
-      if (index !== -1) {
-        data[index].total += 1;
-        return setData([...data]);
-      }
-    });
-
     socket.io.on("close", (reason) => {
       if (reason !== "forced close") {
         return console.log(
@@ -144,11 +118,31 @@ const PresentationOwnerPage = () => {
     };
   }, []);
 
+  React.useEffect(() => {
+    if (ws) {
+      ws.on(RECEIVE_CHOICE_EVENT, (arg) => {
+        console.log(
+          "=====================Another player has make a choice====================="
+        );
+        console.log(arg);
+        const choiceId = arg.choiceId.toString();
+        const index = toIndex(data, choiceId);
+        if (index !== -1) {
+          data[index].total += 1;
+          return setData([...data]);
+        }
+      });
+      return () => ws.off(RECEIVE_CHOICE_EVENT);
+    }
+  }, [ws, data]);
+
   return (
     <Box height="100vh" display="flex" flexDirection="column">
       {isConnected && id && slide ? (
         <Box>
-          <div>Owner's presentation screen</div>
+          <Typography variant="h4" sx={{ mb: 2 }}>
+            {question}
+          </Typography>
           <PresentationChart data={data} />
         </Box>
       ) : (

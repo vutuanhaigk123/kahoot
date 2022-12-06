@@ -75,6 +75,7 @@ async function sendDataToOwner(socket, userId, room, slide) {
   const result = await MatchModel.joinMatch(userId, true, room, slide);
   if (result) {
     const { curState, curQues, data, joinedUser } = result;
+
     if (curQues) {
       SocketModel.sendEvent(userId, EventModel.INIT_CONNECTION, {
         curState,
@@ -219,7 +220,7 @@ export default async (path, ws) => {
 
     socket.on(EventModel.SUBMIT_CHOICE, (arg) => {
       console.log(arg);
-      MatchModel.makeChoice(userId, room, "question1", arg, ws);
+      MatchModel.makeChoice(userId, room, arg, ws);
     });
 
     socket.on("error", (err) => {

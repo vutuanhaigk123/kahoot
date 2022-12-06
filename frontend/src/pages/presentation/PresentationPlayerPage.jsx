@@ -4,7 +4,7 @@ import BasicButton from "../../components/button/BasicButton";
 import { io } from "socket.io-client";
 import { useSearchParams } from "react-router-dom";
 import { useState } from "react";
-import { Box } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 
 const room = -1;
 const JOIN_ROOM_CMD = "2";
@@ -15,6 +15,7 @@ const RECEIVE_CHOICE_EVENT = "-3";
 
 const handleSubmitChoice = ({ socket, choiceId }) => {
   if (socket) {
+    console.log(choiceId);
     socket.emit(SUBMIT_CHOICE_EVENT, choiceId);
   } else {
     console.log("Not connected to server");
@@ -59,12 +60,15 @@ const PresentationPlayerPage = () => {
 
   return question ? (
     <div>
-      <Box>{question.title}</Box>
+      <Box>
+        <Typography variant="h4" sx={{ mb: 2 }}>
+          {question.question}
+        </Typography>
+      </Box>
       {question.answers.map((value, index) => {
-        console.log(value);
         return (
           <BasicButton
-            key={value._id}
+            key={value.id}
             variant="text"
             onClick={() =>
               handleSubmitChoice({ socket: ws, choiceId: value.id })

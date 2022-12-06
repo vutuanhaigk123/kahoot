@@ -1,4 +1,4 @@
-import { Box, Grid, Typography } from "@mui/material";
+import { Box, Container, Grid, Typography } from "@mui/material";
 import React from "react";
 import { useParams } from "react-router-dom";
 import BackgroundContainer from "../../../components/misc/BackgroundContainer";
@@ -43,7 +43,7 @@ const PresentationEditPage = () => {
 
   return (
     <BackgroundContainer>
-      <Box sx={{ width: "90%", m: "auto", mt: "10px" }}>
+      <Box sx={{ width: "90%", m: "auto" }}>
         <Typography variant="h4" sx={{ mb: 2 }}>
           {data?.info.title}
         </Typography>

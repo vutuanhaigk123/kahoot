@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 /* eslint-disable prefer-const */
 /* eslint-disable consistent-return */
 /* eslint-disable import/extensions */
@@ -100,13 +101,31 @@ async function getQuestionsInRoom(roomId) {
 }
 
 function initMatch(roomId, ownerId, questions, slideId) {
+  const questionsTmp = [];
+  questions.forEach((eachQuestion) => {
+    const ansListOfQues = [];
+    eachQuestion.answers.forEach((ans) => {
+      ansListOfQues.push({
+        id: ans._id,
+        des: ans.des,
+        total: ans.choiceUids.length
+      });
+    });
+    questionsTmp.push({
+      id: eachQuestion._id,
+      question: eachQuestion.question,
+      type: eachQuestion.type,
+      answers: ansListOfQues
+    });
+  });
+  // console.log(questionsTmp);
   return {
     roomId,
     members: [],
     curState: STATE_LOBBY_CODE,
     curQues: slideId,
     owner: ownerId,
-    questions,
+    questions: questionsTmp,
     answers: []
   };
 }
@@ -209,6 +228,7 @@ export default {
     //   }
     // }
     const curQues = getQuestion(matchInfo.questions, matchInfo.curQues);
+
     if (curQues && curQues.true_ans) {
       delete curQues.true_ans;
     }
@@ -242,9 +262,10 @@ export default {
     }
   },
 
-  makeChoice(userId, roomId, questionId, choiceId, ws) {
+  makeChoice(userId, roomId, choiceId, ws) {
     const matchInfo = matches.get(roomId);
     if (matchInfo && matchInfo.curState === STATE_LOBBY_CODE) {
+      const questionId = matchInfo.curQues;
       const questionIndex = hasQuestion(matchInfo.questions, questionId);
       if (questionIndex === -1) {
         return console.log("Khong co question nay");
@@ -270,10 +291,10 @@ export default {
         return console.log("Khong co choiceId nay");
       }
 
-      const isAnswered = ans.data.get(userId);
-      if (isAnswered) {
-        return console.log("Da answered roi");
-      }
+      // const isAnswered = ans.data.get(userId);
+      // if (isAnswered) {
+      //   return console.log("Da answered roi");
+      // }
       ans.data.set(userId, choiceId);
 
       SocketModel.sendBroadcastRoom(
