@@ -1,7 +1,7 @@
 import React from "react";
 import BackgroundContainer from "../../components/misc/BackgroundContainer";
 import BasicButton from "../../components/button/BasicButton";
-import { Box, Grid, Paper, Tab, Typography } from "@mui/material";
+import { Box, Grid, Paper, Tab } from "@mui/material";
 import { AddCircle } from "@mui/icons-material";
 import BasicCard from "../../components/card/BasicCard";
 import PopupForm from "../../components/notification/PopupForm";
@@ -149,7 +149,7 @@ const Panel = ({ value, data, formType, refetch }) => {
         {/* Add group button */}
         {formType === FormType.CREATE ? (
           <BasicButton
-            sx={{ width: "30%", m: "auto", boxShadow: 4 }}
+            sx={{ m: "auto", boxShadow: 4 }}
             onClick={handleOpenPopup}
             icon={<AddCircle />}
           >

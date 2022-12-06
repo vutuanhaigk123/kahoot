@@ -22,7 +22,8 @@ const PopupForm = ({
   header,
   label,
   api,
-  fieldName = "name"
+  fieldName = "name",
+  otherField = {}
 }) => {
   const {
     open: openMsg,
@@ -43,7 +44,10 @@ const PopupForm = ({
     resolver: yupResolver(schema)
   });
   const onSubmit = async (data) => {
-    const resp = await handlePost(api, { [fieldName]: data.name });
+    const resp = await handlePost(api, {
+      ...otherField,
+      [fieldName]: data.name
+    });
     console.log("🚀 ~ file: PopupForm.jsx ~ line 34 ~ onSubmit ~ resp", resp);
     // Handle submit
     if (resp?.status !== 0) {

@@ -3,25 +3,6 @@ import React from "react";
 import { useSelector } from "react-redux";
 import PresentationChart from "../../../../components/chart/PresentationChart";
 
-const dataChart = [
-  {
-    name: "A",
-    total: 1
-  },
-  {
-    name: "B",
-    total: 2
-  },
-  {
-    name: "C",
-    total: 3
-  },
-  {
-    name: "D",
-    total: 4
-  }
-];
-
 const SlideArea = ({ slideIndex }) => {
   const data = useSelector((state) => state.presentation);
 
@@ -30,6 +11,7 @@ const SlideArea = ({ slideIndex }) => {
       elevation={10}
       sx={{
         height: "100%",
+        minHeight: 400,
         width: "100%",
         alignItems: "center",
         justifyContent: "center",
@@ -38,10 +20,14 @@ const SlideArea = ({ slideIndex }) => {
         p: 2
       }}
     >
-      <Typography variant="h4">
-        {data._id ? data.slides[slideIndex].question : null}
-      </Typography>
-      <PresentationChart data={data._id ? data.slides.answers : null} />
+      {data._id && data.slides.length > 0 ? (
+        <>
+          <Typography variant="h4">
+            {data.slides[slideIndex].question}
+          </Typography>
+          <PresentationChart data={data.slides[slideIndex].answers} />
+        </>
+      ) : null}
     </Paper>
   );
 };
