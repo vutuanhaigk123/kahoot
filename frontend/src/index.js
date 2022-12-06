@@ -28,22 +28,22 @@ const theme = createTheme({
 const queryClient = new QueryClient();
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
-  <React.StrictMode>
-    <Provider store={store}>
-      <PersistGate loading={null} persistor={persistor}>
-        <BrowserRouter>
-          <GoogleOAuthProvider clientId={process.env.REACT_APP_GG_APP_ID}>
-            <QueryClientProvider client={queryClient}>
-              <ReactQueryDevtools></ReactQueryDevtools>
-              <ThemeProvider theme={theme}>
-                <App />
-              </ThemeProvider>
-            </QueryClientProvider>
-          </GoogleOAuthProvider>
-        </BrowserRouter>
-      </PersistGate>
-    </Provider>
-  </React.StrictMode>
+  // <React.StrictMode>
+  <Provider store={store}>
+    <PersistGate loading={null} persistor={persistor}>
+      <BrowserRouter>
+        <GoogleOAuthProvider clientId={process.env.REACT_APP_GG_APP_ID}>
+          <QueryClientProvider client={queryClient}>
+            <ReactQueryDevtools></ReactQueryDevtools>
+            <ThemeProvider theme={theme}>
+              <App />
+            </ThemeProvider>
+          </QueryClientProvider>
+        </GoogleOAuthProvider>
+      </BrowserRouter>
+    </PersistGate>
+  </Provider>
+  // </React.StrictMode>
 );
 
 // If you want to start measuring performance in your app, pass a function

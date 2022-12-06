@@ -20,6 +20,13 @@ export default {
     }
   },
 
+  async getSlidesByPresentationId(presentationId) {
+    const ret = await Slide.find({ presentationId })
+      .select("_id question type answers._id answers.des")
+      .exec();
+    return ret;
+  },
+
   async save(slide) {
     try {
       const ret = await slide.save();

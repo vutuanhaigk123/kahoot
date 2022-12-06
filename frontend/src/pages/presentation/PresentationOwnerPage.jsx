@@ -48,20 +48,25 @@ const PresentationOwnerPage = () => {
     if (window.location.hostname.includes("localhost")) {
       wsDomain = process.env.REACT_APP_BACKEND_DOMAIN_DEV;
     }
-    const cmd = 2;
+    const CREATE_ROOM_CMD = 5;
     const room = -1;
-    const JOIN_ROOM_EVENT = "2";
     const INIT_CONNECTION_EVENT = "1";
     const EXIT_ROOM_EVENT = "-2";
     const RECEIVE_CHOICE_EVENT = "-3";
     const CLOSE_REASON = "-999";
     const REASON_HAS_NEW_CONNECTION = "-998";
     const REASON_NOT_FOUND_CONTENT = "-997";
+    const REASON_INVALID_CMD = "-995";
+    const REASON_WAITING_FOR_HOST = "-994";
+    const REASON_SLIDE_HAS_NO_ANS = "-993";
     if (!id || !slide) {
-      return;
+      return () => {
+        if (ws) socket.close();
+      };
     }
+    console.log("hit");
     const socket = io(wsDomain, {
-      query: `cmd=${cmd}&room=${id}&slide=${slide}`,
+      query: `cmd=${CREATE_ROOM_CMD}&room=${id}&slide=${slide}`,
       withCredentials: true
     });
 
@@ -83,27 +88,33 @@ const PresentationOwnerPage = () => {
         case REASON_NOT_FOUND_CONTENT:
           setMsgClose("Not found content");
           break;
+        case REASON_WAITING_FOR_HOST:
+          setMsgClose("Waiting for host present");
+          break;
+        case REASON_SLIDE_HAS_NO_ANS:
+          console.log("slide has no answer");
+        // eslint-disable-next-line no-fallthrough
+        case REASON_INVALID_CMD:
         default:
           setMsgClose("Unknown Server Error");
           break;
       }
       setWs(null);
-      socket.close();
     });
 
-    socket.on(JOIN_ROOM_EVENT, (arg) => {
-      console.log(
-        "=====================Member has just joined room====================="
-      );
-      console.log(arg);
-    });
+    // socket.on(JOIN_ROOM_EVENT, (arg) => {
+    //   console.log(
+    //     "=====================Member has just joined room====================="
+    //   );
+    //   console.log(arg);
+    // });
 
-    socket.on(EXIT_ROOM_EVENT, (arg) => {
-      console.log(
-        "=====================Member has just leaved room====================="
-      );
-      console.log(arg);
-    });
+    // socket.on(EXIT_ROOM_EVENT, (arg) => {
+    //   console.log(
+    //     "=====================Member has just leaved room====================="
+    //   );
+    //   console.log(arg);
+    // });
 
     socket.on(RECEIVE_CHOICE_EVENT, (arg) => {
       console.log(
@@ -135,7 +146,7 @@ const PresentationOwnerPage = () => {
 
   return (
     <Box height="100vh" display="flex" flexDirection="column">
-      {isConnected ? (
+      {isConnected && id && slide ? (
         <Box>
           <div>Owner's presentation screen</div>
           <PresentationChart data={data} />

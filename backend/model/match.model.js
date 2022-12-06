@@ -1,58 +1,60 @@
+/* eslint-disable prefer-const */
 /* eslint-disable consistent-return */
 /* eslint-disable import/extensions */
 /* eslint-disable no-console */
 import HashMap from "hashmap";
 import EventModel from "./event.model.js";
+import SlideModel from "./slide.model.js";
 import SocketModel from "./socket.model.js";
 
-const questionSamples = [
-  {
-    id: "question1",
-    title: "Question 1: ... Answer = 1",
-    true_ans: "A",
-    answers: [
-      {
-        id: "A",
-        des: "Answer A"
-      },
-      {
-        id: "B",
-        des: "Answer B"
-      },
-      {
-        id: "C",
-        des: "Answer C"
-      },
-      {
-        id: "D",
-        des: "Answer D"
-      }
-    ]
-  },
-  {
-    id: "question2",
-    title: "Question 2: ... Answer = 1",
-    true_ans: "A",
-    answers: [
-      {
-        id: "A",
-        des: "Answer A"
-      },
-      {
-        id: "B",
-        des: "Answer B"
-      },
-      {
-        id: "C",
-        des: "Answer C"
-      },
-      {
-        id: "D",
-        des: "Answer D"
-      }
-    ]
-  }
-];
+// const questionSamples = [
+//   {
+//     id: "question1",
+//     title: "Question 1: ... Answer = 1",
+//     true_ans: "A",
+//     answers: [
+//       {
+//         id: "A",
+//         des: "Answer A"
+//       },
+//       {
+//         id: "B",
+//         des: "Answer B"
+//       },
+//       {
+//         id: "C",
+//         des: "Answer C"
+//       },
+//       {
+//         id: "D",
+//         des: "Answer D"
+//       }
+//     ]
+//   },
+//   {
+//     id: "question2",
+//     title: "Question 2: ... Answer = 1",
+//     true_ans: "A",
+//     answers: [
+//       {
+//         id: "A",
+//         des: "Answer A"
+//       },
+//       {
+//         id: "B",
+//         des: "Answer B"
+//       },
+//       {
+//         id: "C",
+//         des: "Answer C"
+//       },
+//       {
+//         id: "D",
+//         des: "Answer D"
+//       }
+//     ]
+//   }
+// ];
 
 const matches = new HashMap();
 /*
@@ -92,17 +94,17 @@ function compareScore(memberA, memberB) {
   return memberA.score - memberB.score;
 }
 
-// eslint-disable-next-line no-unused-vars
 async function getQuestionsInRoom(roomId) {
-  return questionSamples;
+  const ret = await SlideModel.getSlidesByPresentationId(roomId);
+  return ret;
 }
 
-function initMatch(roomId, ownerId, questions) {
+function initMatch(roomId, ownerId, questions, slideId) {
   return {
     roomId,
     members: [],
     curState: STATE_LOBBY_CODE,
-    curQues: "question1", // value for test
+    curQues: slideId,
     owner: ownerId,
     questions,
     answers: []
@@ -131,6 +133,10 @@ function getQuestion(questions, questionId) {
   if (index === -1) {
     return null;
   }
+  // ignore 2 cases above
+  if (questions[index].answers.length === 0) {
+    return null;
+  }
   return questions[index];
 }
 
@@ -143,18 +149,34 @@ export default {
     return [...members];
   },
 
-  async joinMatch(userId, roomId) {
+  async joinMatch(userId, hasPresentPermission, roomId, slideId) {
     let matchInfo = matches.get(roomId);
     let joinedUser = null;
     if (!matchInfo) {
-      // TO_DO: if userId's ROLE is co-owner, owner: continue
-      const questions = await getQuestionsInRoom(roomId);
-      if (!questions) {
-        return null;
+      switch (hasPresentPermission) {
+        // if userId has present permission and not init match:
+        case true:
+          {
+            const questions = await getQuestionsInRoom(roomId);
+            if (!questions) {
+              return null;
+            }
+            matchInfo = initMatch(roomId, userId, questions, slideId);
+            matches.set(roomId, matchInfo);
+          }
+          break;
+        // waiting for owner host to join
+        default:
+          SocketModel.sendEvent(
+            userId,
+            EventModel.CLOSE_REASON,
+            EventModel.REASON_WAITING_FOR_HOST
+          );
+          return null;
       }
-      matchInfo = initMatch(roomId, userId, questions);
-      matches.set(roomId, matchInfo);
-    } else if (
+    }
+    // Update joinned user
+    else if (
       userId !== matchInfo.owner &&
       !matchInfo.members.find((member) => member.id === userId)
     ) {
@@ -169,24 +191,25 @@ export default {
     // console.log(matchInfo);
     // console.log(matchInfo.questions);
 
+    // For slide has true_ans
     let data = [];
-    if (matchInfo.curState === STATE_LOBBY_CODE) {
-      // get accessible data
-      matchInfo.members.forEach((member) => {
-        data.push({
-          id: member.id,
-          picture: member.picture,
-          name: member.name
-        });
-      });
-    } else if (matchInfo.curState === STATE_LEADERBOARD_CODE) {
-      data = this.getLeaderboard(matchInfo.members);
-      if (data.length > 3) {
-        data = [data[0], data[1], data[2]];
-      }
-    }
+    // if (matchInfo.curState === STATE_LOBBY_CODE) {
+    //   // get accessible data
+    //   matchInfo.members.forEach((member) => {
+    //     data.push({
+    //       id: member.id,
+    //       picture: member.picture,
+    //       name: member.name
+    //     });
+    //   });
+    // } else if (matchInfo.curState === STATE_LEADERBOARD_CODE) {
+    //   data = this.getLeaderboard(matchInfo.members);
+    //   if (data.length > 3) {
+    //     data = [data[0], data[1], data[2]];
+    //   }
+    // }
     const curQues = getQuestion(matchInfo.questions, matchInfo.curQues);
-    if (curQues) {
+    if (curQues && curQues.true_ans) {
       delete curQues.true_ans;
     }
     return {

@@ -24,8 +24,8 @@ import { AccountBox, ExitToApp } from "@mui/icons-material";
 
 const pages = [
   { link: PAGE_ROUTES.GROUP, text: "Group" },
-  // { link: PAGE_ROUTES.PRESENT_OWNER, text: "Owner present" },
-  // { link: PAGE_ROUTES.PRESENT_PLAYER, text: "Player play" },
+  { link: PAGE_ROUTES.PRESENT_OWNER, text: "Owner present" },
+  { link: PAGE_ROUTES.PRESENT_PLAYER, text: "Player play" },
   { link: PAGE_ROUTES.PRESENTATION, text: "Presentation" }
 ];
 const settings = [
