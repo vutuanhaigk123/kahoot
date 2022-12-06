@@ -9,8 +9,10 @@ import SocketModel from "../model/socket.model.js";
 import AuthenModel from "../model/authen.model.js";
 import CookieModel from "../model/cookie.model.js";
 import EventModel from "../model/event.model.js";
+import PresentationModel from "../model/presentation.model.js";
 import MatchModel from "../model/match.model.js";
 import AuthenMw from "../middleware/authen.mw.js";
+import slideModel from "../model/slide.model.js";
 
 const matchingQueue = [];
 
@@ -32,10 +34,40 @@ function initConnection(socket) {
   return true;
 }
 
+async function hasContent(socket, userId) {
+  const { room, slide } = socket.request._query;
+  if (!room || !slide) {
+    return null;
+  }
+  const presentation = await PresentationModel.findByIdAndOwnerId(room, userId);
+  if (!presentation) {
+    return null;
+  }
+
+  const slideRes = await slideModel.findById(slide, room);
+  if (!slideRes) {
+    return null;
+  }
+  return { presentation, slide: slideRes };
+}
+
 async function sendInitData(socket) {
+  const userId = getUidFromWs(socket);
+
+  // check user has content
+  if (!(await hasContent(socket))) {
+    // TODO: send have no present permission
+    SocketModel.sendEvent(
+      userId,
+      EventModel.CLOSE_REASON,
+      EventModel.REASON_NOT_FOUND_CONTENT
+    );
+
+    return SocketModel.removeSocketConn(userId);
+  }
+
   // join or create room
   const { room, cmd } = socket.request._query;
-  const userId = getUidFromWs(socket);
   const result = await MatchModel.joinMatch(userId, room);
   if (result) {
     const { curState, curQues, data, joinedUser } = result;
@@ -46,16 +78,17 @@ async function sendInitData(socket) {
     });
     socket.join(room);
     if (curState === MatchModel.STATE_LOBBY && joinedUser) {
-      SocketModel.sendBroadcastRoom(
+      return SocketModel.sendBroadcastRoom(
         userId,
         room,
         EventModel.JOIN_ROOM,
         joinedUser
       );
     }
-  } else {
-    SocketModel.removeSocketConn(userId);
+    // prevent removeSocketConn
+    return true;
   }
+  return SocketModel.removeSocketConn(userId);
 }
 
 export default async (path, ws) => {
@@ -64,7 +97,7 @@ export default async (path, ws) => {
     AuthenMw.wsStopWhenNotLogon(socket, next);
   });
 
-  // middleware: stop when: invalid cmd || invalid room
+  // middleware: stop when: invalid cmd || invalid room || invalid slide
   ws.use(async (socket, next) => {
     AuthenMw.wsStopWhenInvalidQuery(socket, next);
   });

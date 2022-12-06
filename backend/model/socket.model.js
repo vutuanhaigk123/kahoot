@@ -1,5 +1,7 @@
+/* eslint-disable import/extensions */
 /* eslint-disable no-console */
 import HashMap from "hashmap";
+import EventModel from "./event.model.js";
 
 const userConns = new HashMap();
 /*
@@ -15,12 +17,19 @@ export default {
   },
 
   saveSocketConn(userId, socket) {
-    if (userConns.get(userId)) {
-      userConns.get(userId).disconnect(true);
-      console.log("Kick old connection");
+    if (socket !== userConns.get(userId)) {
+      if (userConns.get(userId)) {
+        this.sendEvent(
+          userId,
+          EventModel.CLOSE_REASON,
+          EventModel.REASON_HAS_NEW_CONNECTION
+        );
+        userConns.get(userId).disconnect(true);
+        console.log("Kick old connection");
+      }
+      userConns.set(userId, socket);
+      console.log(userConns.size);
     }
-    userConns.set(userId, socket);
-    console.log(userConns.size);
   },
 
   removeSocketConn(userId) {

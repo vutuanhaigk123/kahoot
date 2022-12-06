@@ -116,7 +116,6 @@ router.post("/create", AuthenMw.stopWhenNotLogon, async (req, res) => {
       answersJSArr = JSON.parse(answers.toString());
     }
   } catch (err) {
-    console.log("hit");
     return res.json({
       status: 400,
       message: "Invalid data"

@@ -1,6 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { Box } from "@mui/material";
 import React from "react";
+import { useSearchParams } from "react-router-dom";
 import { useState } from "react";
 import { io } from "socket.io-client";
 import { SUBMIT_STATUS } from "../../commons/constants";
@@ -31,9 +32,16 @@ const toIndex = (choiceId) => {
 };
 
 const PresentationOwnerPage = () => {
-  const [, setWs] = useState(null);
+  const [ws, setWs] = useState(null);
   const [data, setData] = useState(dataChart);
   const [isConnected, setIsConnected] = useState(true);
+  const [msgClose, setMsgClose] = useState("Not found content");
+
+  const [searchParam] = useSearchParams();
+  const id = searchParam.get("id");
+  const slide = searchParam.get("slide");
+  console.log("---------------------------------------");
+  console.log(id, slide);
 
   React.useEffect(() => {
     let wsDomain = process.env.REACT_APP_BACKEND_DOMAIN;
@@ -46,14 +54,41 @@ const PresentationOwnerPage = () => {
     const INIT_CONNECTION_EVENT = "1";
     const EXIT_ROOM_EVENT = "-2";
     const RECEIVE_CHOICE_EVENT = "-3";
+    const CLOSE_REASON = "-999";
+    const REASON_HAS_NEW_CONNECTION = "-998";
+    const REASON_NOT_FOUND_CONTENT = "-997";
+    if (!id || !slide) {
+      return;
+    }
     const socket = io(wsDomain, {
-      query: `cmd=${cmd}&room=${room}`,
+      query: `cmd=${cmd}&room=${id}&slide=${slide}`,
       withCredentials: true
     });
+
     socket.on(INIT_CONNECTION_EVENT, (arg) => {
       setIsConnected(true);
       console.log("==========================================");
       console.log(arg);
+    });
+
+    socket.on(CLOSE_REASON, (arg) => {
+      console.log(
+        "================= Closing connection signal from server ======================",
+        arg
+      );
+      switch (arg) {
+        case REASON_HAS_NEW_CONNECTION:
+          setMsgClose("Only support 1 connection at a time");
+          break;
+        case REASON_NOT_FOUND_CONTENT:
+          setMsgClose("Not found content");
+          break;
+        default:
+          setMsgClose("Unknown Server Error");
+          break;
+      }
+      setWs(null);
+      socket.close();
     });
 
     socket.on(JOIN_ROOM_EVENT, (arg) => {
@@ -93,20 +128,29 @@ const PresentationOwnerPage = () => {
     });
 
     setWs(socket);
-    return () => socket.close();
+    return () => {
+      if (ws) socket.close();
+    };
   }, []);
 
   return (
-    <Box>
-      <div>Owner's presentation screen</div>
-      <PresentationChart data={data} />
+    <Box height="100vh" display="flex" flexDirection="column">
+      {isConnected ? (
+        <Box>
+          <div>Owner's presentation screen</div>
+          <PresentationChart data={data} />
+        </Box>
+      ) : (
+        ""
+      )}
+
       <PopupMsg
-        isOpen={!isConnected}
+        isOpen={!isConnected && !ws}
         hasOk={false}
         status={SUBMIT_STATUS.ERROR}
         handleClosePopup={() => console.log()}
       >
-        Only support 1 connection at a time
+        {msgClose}
       </PopupMsg>
     </Box>
   );

@@ -24,10 +24,12 @@ export const PAGE_ROUTES = {
   PROFILE: "/profile",
   GROUP_DETAIL: "/group/:id",
   JOIN: "/group/join",
-  PRESENT_OWNER: "/presentation/owner/id",
-  PRESENT_PLAYER: "/presentation/id",
   PRESENTATION: "/presentaion",
-  PRESENTATION_EDIT: "/presentaion/:id"
+  PRESENTATION_EDIT: "/presentaion/:id",
+  PRESENT_OWNER: "/presentation/owner/present",
+  PRESENT_PLAYER: "/presentation/join",
+  SLIDES: "/slides",
+  SLIDES_EDIT: "/slides/:id"
 };
 
 // API
