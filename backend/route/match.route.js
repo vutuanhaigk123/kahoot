@@ -34,8 +34,7 @@ function initConnection(socket) {
   return true;
 }
 
-async function hasContent(socket, userId) {
-  const { room, slide } = socket.request._query;
+async function hasContent(userId, room, slide) {
   if (!room || !slide) {
     return null;
   }
@@ -61,7 +60,7 @@ function sendUnknownCommand(userId) {
 }
 
 async function sendDataToOwner(socket, userId, room, slide) {
-  if (!(await hasContent(socket))) {
+  if (!(await hasContent(userId, room, slide))) {
     // send have no present permission
     SocketModel.sendEvent(
       userId,

@@ -2,6 +2,7 @@
 import React from "react";
 import BasicButton from "../../components/button/BasicButton";
 import { io } from "socket.io-client";
+import { useSearchParams } from "react-router-dom";
 import { useState } from "react";
 import { Box } from "@mui/material";
 
@@ -21,6 +22,10 @@ const handleSubmitChoice = ({ socket, choiceId }) => {
 };
 
 const PresentationPlayerPage = () => {
+  const [searchParam] = useSearchParams();
+  const id = searchParam.get("id");
+  const slide = searchParam.get("slide");
+
   const [ws, setWs] = useState(null);
   const [question, setQuestion] = useState(null);
   React.useEffect(() => {
@@ -30,7 +35,7 @@ const PresentationPlayerPage = () => {
     }
 
     const socket = io(wsDomain, {
-      query: `cmd=${JOIN_ROOM_CMD}&room=${room}`,
+      query: `cmd=${JOIN_ROOM_CMD}&room=${id}&slide=${slide}}`,
       withCredentials: true
     });
     socket.on(INIT_CONNECTION_EVENT, (arg) => {
@@ -59,6 +64,7 @@ const PresentationPlayerPage = () => {
         console.log(value);
         return (
           <BasicButton
+            key={value._id}
             variant="text"
             onClick={() =>
               handleSubmitChoice({ socket: ws, choiceId: value.id })

@@ -12,7 +12,7 @@ export default {
   },
 
   async findByIdAndOwnerId(id, ownerId) {
-    const ret = await Presentation.findById({
+    const ret = await Presentation.findOne({
       _id: id,
       ownerId
     }).exec();

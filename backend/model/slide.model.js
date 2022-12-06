@@ -7,7 +7,7 @@ import PresentationModel from "./presentation.model.js";
 
 export default {
   async findById(id, presentationId) {
-    const ret = await Slide.findById({ _id: id, presentationId }).exec();
+    const ret = await Slide.findOne({ _id: id, presentationId }).exec();
     return ret;
   },
 
