@@ -5,9 +5,8 @@ import * as yup from "yup";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import BasicButton from "../../../../components/button/BasicButton";
-import { AddCircle, Edit } from "@mui/icons-material";
+import { Edit } from "@mui/icons-material";
 import { Box } from "@mui/system";
-import { Cancel } from "@mui/icons-material";
 import { grey } from "@mui/material/colors";
 import { useSelector } from "react-redux";
 import { API } from "../../../../commons/constants";
@@ -15,7 +14,7 @@ import { handlePost } from "./../../../../utils/fetch";
 import useStatus from "../../../../hooks/useStatus";
 import PopupMsg from "../../../../components/notification/PopupMsg";
 import usePopup from "../../../../hooks/usePopup";
-import PopupForm from "./../../../../components/notification/PopupForm";
+import OptionsContainer from "./OptionsContainer";
 
 const EditArea = ({ slideIndex, refetch }) => {
   // Form
@@ -52,23 +51,6 @@ const EditArea = ({ slideIndex, refetch }) => {
       reset({ question: presentation.slides[slideIndex].question });
     }
   }, [presentation, reset, slideIndex]);
-
-  // const handleChange = (onChangeValue, i) => {
-  //   const inputdata = [...options];
-  //   inputdata[i] = onChangeValue.target.value;
-  //   setOptions(inputdata);
-  // };
-
-  // Add answer popup
-  const {
-    open: openAnswerPopup,
-    handleOpenPopup: handleOpenAnswerPopup,
-    handleClosePopup: handleCloseAnswerPopup
-  } = usePopup();
-
-  const handleDelete = (index) => {
-    console.log(index);
-  };
 
   return (
     <Paper
@@ -108,62 +90,19 @@ const EditArea = ({ slideIndex, refetch }) => {
               name="question"
               control={control}
             ></TextBox>
-
-            {/* Options */}
-            <Typography variant="h6" fontWeight="bold">
-              Options
-            </Typography>
-            {presentation.slides[slideIndex].answers.map((item, index) => {
-              return (
-                <Box
-                  key={item._id}
-                  sx={{
-                    display: "flex",
-                    m: "10px 0 10px 0",
-                    alignItems: "center",
-                    gap: 1
-                  }}
-                >
-                  <TextBox
-                    // onChange={(e) => handleChange(e, index)}
-                    size="small"
-                    defaultValue={item.des}
-                    placeholder={`Options ${index}`}
-                    name={item._id}
-                    control={control}
-                  />
-                  <Cancel onClick={() => handleDelete(index)} />
-                </Box>
-              );
-            })}
-            <BasicButton
-              onClick={handleOpenAnswerPopup}
-              icon={<AddCircle />}
-              fullWidth
-            >
-              Add option
-            </BasicButton>
           </form>
-          {/* Popup form add answer */}
-          <PopupForm
-            isOpen={openAnswerPopup}
-            handleClose={handleCloseAnswerPopup}
+          {/* Options */}
+          <OptionsContainer
+            answers={presentation.slides[slideIndex].answers}
             refetch={refetch}
-            api={API.ADD_ANSWER}
-            header="Please enter your option"
-            label="Option"
-            fieldName="answer"
-            otherField={{
-              presentationId: presentation._id,
-              slideId: presentation.slides[slideIndex]._id
-            }}
-          ></PopupForm>
+            slideIndex={slideIndex}
+          ></OptionsContainer>
         </>
       ) : (
         <Typography>Please add slide to edit</Typography>
       )}
 
-      {/* Popup message on delete */}
+      {/* Popup message on update question */}
       <PopupMsg
         status={status.type}
         isOpen={open}

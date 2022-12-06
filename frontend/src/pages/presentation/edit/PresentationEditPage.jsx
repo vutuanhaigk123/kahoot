@@ -43,7 +43,7 @@ const PresentationEditPage = () => {
 
   return (
     <BackgroundContainer>
-      <Box sx={{ width: "90%", m: "auto" }}>
+      <Box sx={{ width: "90%", m: "auto", mt: "10px" }}>
         <Typography variant="h4" sx={{ mb: 2 }}>
           {data?.info.title}
         </Typography>
@@ -57,11 +57,11 @@ const PresentationEditPage = () => {
             ></SideBar>
           </Grid>
           {/* Slide area */}
-          <Grid item xs={8}>
+          <Grid item xs={7}>
             <SlideArea slideIndex={slideIndex}></SlideArea>
           </Grid>
           {/* Edit option area */}
-          <Grid item xs={2}>
+          <Grid item xs={3}>
             <EditArea slideIndex={slideIndex} refetch={refetch}></EditArea>
           </Grid>
         </Grid>

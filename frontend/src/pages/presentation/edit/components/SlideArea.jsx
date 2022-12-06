@@ -10,8 +10,8 @@ const SlideArea = ({ slideIndex }) => {
     <Paper
       elevation={10}
       sx={{
-        height: "100%",
-        minHeight: 400,
+        // height: "100%",
+        height: 600,
         width: "100%",
         alignItems: "center",
         justifyContent: "center",

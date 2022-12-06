@@ -53,7 +53,9 @@ export const API = {
   DELETE_PRESENTAION: "/api/presentation/delete",
   CREATE_SLIDE: "/api/slide/create",
   UPDATE_SLIDE: "/api/slide/update",
-  ADD_ANSWER: "/api/slide/answer/create"
+  ADD_ANSWER: "/api/slide/answer/create",
+  DELETE_ANSWER: "/api/slide/answer/delete",
+  UPDATE_ANSWER: "/api/slide/answer/update"
 };
 
 // Group role

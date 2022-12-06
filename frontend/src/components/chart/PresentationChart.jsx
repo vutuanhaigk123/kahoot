@@ -13,7 +13,7 @@ const PresentationChart = ({ data }) => {
   if (data.length === 0) return null;
 
   return (
-    <ResponsiveContainer width="80%" height={700}>
+    <ResponsiveContainer width="80%" height={500}>
       <BarChart
         data={data}
         margin={{

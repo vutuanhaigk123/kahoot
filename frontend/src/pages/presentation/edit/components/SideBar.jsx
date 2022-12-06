@@ -17,7 +17,7 @@ const SideBar = ({ refetch, setSlideIndex, slideIndex }) => {
     <Paper
       elevation={10}
       sx={{
-        height: "100%",
+        height: 600,
         width: "100%",
         p: 2,
         overflowY: "scroll",
