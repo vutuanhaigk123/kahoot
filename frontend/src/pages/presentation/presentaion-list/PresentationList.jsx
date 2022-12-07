@@ -10,12 +10,7 @@ import {
 import React from "react";
 import { API, PAGE_ROUTES } from "../../../commons/constants";
 import BasicButton from "../../../components/button/BasicButton";
-import {
-  AddCircle,
-  Delete,
-  Edit,
-  PlayCircleFilledWhite
-} from "@mui/icons-material";
+import { AddCircle, Delete, Edit } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import usePopup from "../../../hooks/usePopup";
 import PopupForm from "../../../components/notification/PopupForm";
@@ -64,7 +59,7 @@ const PresentationList = () => {
           display: "flex",
           justifyContent: "center",
           flexDirection: "column",
-          width: "60%",
+          width: "50%",
           margin: "auto",
           gap: 2
         }}
@@ -80,11 +75,7 @@ const PresentationList = () => {
                 width: "100%",
                 justifyContent: "space-between",
                 boxShadow: 4
-                // cursor: "pointer"
               }}
-              // onClick={() =>
-              //   navigate(PAGE_ROUTES.PRESENTATION + `/${item._id}`)
-              // }
             >
               {/* Left side */}
               <Box sx={{ display: "flex", gap: 2 }}>
@@ -139,20 +130,6 @@ const PresentationList = () => {
                     }
                   >
                     Edit
-                  </BasicButton>
-                  <BasicButton
-                    size="small"
-                    width="100%"
-                    icon={<PlayCircleFilledWhite />}
-                    variant="contained"
-                    // onClick={() =>
-                    //   navigate(
-                    //     PAGE_ROUTES.SLIDES_PRESENT +
-                    //       `?id=${"638c64fdda1ad866c318f1b6"}&slide=${"638c6506da1ad866c318f1b9"}`
-                    //   )
-                    // }
-                  >
-                    Start
                   </BasicButton>
                 </CardActions>
               </Box>

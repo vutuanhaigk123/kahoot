@@ -1,4 +1,4 @@
-import { Typography } from "@mui/material";
+import { Button, Typography } from "@mui/material";
 import React from "react";
 import { useSelector } from "react-redux";
 
@@ -7,7 +7,6 @@ import { API, PAGE_ROUTES } from "../../../../commons/constants";
 import { Box } from "@mui/system";
 import { Edit, PlayCircleFilledWhite } from "@mui/icons-material";
 import PopupForm from "../../../../components/notification/PopupForm";
-import BasicButton from "./../../../../components/button/BasicButton";
 import { useNavigate } from "react-router-dom";
 
 const iconButton = {
@@ -64,8 +63,10 @@ const TitleArea = ({ refetch, slideIndex }) => {
         {presentation._id &&
         presentation.slides.length > 0 &&
         presentation.slides[slideIndex].answers.length > 0 ? (
-          <BasicButton
-            icon={<PlayCircleFilledWhite />}
+          <Button
+            color="secondary"
+            variant="contained"
+            startIcon={<PlayCircleFilledWhite />}
             onClick={() =>
               navigate(
                 PAGE_ROUTES.SLIDES_PRESENT +
@@ -74,7 +75,7 @@ const TitleArea = ({ refetch, slideIndex }) => {
             }
           >
             Start
-          </BasicButton>
+          </Button>
         ) : null}
       </Box>
       {/* Edit popup form */}

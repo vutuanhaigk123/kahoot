@@ -4,7 +4,7 @@ import BasicButton from "../../components/button/BasicButton";
 import { io } from "socket.io-client";
 import { useSearchParams } from "react-router-dom";
 import { useState } from "react";
-import { Badge, Box, Grid, Paper, Typography } from "@mui/material";
+import { Box, Grid, Paper, Typography } from "@mui/material";
 import BackgroundContainer from "../../components/misc/BackgroundContainer";
 import {
   SUBMIT_STATUS,
@@ -144,10 +144,11 @@ const PresentationPlayerPage = () => {
                       <BasicButton
                         fullWidth
                         key={value.id}
-                        variant="text"
+                        variant="contained"
                         onClick={() =>
                           handleSubmitChoice({ socket: ws, choiceId: value.id })
                         }
+                        sx={{ mb: 2 }}
                       >
                         {value.des}
                       </BasicButton>
