@@ -2,6 +2,7 @@
 /* eslint-disable no-console */
 /* eslint-disable camelcase */
 /* eslint-disable import/extensions */
+
 import express from "express";
 import passport from "passport";
 import AuthModel from "../model/authen.model.js";
