@@ -23,7 +23,15 @@ export const PAGE_ROUTES = {
   GROUP: "/group",
   PROFILE: "/profile",
   GROUP_DETAIL: "/group/:id",
-  JOIN: "/group/join"
+  JOIN: "/group/join",
+  PRESENTATION: "/presentaion",
+  PRESENTATION_EDIT: "/presentaion/:id",
+  PRESENT_OWNER: "/presentation/owner/present",
+  PRESENT_PLAYER: "/presentation/join",
+  SLIDES: "/slides",
+  SLIDES_EDIT: "/slides/:id",
+  SLIDES_PRESENT: "/presentation/owner/present",
+  SLIDES_JOIN: "/presentation/join"
 };
 
 // API
@@ -41,7 +49,37 @@ export const API = {
   JOIN: "/api/group/join",
   GROUP_INVITE_EMAIL: "/api/group/send-invitation",
   MEMBER_UPDATE: "/api/group/update-member",
-  RE_SEND_VERIFY_EMAIL: "/api/authen/send-verify-link"
+  RE_SEND_VERIFY_EMAIL: "/api/authen/send-verify-link",
+  PRESENTATION_LIST: "/api/presentation",
+  CREATE_PRESENTAION: "/api/presentation/create",
+  DELETE_PRESENTAION: "/api/presentation/delete",
+  CREATE_SLIDE: "/api/slide/create",
+  UPDATE_SLIDE: "/api/slide/update",
+  ADD_ANSWER: "/api/slide/answer/create",
+  DELETE_ANSWER: "/api/slide/answer/delete",
+  UPDATE_ANSWER: "/api/slide/answer/update",
+  DELETE_SLIDE: "/api/slide/delete",
+  UPDATE_PRESENTATION: "/api/presentation/update"
+};
+
+export const WS_CMD = {
+  CREATE_ROOM_CMD: "5",
+  JOIN_ROOM_CMD: "2"
+};
+
+export const WS_EVENT = {
+  INIT_CONNECTION_EVENT: "1",
+  RECEIVE_CHOICE_EVENT: "-3",
+  SUBMIT_CHOICE_EVENT: "3"
+};
+
+export const WS_CLOSE = {
+  CLOSE_REASON: "-999",
+  REASON_HAS_NEW_CONNECTION: "-998",
+  REASON_NOT_FOUND_CONTENT: "-997",
+  REASON_INVALID_CMD: "-995",
+  REASON_WAITING_FOR_HOST: "-994",
+  REASON_SLIDE_HAS_NO_ANS: "-993"
 };
 
 // Group role
@@ -57,4 +95,8 @@ export const NUM_TO_ROLE = {
   1: "Co-owner",
   2: "Member",
   "-1": "Kick"
+};
+
+export const questionType = {
+  MULTIPLE_CHOICE: 0
 };

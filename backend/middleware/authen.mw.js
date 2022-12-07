@@ -33,12 +33,18 @@ export default {
       default:
         if (isExpired || data.exp - Date.now() / 1000 <= FIVE_MINS_LEFT) {
           // renew token
-          const { accessToken, refreshToken } =
-            await AuthModel.renewAccessToken(
-              data.uid,
-              accessTok,
-              CookieModel.getRefreshToken(req.cookies)
-            );
+          const tokens = await AuthModel.renewAccessToken(
+            data.uid,
+            accessTok,
+            CookieModel.getRefreshToken(req.cookies)
+          );
+          if (!tokens) {
+            return res.json({
+              code: 400,
+              message: "Invalid access token"
+            });
+          }
+          const { accessToken, refreshToken } = tokens;
           if (accessToken && refreshToken) {
             CookieModel.setToken(res, CookieModel.ACCESS_TOKEN, accessToken);
             CookieModel.setToken(res, CookieModel.REFRESH_TOKEN, refreshToken);
@@ -85,16 +91,16 @@ export default {
   async wsStopWhenInvalidQuery(socket, next) {
     if (
       socket.request._query &&
-      socket.request._query.cmd &&
-      socket.request._query.room &&
+      socket.request._query.cmd !== "null" &&
+      socket.request._query.room !== "null" &&
+      socket.request._query.slide !== "null" &&
       (socket.request._query.cmd === EventModel.JOIN_ROOM ||
         socket.request._query.cmd === EventModel.CREATE_ROOM)
     ) {
-      // TO_DO: validate room id
-
       return next();
     }
-    socket.disconnect(true);
+    // socket.emit(EventModel.CLOSE_REASON, EventModel.REASON_NOT_FOUND_CONTENT);
+    // socket.disconnect(true);
     return next(new Error("Client does not have valid query string"));
   }
 };

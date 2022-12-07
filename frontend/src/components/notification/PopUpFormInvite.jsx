@@ -84,8 +84,12 @@ const InviteLinkForm = ({ inviteLink, handleClose, setType }) => {
         </Grid>
       </Grid>
       <Button onClick={setType(formType.inviteEmail)}>Invite with email</Button>
-      <DialogActions>
-        <BasicButton variant="contained" onClick={handleClose}>
+      <DialogActions sx={{ p: 0 }}>
+        <BasicButton
+          sx={{ margin: "auto" }}
+          variant="contained"
+          onClick={handleClose}
+        >
           Close
         </BasicButton>
       </DialogActions>

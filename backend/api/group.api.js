@@ -40,6 +40,12 @@ router.post("/create", AuthenMw.stopWhenNotLogon, async (req, res) => {
       message: "Invalid access token"
     });
   }
+  if (!name || name.trim().length === 0) {
+    return res.json({
+      status: 400,
+      message: "Invalid fields"
+    });
+  }
   const result = await GroupModel.createGroup(name, ownerId);
   if (!result) {
     return res.json({

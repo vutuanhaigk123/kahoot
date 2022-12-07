@@ -9,8 +9,10 @@ import SocketModel from "../model/socket.model.js";
 import AuthenModel from "../model/authen.model.js";
 import CookieModel from "../model/cookie.model.js";
 import EventModel from "../model/event.model.js";
+import PresentationModel from "../model/presentation.model.js";
 import MatchModel from "../model/match.model.js";
 import AuthenMw from "../middleware/authen.mw.js";
+import slideModel from "../model/slide.model.js";
 
 const matchingQueue = [];
 
@@ -32,30 +34,159 @@ function initConnection(socket) {
   return true;
 }
 
-async function sendInitData(socket) {
+async function hasContent(userId, room, slide) {
+  if (!room || !slide) {
+    return null;
+  }
+  const presentation = await PresentationModel.findByIdAndOwnerId(room, userId);
+  if (!presentation) {
+    return null;
+  }
+
+  const slideRes = await slideModel.findById(slide, room);
+  if (!slideRes) {
+    return null;
+  }
+  return { presentation, slide: slideRes };
+}
+
+function sendUnknownCommand(userId) {
+  SocketModel.sendEvent(
+    userId,
+    EventModel.CLOSE_REASON,
+    EventModel.REASON_INVALID_CMD
+  );
+  return SocketModel.removeSocketConn(userId);
+}
+
+async function sendDataToOwner(socket, userId, room, slide) {
+  if (!(await hasContent(userId, room, slide))) {
+    // send have no present permission
+    SocketModel.sendEvent(
+      userId,
+      EventModel.CLOSE_REASON,
+      EventModel.REASON_NOT_FOUND_CONTENT
+    );
+
+    SocketModel.removeSocketConn(userId);
+    return;
+  }
   // join or create room
-  const { room, cmd } = socket.request._query;
-  const userId = getUidFromWs(socket);
-  const result = await MatchModel.joinMatch(userId, room);
+  const result = await MatchModel.joinMatch(userId, true, room, slide);
   if (result) {
     const { curState, curQues, data, joinedUser } = result;
-    SocketModel.sendEvent(userId, EventModel.INIT_CONNECTION, {
-      curState,
-      curQues,
-      data
-    });
-    socket.join(room);
-    if (curState === MatchModel.STATE_LOBBY && joinedUser) {
-      SocketModel.sendBroadcastRoom(
-        userId,
-        room,
-        EventModel.JOIN_ROOM,
-        joinedUser
-      );
+
+    if (curQues) {
+      SocketModel.sendEvent(userId, EventModel.INIT_CONNECTION, {
+        curState,
+        curQues
+        // data
+      });
+      socket.join(room);
+      return;
     }
-  } else {
+    SocketModel.sendEvent(
+      userId,
+      EventModel.CLOSE_REASON,
+      EventModel.REASON_SLIDE_HAS_NO_ANS
+    );
     SocketModel.removeSocketConn(userId);
+    return;
+
+    // send broadcast when new user joined lobby (for lobby mode)
+    // if (curState === MatchModel.STATE_LOBBY && joinedUser) {
+    //   SocketModel.sendBroadcastRoom(
+    //     userId,
+    //     room,
+    //     EventModel.JOIN_ROOM,
+    //     joinedUser
+    //   );
+    //   return;
+    // }
   }
+  SocketModel.removeSocketConn(userId);
+}
+
+async function sendDataToPlayer(socket, userId, room, slide) {
+  // join or create room
+  const result = await MatchModel.joinMatch(userId, false, room, slide);
+  // console.log(result);
+  if (result) {
+    const { curState, curQues, data, joinedUser } = result;
+    if (curQues) {
+      SocketModel.sendEvent(userId, EventModel.INIT_CONNECTION, {
+        curState,
+        curQues
+        // data
+      });
+      socket.join(room);
+      return;
+    }
+
+    // send broadcast when new user joined lobby (for lobby mode)
+    // if (curState === MatchModel.STATE_LOBBY && joinedUser) {
+    //   SocketModel.sendBroadcastRoom(
+    //     userId,
+    //     room,
+    //     EventModel.JOIN_ROOM,
+    //     joinedUser
+    //   );
+    //   return;
+    // }
+  }
+  SocketModel.removeSocketConn(userId);
+}
+
+async function sendInitData(socket) {
+  const userId = getUidFromWs(socket);
+  const { room, cmd, slide } = socket.request._query;
+
+  switch (cmd) {
+    case EventModel.CREATE_ROOM:
+      await sendDataToOwner(socket, userId, room, slide);
+      break;
+    case EventModel.JOIN_ROOM:
+      await sendDataToPlayer(socket, userId, room, slide);
+      break;
+    default: // disconnect here
+      sendUnknownCommand(userId);
+      break;
+  }
+
+  // // check user has content (to present) or not (vote in present)
+  // if (cmd === EventModel.CREATE_ROOM && !(await hasContent(socket))) {
+  //   // TODO: send have no present permission
+  //   SocketModel.sendEvent(
+  //     userId,
+  //     EventModel.CLOSE_REASON,
+  //     EventModel.REASON_NOT_FOUND_CONTENT
+  //   );
+
+  //   return SocketModel.removeSocketConn(userId);
+  // }
+
+  // // join or create room
+  // const result = await MatchModel.joinMatch(userId, room);
+  // if (result) {
+  //   const { curState, curQues, data, joinedUser } = result;
+  //   SocketModel.sendEvent(userId, EventModel.INIT_CONNECTION, {
+  //     curState,
+  //     curQues
+  //     // data
+  //   });
+  //   socket.join(room);
+  //   if (curState === MatchModel.STATE_LOBBY && joinedUser) {
+  //     return SocketModel.sendBroadcastRoom(
+  //       userId,
+  //       room,
+  //       EventModel.JOIN_ROOM,
+  //       joinedUser
+  //     );
+  //   }
+  //   // prevent removeSocketConn
+  //   return true;
+  // }
+  // return SocketModel.removeSocketConn(userId);
 }
 
 export default async (path, ws) => {
@@ -64,7 +195,7 @@ export default async (path, ws) => {
     AuthenMw.wsStopWhenNotLogon(socket, next);
   });
 
-  // middleware: stop when: invalid cmd || invalid room
+  // middleware: stop when: invalid cmd || invalid room || invalid slide
   ws.use(async (socket, next) => {
     AuthenMw.wsStopWhenInvalidQuery(socket, next);
   });
@@ -78,14 +209,20 @@ export default async (path, ws) => {
 
     await sendInitData(socket);
 
+    const { room } = socket.request._query;
+    const userId = getUidFromWs(socket);
+
+    socket.on(EventModel.SUBMIT_CHOICE, (arg) => {
+      console.log(arg);
+      MatchModel.makeChoice(userId, room, arg, ws);
+    });
+
     socket.on("error", (err) => {
       SocketModel.removeSocketConn(getUidFromWs(socket));
     });
 
     socket.conn.on("close", (reason) => {
-      const { room } = socket.request._query;
       socket.leave(room);
-      const userId = getUidFromWs(socket);
       MatchModel.leaveLobby(userId, room, ws);
       SocketModel.removeSocketConn(userId);
       console.log("closed");

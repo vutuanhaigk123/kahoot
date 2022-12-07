@@ -1,6 +1,5 @@
 import React from "react";
 import {
-  Button,
   Dialog,
   DialogContent,
   DialogTitle,
@@ -9,13 +8,24 @@ import {
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
-import axios from "axios";
 import TextBox from "../input/TextBox";
-import { API, SUBMIT_STATUS } from "../../commons/constants";
 import PopupMsg from "./PopupMsg";
 import usePopup from "./../../hooks/usePopup";
+import { handlePost } from "./../../utils/fetch";
+import BasicButton from "./../button/BasicButton";
+import useStatus from "../../hooks/useStatus";
 
-const PopupForm = ({ isOpen, handleClose, refetch }) => {
+const PopupForm = ({
+  isOpen,
+  handleClose,
+  refetch,
+  header,
+  label,
+  api,
+  fieldName = "name",
+  otherField = {},
+  successMsg = "Created successfully"
+}) => {
   const {
     open: openMsg,
     handleClosePopup: handleCloseMsg,
@@ -23,7 +33,6 @@ const PopupForm = ({ isOpen, handleClose, refetch }) => {
   } = usePopup();
 
   // Form
-  const [status, setStatus] = React.useState({});
   const schema = yup.object({
     name: yup.string().required("Required")
   });
@@ -34,57 +43,44 @@ const PopupForm = ({ isOpen, handleClose, refetch }) => {
   } = useForm({
     resolver: yupResolver(schema)
   });
+  const { status, handleStatus } = useStatus();
   const onSubmit = async (data) => {
-    console.log("🚀 ~ file: PopupForm.jsx ~ line 34 ~ onSubmit ~ data", data);
-    try {
-      const resp = await axios.post(API.CREATE_GROUP, data);
-      console.log("🚀 ~ file: PopupForm.jsx ~ line 34 ~ onSubmit ~ resp", resp);
-      // Handle submit
-      if (resp?.data.status !== 0) {
-        setStatus({ type: SUBMIT_STATUS.ERROR, msg: resp.data.message });
-      } else {
-        setStatus({
-          type: SUBMIT_STATUS.SUCCESS,
-          msg: "Group created successfully"
-        });
-      }
-      // Close current popup form
-      handleClose();
-      // Open popup message
-      handleOpenMsg();
-      // Refetch groups data
-      refetch();
-    } catch (error) {
-      console.log(
-        "🚀 ~ file: PopupForm.jsx ~ line 35 ~ onSubmit ~ error",
-        error
-      );
-    }
+    // Handle submit
+    const resp = await handlePost(api, {
+      ...otherField,
+      [fieldName]: data.name
+    });
+    handleStatus(resp, successMsg);
+
+    // Close current popup form
+    handleClose();
+    // Open popup message
+    handleOpenMsg();
+    // Refetch groups data
+    refetch();
   };
 
   return (
     <>
       {/* Close form when recieved resp */}
       <Dialog open={isOpen} onClose={handleClose}>
-        <DialogTitle>What will we call your group ?</DialogTitle>
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <DialogContent>
+        <DialogTitle>{header}</DialogTitle>
+        <DialogContent>
+          <form onSubmit={handleSubmit(onSubmit)}>
             <TextBox
-              required
               variant="standard"
-              label="Group's name"
+              label={label}
               type="text"
-              placeholder="Enter your group name"
-              helperText={errors.name ? errors.name.message : null}
+              helperText={errors.name ? errors.name.message : " "}
               name="name"
               control={control}
             />
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleClose}>Cancel</Button>
-            <Button type="submit">Create</Button>
-          </DialogActions>
-        </form>
+            <DialogActions sx={{ justifyContent: "center" }}>
+              <BasicButton onClick={handleClose}>Cancel</BasicButton>
+              <BasicButton type="submit">Create</BasicButton>
+            </DialogActions>
+          </form>
+        </DialogContent>
       </Dialog>
       <PopupMsg
         status={status.type}

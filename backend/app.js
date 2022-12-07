@@ -28,6 +28,7 @@ const ws = new Server(httpServer, {
   cors: {
     origin: "http://localhost:3000",
     methods: ["GET", "POST"],
+    transports: ["websocket", "polling"],
     credentials: true
   }
 });

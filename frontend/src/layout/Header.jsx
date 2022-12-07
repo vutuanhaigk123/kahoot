@@ -9,21 +9,35 @@ import Menu from "@mui/material/Menu";
 import Container from "@mui/material/Container";
 import Avatar from "@mui/material/Avatar";
 import Tooltip from "@mui/material/Tooltip";
-import { Button, MenuItem, Icon } from "@mui/material";
+import {
+  Button,
+  MenuItem,
+  Icon,
+  ListItemIcon,
+  ListItemText
+} from "@mui/material";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../redux-toolkit/authSlice";
 import { API, PAGE_ROUTES } from "../commons/constants";
+import { AccountBox, ExitToApp } from "@mui/icons-material";
 
-const pages = [{ link: PAGE_ROUTES.GROUP, text: "Group" }];
-const settings = [{ link: PAGE_ROUTES.PROFILE, text: "Profile" }];
+const pages = [
+  { link: PAGE_ROUTES.GROUP, text: "Group" },
+  // { link: PAGE_ROUTES.PRESENT_OWNER, text: "Owner present" }
+  // { link: PAGE_ROUTES.PRESENT_PLAYER, text: "Player play" },
+  { link: PAGE_ROUTES.PRESENTATION, text: "Presentation" }
+];
+const settings = [
+  { link: PAGE_ROUTES.PROFILE, text: "Profile", icon: <AccountBox /> }
+];
 
 const Header = () => {
   const { pathname } = useLocation();
-  console.log("🚀 ~ file: Header.jsx:23 ~ Header ~ pathname", pathname);
+
   const navigate = useNavigate();
   const { user } = useSelector((state) => state?.auth);
-  console.log("🚀 ~ file: Header.jsx:25 ~ Header ~ user", user);
+
   const dispatch = useDispatch();
   const [anchorElUser, setAnchorElUser] = React.useState(null);
 
@@ -46,11 +60,8 @@ const Header = () => {
 
   const handleSignOut = async (e) => {
     try {
-      const resp = await axios.post(API.LOGOUT);
-      console.log(
-        "🚀 ~ file: Header.jsx ~ line 44 ~ handleSignOut ~ resp",
-        resp
-      );
+      await axios.post(API.LOGOUT);
+
       dispatch(logout());
       navigate(PAGE_ROUTES.LOGIN);
       handleCloseUserMenu();
@@ -63,7 +74,7 @@ const Header = () => {
   };
 
   return (
-    <AppBar position="static" color="primary">
+    <AppBar position="static" color="primary" sx={{ zIndex: 2 }}>
       <Container maxWidth="xl">
         <Toolbar disableGutters>
           {/* Normal view */}
@@ -176,10 +187,16 @@ const Header = () => {
                   to={`${setting.link}`}
                   onClick={handleCloseUserMenu}
                 >
-                  {setting.text}
+                  <ListItemIcon>{setting.icon}</ListItemIcon>
+                  <ListItemText>{setting.text}</ListItemText>
                 </MenuItem>
               ))}
-              <MenuItem onClick={() => handleSignOut()}>Logout</MenuItem>
+              <MenuItem onClick={() => handleSignOut()}>
+                <ListItemIcon>
+                  <ExitToApp />
+                </ListItemIcon>
+                <ListItemText>Log out</ListItemText>
+              </MenuItem>
             </Menu>
           </Box>
         </Toolbar>

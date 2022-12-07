@@ -1,9 +1,6 @@
 /* eslint-disable no-undef */
 import React, { lazy, Suspense } from "react";
 import "./App.css";
-// import { useEffect } from "react";
-// import { useState } from "react";
-// import { io } from "socket.io-client";
 import { useSelector } from "react-redux";
 import { Routes, Route } from "react-router-dom";
 import { PAGE_ROUTES } from "./commons/constants";
@@ -57,7 +54,7 @@ const ProfilePage = lazy(() =>
 );
 const GroupDetailPage = lazy(() =>
   Promise.all([
-    import("./pages/group/GroupDetailPage.jsx"),
+    import("./pages/group/group-detail/GroupDetailPage.jsx"),
     new Promise((resolve) => setTimeout(resolve, DELAY_TIME))
   ]).then(([module]) => module)
 );
@@ -67,45 +64,32 @@ const AcceptInvitePage = lazy(() =>
     new Promise((resolve) => setTimeout(resolve, DELAY_TIME))
   ]).then(([module]) => module)
 );
+const PresentationOwnerPage = lazy(() =>
+  Promise.all([
+    import("./pages/presentation/PresentationOwnerPage.jsx"),
+    new Promise((resolve) => setTimeout(resolve, DELAY_TIME))
+  ]).then(([module]) => module)
+);
+const PresentationPlayerPage = lazy(() =>
+  Promise.all([
+    import("./pages/presentation/PresentationPlayerPage.jsx"),
+    new Promise((resolve) => setTimeout(resolve, DELAY_TIME))
+  ]).then(([module]) => module)
+);
+const PresentationEdit = lazy(() =>
+  Promise.all([
+    import("./pages/presentation/edit/PresentationEditPage.jsx"),
+    new Promise((resolve) => setTimeout(resolve, DELAY_TIME))
+  ]).then(([module]) => module)
+);
+const PresentationListPage = lazy(() =>
+  Promise.all([
+    import("./pages/presentation/presentaion-list/PresentationList.jsx"),
+    new Promise((resolve) => setTimeout(resolve, DELAY_TIME))
+  ]).then(([module]) => module)
+);
 
 function App() {
-  // const [ws, setWs] = useState(null);
-  // useEffect(() => {
-  //   let wsDomain = process.env.REACT_APP_BACKEND_DOMAIN;
-  //   if (window.location.hostname.includes("localhost")) {
-  //     wsDomain = process.env.REACT_APP_BACKEND_DOMAIN_DEV;
-  //   }
-  //   const cmd = 2;
-  //   const room = -1;
-  //   const JOIN_ROOM_EVENT = "2";
-  //   const INIT_CONNECTION_EVENT = "1";
-  //   const EXIT_ROOM_EVENT = "-2";
-  //   const socket = io(wsDomain, {
-  //     query: `cmd=${cmd}&room=${room}`,
-  //     withCredentials: true
-  //   });
-  //   socket.on(INIT_CONNECTION_EVENT, (arg) => {
-  //     console.log("==========================================");
-  //     console.log(arg);
-  //   });
-
-  //   socket.on(JOIN_ROOM_EVENT, (arg) => {
-  //     console.log(
-  //       "=====================Member has just joined room====================="
-  //     );
-  //     console.log(arg);
-  //   });
-
-  //   socket.on(EXIT_ROOM_EVENT, (arg) => {
-  //     console.log(
-  //       "=====================Member has just leaved room====================="
-  //     );
-  //     console.log(arg);
-  //   });
-
-  //   setWs(socket);
-  //   return () => socket.close();
-  // }, []);
   const { user } = useSelector((state) => state.auth);
   return (
     <Suspense
@@ -175,6 +159,38 @@ function App() {
             element={
               <Protected isLoggedIn={user?.data} isStopWhenLogon={false}>
                 <AcceptInvitePage />
+              </Protected>
+            }
+          />
+          <Route
+            path={PAGE_ROUTES.PRESENT_OWNER}
+            element={
+              <Protected isLoggedIn={user?.data} isStopWhenLogon={false}>
+                <PresentationOwnerPage />
+              </Protected>
+            }
+          />
+          <Route
+            path={PAGE_ROUTES.PRESENT_PLAYER}
+            element={
+              <Protected isLoggedIn={user?.data} isStopWhenLogon={false}>
+                <PresentationPlayerPage />
+              </Protected>
+            }
+          />
+          <Route
+            path={PAGE_ROUTES.PRESENTATION}
+            element={
+              <Protected isLoggedIn={user?.data} isStopWhenLogon={false}>
+                <PresentationListPage />
+              </Protected>
+            }
+          />
+          <Route
+            path={PAGE_ROUTES.PRESENTATION_EDIT}
+            element={
+              <Protected isLoggedIn={user?.data} isStopWhenLogon={false}>
+                <PresentationEdit />
               </Protected>
             }
           />

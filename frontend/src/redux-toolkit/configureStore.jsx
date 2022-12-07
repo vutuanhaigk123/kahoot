@@ -11,14 +11,17 @@ import {
 } from "redux-persist";
 import storage from "redux-persist/lib/storage"; // defaults to localStorage for web
 import authSlice from "./authSlice";
+import presentationSlice from "./presentationSlice";
 
 const persistConfig = {
   key: "root",
-  storage
+  storage,
+  whitelist: ["auth"]
 };
 
 const reducer = combineReducers({
-  auth: authSlice
+  auth: authSlice,
+  presentation: presentationSlice
 });
 
 const persistedReducer = persistReducer(persistConfig, reducer);

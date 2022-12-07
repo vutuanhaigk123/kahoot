@@ -1,7 +1,7 @@
 import React from "react";
 import BackgroundContainer from "../../components/misc/BackgroundContainer";
 import BasicButton from "../../components/button/BasicButton";
-import { Box, Grid, Paper, Tab, Typography } from "@mui/material";
+import { Box, Grid, Paper, Tab } from "@mui/material";
 import { AddCircle } from "@mui/icons-material";
 import BasicCard from "../../components/card/BasicCard";
 import PopupForm from "../../components/notification/PopupForm";
@@ -15,6 +15,7 @@ import { Stack } from "@mui/system";
 import { TabContext, TabList } from "@mui/lab";
 import { TabPanel } from "@mui/lab";
 import { handleGet } from "../../utils/fetch";
+import Empty from "./components/Empty";
 
 const FormType = { CREATE: "create", JOIN: "join" };
 
@@ -111,6 +112,9 @@ const Panel = ({ value, data, formType, refetch }) => {
             isOpen={open}
             handleClose={handleClosePopup}
             refetch={refetch}
+            api={API.CREATE_GROUP}
+            header="What will we call your group ?"
+            label="Group's name"
           ></PopupForm>
         ) : null}
 
@@ -135,19 +139,20 @@ const Panel = ({ value, data, formType, refetch }) => {
               ))}
             </Grid>
           ) : (
-            <Stack>
-              <Typography variant="h4">
-                {formType === FormType.CREATE
-                  ? "You don't onwed any group yet"
-                  : "You haven't joined any group yet"}
-              </Typography>
-              <Box component="img" src="/Groups/Empty.png" alt="empty"></Box>
-            </Stack>
+            <Empty>
+              {formType === FormType.CREATE
+                ? "You don't onwed any group yet"
+                : "You haven't joined any group yet"}
+            </Empty>
           )}
         </Paper>
         {/* Add group button */}
         {formType === FormType.CREATE ? (
-          <BasicButton onClick={handleOpenPopup} icon={<AddCircle />}>
+          <BasicButton
+            sx={{ m: "auto", boxShadow: 4 }}
+            onClick={handleOpenPopup}
+            icon={<AddCircle />}
+          >
             Create group
           </BasicButton>
         ) : null}
