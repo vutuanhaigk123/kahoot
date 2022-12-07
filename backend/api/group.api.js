@@ -3,6 +3,7 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-console */
 /* eslint-disable import/extensions */
+
 import express from "express";
 import AuthenMw from "../middleware/authen.mw.js";
 import AuthenModel from "../model/authen.model.js";
