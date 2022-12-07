@@ -63,6 +63,7 @@ const matches = new HashMap();
     matches = {
       roomId: quiz room id,
       owner: owner id,
+      timeout: timeoutDelete,
       curState: (lobby) || (leaderboard),
       curQues: question id,
       members: [{
@@ -76,7 +77,8 @@ const matches = new HashMap();
         title: "question 1: ...",
         answers: [{
           id: answer id,
-          des: "This is an answer"
+          des: "This is an answer",
+          total: 0
         }],
         true_ans: answer id
       }],
@@ -121,6 +123,7 @@ function initMatch(roomId, ownerId, questions, slideId) {
   // console.log(questionsTmp);
   return {
     roomId,
+    timeout: null,
     members: [],
     curState: STATE_LOBBY_CODE,
     curQues: slideId,
@@ -139,9 +142,9 @@ function hasQuestion(questions, questionId) {
 
 function isAnswerValid(answers, answerId) {
   if (!answers || !answers.length) {
-    return false;
+    return -1;
   }
-  return answers.findIndex((answer) => answer.id === answerId) !== -1;
+  return answers.findIndex((answer) => answer.id === answerId);
 }
 
 function getQuestion(questions, questionId) {
@@ -182,6 +185,8 @@ export default {
             }
             matchInfo = initMatch(roomId, userId, questions, slideId);
             matches.set(roomId, matchInfo);
+
+            console.log("init new match");
           }
           break;
         // waiting for owner host to join
@@ -206,6 +211,11 @@ export default {
         score: 0
       };
       matchInfo.members.push(joinedUser);
+    }
+    if (userId === matchInfo.owner && matchInfo.timeout) {
+      clearTimeout(matchInfo.timeout);
+      matchInfo.timeout = null;
+      console.log("delete timeout");
     }
     // console.log(matchInfo);
     // console.log(matchInfo.questions);
@@ -242,16 +252,22 @@ export default {
 
   leaveLobby(userId, roomId, ws) {
     const matchInfo = matches.get(roomId);
-    if (matchInfo && matchInfo.curState === STATE_LOBBY_CODE) {
+    if (matchInfo /* && matchInfo.curState === STATE_LOBBY_CODE */) {
       const index = matchInfo.members.findIndex(
         (member) => member.id === userId
       );
-      if (index === -1) {
-        return;
+      if (index !== -1) {
+        // remove in members
+        matchInfo.members.splice(index, 1);
       }
-      // remove in members
-      matchInfo.members.splice(index, 1);
 
+      if (userId === matchInfo.owner) {
+        const timeoutDelete = setTimeout(() => {
+          matches.delete(roomId);
+          console.log("deleted roomId=", roomId);
+        }, 1000 * 120); // 120 seconds
+        matchInfo.timeout = timeoutDelete;
+      }
       SocketModel.sendBroadcastRoom(
         userId,
         roomId,
@@ -264,7 +280,7 @@ export default {
 
   makeChoice(userId, roomId, choiceId, ws) {
     const matchInfo = matches.get(roomId);
-    if (matchInfo && matchInfo.curState === STATE_LOBBY_CODE) {
+    if (matchInfo /* && matchInfo.curState === STATE_LOBBY_CODE */) {
       const questionId = matchInfo.curQues;
       const questionIndex = hasQuestion(matchInfo.questions, questionId);
       if (questionIndex === -1) {
@@ -285,9 +301,11 @@ export default {
         ans = matchInfo.answers[index];
       }
 
-      if (
-        !isAnswerValid(matchInfo.questions[questionIndex].answers, choiceId)
-      ) {
+      const choiceIndex = isAnswerValid(
+        matchInfo.questions[questionIndex].answers,
+        choiceId
+      );
+      if (choiceIndex === -1) {
         return console.log("Khong co choiceId nay");
       }
 
@@ -296,6 +314,7 @@ export default {
       //   return console.log("Da answered roi");
       // }
       ans.data.set(userId, choiceId);
+      matchInfo.questions[questionIndex].answers[choiceIndex].total += 1;
 
       SocketModel.sendBroadcastRoom(
         userId,

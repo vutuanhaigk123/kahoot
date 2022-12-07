@@ -41,6 +41,7 @@ const PresentationPlayerPage = () => {
       query: `cmd=${WS_CMD.JOIN_ROOM_CMD}&room=${id}&slide=${slide}}`,
       withCredentials: true
     });
+
     socket.on(WS_EVENT.INIT_CONNECTION_EVENT, (arg) => {
       console.log("==========================================");
       console.log(arg);
@@ -145,7 +146,7 @@ const PresentationPlayerPage = () => {
       )}
 
       <PopupMsg
-        isOpen={!msgClose}
+        isOpen={!ws}
         hasOk={false}
         status={SUBMIT_STATUS.ERROR}
         handleClosePopup={() => console.log()}
