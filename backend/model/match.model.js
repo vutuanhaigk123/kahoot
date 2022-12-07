@@ -215,6 +215,14 @@ export default {
     if (userId === matchInfo.owner && matchInfo.timeout) {
       clearTimeout(matchInfo.timeout);
       matchInfo.timeout = null;
+
+      const questions = await getQuestionsInRoom(roomId);
+      if (!questions) {
+        return null;
+      }
+
+      matchInfo = initMatch(roomId, userId, questions, slideId);
+      matches.set(roomId, matchInfo);
       console.log("delete timeout");
     }
     // console.log(matchInfo);
