@@ -315,6 +315,7 @@ export default {
       // }
       ans.data.set(userId, choiceId);
       matchInfo.questions[questionIndex].answers[choiceIndex].total += 1;
+      SlideModel.addChoiceUid(questionId, roomId, choiceId, userId);
 
       SocketModel.sendBroadcastRoom(
         userId,

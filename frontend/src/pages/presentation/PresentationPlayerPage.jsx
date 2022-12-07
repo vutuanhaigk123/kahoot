@@ -13,6 +13,7 @@ import {
   WS_EVENT
 } from "../../commons/constants";
 import PopupMsg from "../../components/notification/PopupMsg";
+import { useSelector } from "react-redux";
 
 const handleSubmitChoice = ({ socket, choiceId }) => {
   if (socket) {
@@ -24,7 +25,9 @@ const handleSubmitChoice = ({ socket, choiceId }) => {
 };
 
 const PresentationPlayerPage = () => {
+  const { user } = useSelector((state) => state?.auth);
   const [msgClose, setMsgClose] = useState(null);
+  const [isVoted, setIsVoted] = useState(false);
   const [searchParam] = useSearchParams();
   const id = searchParam.get("id");
   const slide = searchParam.get("slide");
@@ -53,6 +56,9 @@ const PresentationPlayerPage = () => {
         "=====================Another member has make a choice====================="
       );
       console.log(arg);
+      if (arg.id === user.data.id) {
+        setIsVoted(true);
+      }
     });
 
     socket.on(WS_CLOSE.CLOSE_REASON, (arg) => {
@@ -109,36 +115,47 @@ const PresentationPlayerPage = () => {
               p: 2
             }}
           >
-            <Typography variant="h4" sx={{ mb: 5 }}>
-              {question.question}
-            </Typography>
-            <Grid
-              container
-              spacing={2}
-              style={{
-                maxHeight: "100vh",
-                overflowY: "auto",
-                overflowX: "hidden",
-                height: "440px",
+            {isVoted ? (
+              <Typography
+                variant="h4"
+                sx={{ mb: 5, alignItems: "center", justifyContent: "center" }}
+              >
+                You voted successfully
+              </Typography>
+            ) : (
+              <Box>
+                <Typography variant="h4" sx={{ mb: 5 }}>
+                  {question.question}
+                </Typography>
+                <Grid
+                  container
+                  spacing={2}
+                  style={{
+                    maxHeight: "100vh",
+                    overflowY: "auto",
+                    overflowX: "hidden",
+                    height: "440px",
 
-                overflow: "auto"
-              }}
-            >
-              {question.answers.map((value, index) => {
-                return (
-                  <BasicButton
-                    fullWidth
-                    key={value.id}
-                    variant="text"
-                    onClick={() =>
-                      handleSubmitChoice({ socket: ws, choiceId: value.id })
-                    }
-                  >
-                    {value.des}
-                  </BasicButton>
-                );
-              })}
-            </Grid>
+                    overflow: "auto"
+                  }}
+                >
+                  {question.answers.map((value, index) => {
+                    return (
+                      <BasicButton
+                        fullWidth
+                        key={value.id}
+                        variant="text"
+                        onClick={() =>
+                          handleSubmitChoice({ socket: ws, choiceId: value.id })
+                        }
+                      >
+                        {value.des}
+                      </BasicButton>
+                    );
+                  })}
+                </Grid>
+              </Box>
+            )}
           </Paper>
         </Box>
       ) : (

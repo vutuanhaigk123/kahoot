@@ -110,7 +110,7 @@ async function sendDataToOwner(socket, userId, room, slide) {
 async function sendDataToPlayer(socket, userId, room, slide) {
   // join or create room
   const result = await MatchModel.joinMatch(userId, false, room, slide);
-  console.log(result);
+  // console.log(result);
   if (result) {
     const { curState, curQues, data, joinedUser } = result;
     if (curQues) {

@@ -27,6 +27,13 @@ export default {
     return ret;
   },
 
+  async addChoiceUid(slideId, presentationId, answerId, choiceUid) {
+    await Slide.updateOne(
+      { _id: slideId, presentationId, "answers._id": answerId },
+      { $push: { "answers.$.choiceUids": choiceUid } }
+    );
+  },
+
   async save(slide) {
     try {
       const ret = await slide.save();
