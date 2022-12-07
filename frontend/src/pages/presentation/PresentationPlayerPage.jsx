@@ -107,12 +107,13 @@ const PresentationPlayerPage = () => {
             sx={{
               // height: "100%",
               height: 600,
-              width: "100%",
+              width: "30%",
               alignItems: "center",
               justifyContent: "center",
               display: "flex",
               flexDirection: "column",
-              p: 2
+              p: 2,
+              m: "auto"
             }}
           >
             {isVoted ? (
@@ -123,19 +124,17 @@ const PresentationPlayerPage = () => {
                 You voted successfully
               </Typography>
             ) : (
-              <Box>
+              <>
                 <Typography variant="h4" sx={{ mb: 5 }}>
                   {question.question}
                 </Typography>
-                <Grid
-                  container
+                <Box
                   spacing={2}
                   style={{
                     maxHeight: "100vh",
                     overflowY: "auto",
                     overflowX: "hidden",
                     height: "440px",
-
                     overflow: "auto"
                   }}
                 >
@@ -154,8 +153,8 @@ const PresentationPlayerPage = () => {
                       </BasicButton>
                     );
                   })}
-                </Grid>
-              </Box>
+                </Box>
+              </>
             )}
           </Paper>
         </Box>
