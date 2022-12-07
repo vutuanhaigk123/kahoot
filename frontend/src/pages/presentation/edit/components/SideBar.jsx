@@ -1,11 +1,21 @@
 import { Paper, Typography } from "@mui/material";
 import { grey } from "@mui/material/colors";
 import React from "react";
-import BasicButton from "../../../../components/button/BasicButton";
-import { AddCircle } from "@mui/icons-material";
+import { AddCircle, Clear } from "@mui/icons-material";
 import usePopup from "../../../../hooks/usePopup";
 import { useSelector } from "react-redux";
 import CreateSlideForm from "./CreateSlideForm";
+import { API } from "../../../../commons/constants";
+import useStatus from "../../../../hooks/useStatus";
+import { handlePost } from "../../../../utils/fetch";
+import PopupMsg from "../../../../components/notification/PopupMsg";
+
+const iconButton = {
+  bgcolor: grey[300],
+  borderRadius: "50%",
+  color: "black",
+  p: "2px"
+};
 
 const SideBar = ({ refetch, setSlideIndex, slideIndex }) => {
   const { open, handleOpenPopup, handleClosePopup } = usePopup();
@@ -13,12 +23,34 @@ const SideBar = ({ refetch, setSlideIndex, slideIndex }) => {
   // Get data from redux store
   const data = useSelector((state) => state.presentation);
 
+  // Handle delete slide
+  const { status: deleteSlideStatus, handleStatus: handleDeleteSlideStatus } =
+    useStatus();
+  const {
+    open: openSlideDeletePopup,
+    handleOpenPopup: handleOpenSlideDeletePopup,
+    handleClosePopup: handleCloseSlideDeletePopup
+  } = usePopup();
+  const handleDelete = async (slideId) => {
+    // Create data to post
+    const data_post = {
+      presentationId: data._id,
+      slideId
+    };
+    const resp = await handlePost(API.DELETE_SLIDE, data_post);
+
+    handleDeleteSlideStatus(resp);
+    handleOpenSlideDeletePopup(); // Open popup
+    setSlideIndex(0);
+    refetch(); // Refetch data};
+  };
+
   return (
     <Paper
       elevation={10}
       sx={{
-        height: 600,
-        width: "100%",
+        height: "60vh",
+        // width: "100%",
         p: 2,
         overflowY: "scroll",
         textAlign: "center"
@@ -38,23 +70,61 @@ const SideBar = ({ refetch, setSlideIndex, slideIndex }) => {
                 mb: 2,
                 display: "flex",
                 cursor: "pointer",
-                borderColor: index !== slideIndex ? grey[400] : "primary.main"
+                borderColor: index !== slideIndex ? grey[400] : "primary.main",
+                position: "relative"
               }}
             >
               <Typography m="auto">{slide.question}</Typography>
+              <Clear
+                sx={[
+                  {
+                    fontSize: "15px",
+                    position: "absolute",
+                    top: 5,
+                    right: 5,
+                    "&:hover": {
+                      bgcolor: "error.main",
+                      color: "white"
+                    }
+                  },
+                  iconButton
+                ]}
+                onClick={() => handleDelete(slide._id)}
+              />
             </Paper>
           ))
         : null}
-
       {/* Add slide button */}
-      <BasicButton onClick={handleOpenPopup} icon={<AddCircle />} fullWidth>
-        Add slide
-      </BasicButton>
+      <Paper
+        onClick={handleOpenPopup}
+        sx={{
+          width: "80%",
+          height: "20%",
+          m: "auto",
+          border: 1,
+          mb: 2,
+          display: "flex",
+          cursor: "pointer",
+          borderColor: grey[400]
+        }}
+      >
+        <AddCircle sx={{ m: "auto", color: grey[500] }} />
+      </Paper>
+      {/* Create slide form */}
       <CreateSlideForm
         isOpen={open}
         handleClose={handleClosePopup}
         refetch={refetch}
       ></CreateSlideForm>
+      {/* Delete slide popup */}
+      <PopupMsg
+        status={deleteSlideStatus.type}
+        isOpen={openSlideDeletePopup}
+        handleClosePopup={handleCloseSlideDeletePopup}
+        hideOnSuccess={true}
+      >
+        {deleteSlideStatus.msg}
+      </PopupMsg>
     </Paper>
   );
 };

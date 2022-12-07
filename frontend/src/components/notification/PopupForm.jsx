@@ -9,11 +9,11 @@ import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
 import TextBox from "../input/TextBox";
-import { SUBMIT_STATUS } from "../../commons/constants";
 import PopupMsg from "./PopupMsg";
 import usePopup from "./../../hooks/usePopup";
 import { handlePost } from "./../../utils/fetch";
 import BasicButton from "./../button/BasicButton";
+import useStatus from "../../hooks/useStatus";
 
 const PopupForm = ({
   isOpen,
@@ -23,7 +23,8 @@ const PopupForm = ({
   label,
   api,
   fieldName = "name",
-  otherField = {}
+  otherField = {},
+  successMsg = "Created successfully"
 }) => {
   const {
     open: openMsg,
@@ -32,7 +33,6 @@ const PopupForm = ({
   } = usePopup();
 
   // Form
-  const [status, setStatus] = React.useState({});
   const schema = yup.object({
     name: yup.string().required("Required")
   });
@@ -43,21 +43,15 @@ const PopupForm = ({
   } = useForm({
     resolver: yupResolver(schema)
   });
+  const { status, handleStatus } = useStatus();
   const onSubmit = async (data) => {
+    // Handle submit
     const resp = await handlePost(api, {
       ...otherField,
       [fieldName]: data.name
     });
-    console.log("🚀 ~ file: PopupForm.jsx ~ line 34 ~ onSubmit ~ resp", resp);
-    // Handle submit
-    if (resp?.status !== 0) {
-      setStatus({ type: SUBMIT_STATUS.ERROR, msg: resp.message });
-    } else {
-      setStatus({
-        type: SUBMIT_STATUS.SUCCESS,
-        msg: "Created successfully"
-      });
-    }
+    handleStatus(resp, successMsg);
+
     // Close current popup form
     handleClose();
     // Open popup message

@@ -1,4 +1,4 @@
-import { Box, Container, Grid, Typography } from "@mui/material";
+import { Box, Grid } from "@mui/material";
 import React from "react";
 import { useParams } from "react-router-dom";
 import BackgroundContainer from "../../../components/misc/BackgroundContainer";
@@ -11,6 +11,7 @@ import { API } from "../../../commons/constants";
 import Loading from "./../../../components/Loading";
 import { useDispatch } from "react-redux";
 import { set } from "../../../redux-toolkit/presentationSlice";
+import TitleArea from "./components/TitleArea";
 
 const PresentationEditPage = () => {
   const { id: presentationId } = useParams();
@@ -43,11 +44,10 @@ const PresentationEditPage = () => {
 
   return (
     <BackgroundContainer>
-      <Box sx={{ width: "90%", m: "auto" }}>
-        <Typography variant="h4" sx={{ mb: 2 }}>
-          {data?.info.title}
-        </Typography>
-        <Grid container spacing={6}>
+      <Box sx={{ width: "90vw", m: "auto" }}>
+        {/* Title */}
+        <TitleArea refetch={refetch}></TitleArea>
+        <Grid container columnGap={2}>
           {/* Left side bar */}
           <Grid item xs={2}>
             <SideBar
@@ -57,7 +57,7 @@ const PresentationEditPage = () => {
             ></SideBar>
           </Grid>
           {/* Slide area */}
-          <Grid item xs={7}>
+          <Grid item xs={true}>
             <SlideArea slideIndex={slideIndex}></SlideArea>
           </Grid>
           {/* Edit option area */}

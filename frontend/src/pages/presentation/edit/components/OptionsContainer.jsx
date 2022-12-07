@@ -1,10 +1,5 @@
 import { AddCircle, Close, Edit, SaveAs } from "@mui/icons-material";
-import {
-  Typography,
-  TextField,
-  CircularProgress,
-  IconButton
-} from "@mui/material";
+import { Typography, CircularProgress, IconButton } from "@mui/material";
 import { grey } from "@mui/material/colors";
 import { Box } from "@mui/system";
 import React from "react";
@@ -57,34 +52,14 @@ const OptionsContainer = ({ answers, slideIndex, refetch }) => {
     refetch(); // Refetch data
   };
 
-  // Edit answer
-  const { status: editStatus, handleStatus: handleEditStatus } = useStatus();
-  const {
-    open: openAnswerUpdatePopup,
-    handleOpenPopup: handleOpenAnswerUpdatePopup,
-    handleClosePopup: handleCloseAnswerUpdatePopup
-  } = usePopup();
-  const handleEdit = async (answerId, answer) => {
-    // Create data to post
-    const data = {
-      answerId,
-      presentationId: presentation._id,
-      slideId: presentation.slides[slideIndex]._id,
-      answer
-    };
-    const resp = await handlePost(API.UPDATE_ANSWER, data);
-
-    handleEditStatus(resp);
-    handleOpenAnswerUpdatePopup(); // Open popup
-    refetch(); // Refetch data
-  };
-
   return (
     <>
       {/* Options */}
-      <Typography variant="h6" fontWeight="bold">
-        Options
-      </Typography>
+      <Box sx={{ display: "flex" }}>
+        <Typography variant="h6" fontWeight="bold">
+          Options
+        </Typography>
+      </Box>
       {answers.map((answer, index) => {
         return (
           <Box
@@ -100,7 +75,8 @@ const OptionsContainer = ({ answers, slideIndex, refetch }) => {
               answer={answer}
               answerIndex={index}
               handleDelete={handleDelete}
-              handleEdit={handleEdit}
+              slideIndex={slideIndex}
+              refetch={refetch}
             />
           </Box>
         );
@@ -135,15 +111,6 @@ const OptionsContainer = ({ answers, slideIndex, refetch }) => {
       >
         {status.msg}
       </PopupMsg>
-      {/* Update answer popup */}
-      <PopupMsg
-        status={editStatus.type}
-        isOpen={openAnswerUpdatePopup}
-        handleClosePopup={handleCloseAnswerUpdatePopup}
-        hideOnSuccess={true}
-      >
-        {editStatus.msg}
-      </PopupMsg>
     </>
   );
 };
@@ -156,7 +123,13 @@ const iconButton = {
   marginTop: "6px"
 };
 
-const AnswerTextBox = ({ answer, answerIndex, handleEdit, handleDelete }) => {
+const AnswerTextBox = ({
+  answer,
+  answerIndex,
+  slideIndex,
+  handleDelete,
+  refetch
+}) => {
   const { value: disabled, toggleValue: toggleTextBox } = useToggle(true);
   const [isEdit, setIsEdit] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(false);
@@ -172,8 +145,30 @@ const AnswerTextBox = ({ answer, answerIndex, handleEdit, handleDelete }) => {
   } = useForm({
     resolver: yupResolver(schema)
   });
-  const onSubmit = (data) => {
-    handleEdit(answer._id, data.answer);
+
+  // Edit answer
+  const presentation = useSelector((state) => state.presentation);
+  const { status: editStatus, handleStatus: handleEditStatus } = useStatus();
+  const {
+    open: openAnswerUpdatePopup,
+    handleOpenPopup: handleOpenAnswerUpdatePopup,
+    handleClosePopup: handleCloseAnswerUpdatePopup
+  } = usePopup();
+  const onSubmit = async (data) => {
+    // handleEdit(answer._id, data.answer);
+    // Create data to post
+    setIsLoading(true);
+    data.answerId = answer._id;
+    data.presentationId = presentation._id;
+    data.slideId = presentation.slides[slideIndex]._id;
+
+    const resp = await handlePost(API.UPDATE_ANSWER, data);
+
+    handleEditStatus(resp);
+    setIsLoading(false);
+    handleToggle();
+    handleOpenAnswerUpdatePopup(); // Open popup
+    refetch(); // Refetch data
   };
 
   const handleToggle = () => {
@@ -200,7 +195,7 @@ const AnswerTextBox = ({ answer, answerIndex, handleEdit, handleDelete }) => {
           disabled={disabled}
           control={control}
           name="answer"
-          helperText={errors.answer ? errors.answer.message : " "}
+          helperText={errors.answer ? errors.answer.message : null}
         />
         {isEdit ? (
           <Box sx={{ position: "relative" }}>
@@ -257,6 +252,15 @@ const AnswerTextBox = ({ answer, answerIndex, handleEdit, handleDelete }) => {
         fontSize="small"
         onClick={() => handleDelete(answer._id)}
       />
+      {/* Update answer popup */}
+      <PopupMsg
+        status={editStatus.type}
+        isOpen={openAnswerUpdatePopup}
+        handleClosePopup={handleCloseAnswerUpdatePopup}
+        hideOnSuccess={true}
+      >
+        {editStatus.msg}
+      </PopupMsg>
     </>
   );
 };

@@ -55,7 +55,9 @@ export const API = {
   UPDATE_SLIDE: "/api/slide/update",
   ADD_ANSWER: "/api/slide/answer/create",
   DELETE_ANSWER: "/api/slide/answer/delete",
-  UPDATE_ANSWER: "/api/slide/answer/update"
+  UPDATE_ANSWER: "/api/slide/answer/update",
+  DELETE_SLIDE: "/api/slide/delete",
+  UPDATE_PRESENTATION: "/api/presentation/update"
 };
 
 export const WS_CMD = {

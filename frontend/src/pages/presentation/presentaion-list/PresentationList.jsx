@@ -79,8 +79,12 @@ const PresentationList = () => {
                 display: "flex",
                 width: "100%",
                 justifyContent: "space-between",
-                boxShadow: 4
+                boxShadow: 4,
+                cursor: "pointer"
               }}
+              onClick={() =>
+                navigate(PAGE_ROUTES.PRESENTATION + `/${item._id}`)
+              }
             >
               {/* Left side */}
               <Box sx={{ display: "flex", gap: 2 }}>

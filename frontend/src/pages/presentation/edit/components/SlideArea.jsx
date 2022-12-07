@@ -10,9 +10,8 @@ const SlideArea = ({ slideIndex }) => {
     <Paper
       elevation={10}
       sx={{
-        // height: "100%",
-        height: 600,
-        width: "100%",
+        height: "60vh",
+        // width: "100%",
         alignItems: "center",
         justifyContent: "center",
         display: "flex",
@@ -25,7 +24,10 @@ const SlideArea = ({ slideIndex }) => {
           <Typography variant="h4">
             {data.slides[slideIndex].question}
           </Typography>
-          <PresentationChart data={data.slides[slideIndex].answers} />
+          <PresentationChart
+            data={data.slides[slideIndex].answers}
+            height="80%"
+          />
         </>
       ) : null}
     </Paper>
