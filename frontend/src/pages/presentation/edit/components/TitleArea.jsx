@@ -3,11 +3,12 @@ import React from "react";
 import { useSelector } from "react-redux";
 
 import usePopup from "./../../../../hooks/usePopup";
-import { API } from "../../../../commons/constants";
+import { API, PAGE_ROUTES } from "../../../../commons/constants";
 import { Box } from "@mui/system";
 import { Edit, PlayCircleFilledWhite } from "@mui/icons-material";
 import PopupForm from "../../../../components/notification/PopupForm";
 import BasicButton from "./../../../../components/button/BasicButton";
+import { useNavigate } from "react-router-dom";
 
 const iconButton = {
   bgcolor: "black",
@@ -17,7 +18,9 @@ const iconButton = {
   cursor: "pointer"
 };
 
-const TitleArea = ({ refetch }) => {
+const TitleArea = ({ refetch, slideIndex }) => {
+  const navigate = useNavigate();
+
   // Get data from redux store
   const presentation = useSelector((state) => state.presentation);
 
@@ -58,10 +61,17 @@ const TitleArea = ({ refetch }) => {
           />
         </Box>
         {/* Start button */}
-        {presentation._id && presentation.slides.length > 0 ? (
+        {presentation._id &&
+        presentation.slides.length > 0 &&
+        presentation.slides[slideIndex].answers.length > 0 ? (
           <BasicButton
             icon={<PlayCircleFilledWhite />}
-            onClick={() => console.log("run")}
+            onClick={() =>
+              navigate(
+                PAGE_ROUTES.SLIDES_PRESENT +
+                  `?id=${presentation._id}&slide=${presentation.slides[slideIndex]._id}`
+              )
+            }
           >
             Start
           </BasicButton>

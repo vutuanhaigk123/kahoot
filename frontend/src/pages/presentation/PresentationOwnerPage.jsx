@@ -5,6 +5,7 @@ import { useSearchParams } from "react-router-dom";
 import { useState } from "react";
 import { io } from "socket.io-client";
 import {
+  PAGE_ROUTES,
   SUBMIT_STATUS,
   WS_CLOSE,
   WS_CMD,
@@ -13,6 +14,9 @@ import {
 import PresentationChart from "../../components/chart/PresentationChart";
 import PopupMsg from "../../components/notification/PopupMsg";
 import BackgroundContainer from "../../components/misc/BackgroundContainer";
+import BasicButton from "../../components/button/BasicButton";
+import usePopup from "../../hooks/usePopup";
+import PopupFormInvite from "../../components/notification/PopUpFormInvite";
 
 const toIndex = (dataChart, choiceId) => {
   console.log(dataChart);
@@ -25,6 +29,7 @@ const PresentationOwnerPage = () => {
   const [isConnected, setIsConnected] = useState(true);
   const [msgClose, setMsgClose] = useState("Not found content");
   const [question, setQuestion] = useState(null);
+  const { open, handleClosePopup, handleOpenPopup } = usePopup();
 
   const [searchParam] = useSearchParams();
   const id = searchParam.get("id");
@@ -133,6 +138,13 @@ const PresentationOwnerPage = () => {
   return (
     <BackgroundContainer>
       <Box sx={{ width: "80%", m: "auto" }}>
+        <BasicButton onClick={handleOpenPopup}>Get link</BasicButton>
+        {/* Popup form */}
+        <PopupFormInvite
+          isOpen={open}
+          handleClose={handleClosePopup}
+          inviteLink={`${PAGE_ROUTES.BASE}${PAGE_ROUTES.SLIDES_JOIN}?id=${id}&slide=${slide}`}
+        ></PopupFormInvite>
         {isConnected && id && slide ? (
           <Paper
             elevation={10}

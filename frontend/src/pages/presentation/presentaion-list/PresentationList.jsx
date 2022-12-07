@@ -79,12 +79,12 @@ const PresentationList = () => {
                 display: "flex",
                 width: "100%",
                 justifyContent: "space-between",
-                boxShadow: 4,
-                cursor: "pointer"
+                boxShadow: 4
+                // cursor: "pointer"
               }}
-              onClick={() =>
-                navigate(PAGE_ROUTES.PRESENTATION + `/${item._id}`)
-              }
+              // onClick={() =>
+              //   navigate(PAGE_ROUTES.PRESENTATION + `/${item._id}`)
+              // }
             >
               {/* Left side */}
               <Box sx={{ display: "flex", gap: 2 }}>
@@ -145,6 +145,12 @@ const PresentationList = () => {
                     width="100%"
                     icon={<PlayCircleFilledWhite />}
                     variant="contained"
+                    // onClick={() =>
+                    //   navigate(
+                    //     PAGE_ROUTES.SLIDES_PRESENT +
+                    //       `?id=${"638c64fdda1ad866c318f1b6"}&slide=${"638c6506da1ad866c318f1b9"}`
+                    //   )
+                    // }
                   >
                     Start
                   </BasicButton>

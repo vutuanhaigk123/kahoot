@@ -29,7 +29,9 @@ export const PAGE_ROUTES = {
   PRESENT_OWNER: "/presentation/owner/present",
   PRESENT_PLAYER: "/presentation/join",
   SLIDES: "/slides",
-  SLIDES_EDIT: "/slides/:id"
+  SLIDES_EDIT: "/slides/:id",
+  SLIDES_PRESENT: "/presentation/owner/present",
+  SLIDES_JOIN: "/presentation/join"
 };
 
 // API

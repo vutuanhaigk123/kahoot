@@ -46,7 +46,7 @@ const PresentationEditPage = () => {
     <BackgroundContainer>
       <Box sx={{ width: "90vw", m: "auto" }}>
         {/* Title */}
-        <TitleArea refetch={refetch}></TitleArea>
+        <TitleArea refetch={refetch} slideIndex={slideIndex}></TitleArea>
         <Grid container columnGap={2}>
           {/* Left side bar */}
           <Grid item xs={2}>

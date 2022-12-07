@@ -1,5 +1,5 @@
 import React from "react";
-import { Avatar, Box, Button, Typography } from "@mui/material";
+import { Avatar, Box, Button, TextField, Typography } from "@mui/material";
 import BackgroundContainer from "./../components/misc/BackgroundContainer";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
@@ -32,6 +32,11 @@ const HomePage = () => {
             }
           }}
         ></Avatar>
+        <TextField
+          variant="filled"
+          size="small"
+          sx={{ bgcolor: "white", borderRadius: "5px" }}
+        ></TextField>
         <Typography variant="h2" color="#fbf7d1">
           Ready to learn
         </Typography>
