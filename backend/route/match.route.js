@@ -110,6 +110,7 @@ async function sendDataToOwner(socket, userId, room, slide) {
 async function sendDataToPlayer(socket, userId, room, slide) {
   // join or create room
   const result = await MatchModel.joinMatch(userId, false, room, slide);
+  console.log(result);
   if (result) {
     const { curState, curQues, data, joinedUser } = result;
     if (curQues) {
@@ -121,13 +122,6 @@ async function sendDataToPlayer(socket, userId, room, slide) {
       socket.join(room);
       return;
     }
-    SocketModel.sendEvent(
-      userId,
-      EventModel.CLOSE_REASON,
-      EventModel.REASON_SLIDE_HAS_NO_ANS
-    );
-    SocketModel.removeSocketConn(userId);
-    return;
 
     // send broadcast when new user joined lobby (for lobby mode)
     // if (curState === MatchModel.STATE_LOBBY && joinedUser) {
@@ -149,10 +143,10 @@ async function sendInitData(socket) {
 
   switch (cmd) {
     case EventModel.CREATE_ROOM:
-      sendDataToOwner(socket, userId, room, slide);
+      await sendDataToOwner(socket, userId, room, slide);
       break;
     case EventModel.JOIN_ROOM:
-      sendDataToPlayer(socket, userId, room, slide);
+      await sendDataToPlayer(socket, userId, room, slide);
       break;
     default: // disconnect here
       sendUnknownCommand(userId);

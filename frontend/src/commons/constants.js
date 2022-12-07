@@ -58,6 +58,26 @@ export const API = {
   UPDATE_ANSWER: "/api/slide/answer/update"
 };
 
+export const WS_CMD = {
+  CREATE_ROOM_CMD: "5",
+  JOIN_ROOM_CMD: "2"
+};
+
+export const WS_EVENT = {
+  INIT_CONNECTION_EVENT: "1",
+  RECEIVE_CHOICE_EVENT: "-3",
+  SUBMIT_CHOICE_EVENT: "3"
+};
+
+export const WS_CLOSE = {
+  CLOSE_REASON: "-999",
+  REASON_HAS_NEW_CONNECTION: "-998",
+  REASON_NOT_FOUND_CONTENT: "-997",
+  REASON_INVALID_CMD: "-995",
+  REASON_WAITING_FOR_HOST: "-994",
+  REASON_SLIDE_HAS_NO_ANS: "-993"
+};
+
 // Group role
 export const ROLE = {
   owner: 0,

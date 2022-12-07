@@ -9,11 +9,11 @@ import {
   ResponsiveContainer
 } from "recharts";
 
-const PresentationChart = ({ data }) => {
+const PresentationChart = ({ data, height = 500 }) => {
   if (data.length === 0) return null;
   console.log(data);
   return (
-    <ResponsiveContainer width="80%" height={500}>
+    <ResponsiveContainer width="80%" height={height}>
       <BarChart
         data={data}
         margin={{
