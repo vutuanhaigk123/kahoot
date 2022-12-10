@@ -64,13 +64,18 @@ export const API = {
 
 export const WS_CMD = {
   CREATE_ROOM_CMD: "5",
-  JOIN_ROOM_CMD: "2"
+  JOIN_ROOM_CMD: "2",
+  NEXT_SLIDE_CMD: "4",
+  PREV_SLIDE_CMD: "-4"
 };
 
 export const WS_EVENT = {
   INIT_CONNECTION_EVENT: "1",
   RECEIVE_CHOICE_EVENT: "-3",
-  SUBMIT_CHOICE_EVENT: "3"
+  SUBMIT_CHOICE_EVENT: "3",
+
+  RECEIVE_NEXT_SLIDE_EVENT: "6",
+  RECEIVE_PREV_SLIDE_EVENT: "-6"
 };
 
 export const WS_CLOSE = {

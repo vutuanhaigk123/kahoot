@@ -23,6 +23,34 @@ const toIndex = (dataChart, choiceId) => {
   return dataChart.findIndex((choice) => choice.id === choiceId);
 };
 
+const handleNextSlide = (ws) => {
+  if (ws?.connected) {
+    ws.emit(WS_CMD.NEXT_SLIDE_CMD);
+  }
+};
+
+const handlePrevSlide = (ws) => {
+  if (ws?.connected) {
+    // ws.io.engine.transport.opts.query = {
+    //   ...ws.io.engine.transport.opts.query,
+    //   slide: "aaaa"
+    // };
+    // ws.io.engine.opts.query = {
+    //   ...ws.io.engine.opts.query,
+    //   slide: "aaaa"
+    // };
+    // ws.io.engine.transport.opts.socket.transport.query = {
+    //   ...ws.io.engine.transport.opts.socket.transport.query,
+    //   slide: "aaaa"
+    // };
+    // ws.io.opts.query = "cmd=5&room=638c64fdda1ad866c318f1b6&slide=aaaa";
+
+    // console.log(ws);
+    // ws.disconnect().connect();
+    ws.emit(WS_CMD.PREV_SLIDE_CMD);
+  }
+};
+
 const PresentationOwnerPage = () => {
   const [ws, setWs] = useState(null);
   const [data, setData] = useState([]);
@@ -30,6 +58,8 @@ const PresentationOwnerPage = () => {
   const [msgClose, setMsgClose] = useState("Not found content");
   const [question, setQuestion] = useState(null);
   const [isCopy, setIsCopy] = React.useState(false);
+  const [isEnd, setIsEnd] = useState(false);
+  const [isFirst, setIsFirst] = useState(false);
 
   const [searchParam] = useSearchParams();
   const id = searchParam.get("id");
@@ -58,8 +88,35 @@ const PresentationOwnerPage = () => {
       setIsConnected(true);
       setQuestion(arg.curQues.question);
       setData(arg.curQues.answers);
+      if (arg.isFirst === true) {
+        setIsFirst(true);
+      } else if (arg.isEnd === true) {
+        setIsEnd(true);
+      }
       console.log("==========================================");
       console.log(arg);
+    });
+
+    socket.on(WS_EVENT.RECEIVE_NEXT_SLIDE_EVENT, (arg) => {
+      console.log("==================Next slide========================");
+      console.log(arg);
+      setQuestion(arg.curQues.question);
+      setData(arg.curQues.answers);
+      setIsFirst(false);
+      if (arg.isEnd === true) {
+        setIsEnd(true);
+      }
+    });
+
+    socket.on(WS_EVENT.RECEIVE_PREV_SLIDE_EVENT, (arg) => {
+      console.log("====================Prev Slide======================");
+      console.log(arg);
+      setQuestion(arg.curQues.question);
+      setData(arg.curQues.answers);
+      setIsEnd(false);
+      if (arg.isFirst === true) {
+        setIsFirst(true);
+      }
     });
 
     socket.on(WS_CLOSE.CLOSE_REASON, (arg) => {
@@ -168,6 +225,20 @@ const PresentationOwnerPage = () => {
               </BasicButton>
             </CopyToClipboard>
             <PresentationChart data={data} height={"100%"} />
+            {!isEnd ? (
+              <BasicButton onClick={() => handleNextSlide(ws)}>
+                Next
+              </BasicButton>
+            ) : (
+              ""
+            )}
+            {!isFirst ? (
+              <BasicButton onClick={() => handlePrevSlide(ws)}>
+                Prev
+              </BasicButton>
+            ) : (
+              ""
+            )}
           </Paper>
         ) : (
           ""

@@ -13,6 +13,7 @@ import PresentationModel from "../model/presentation.model.js";
 import MatchModel from "../model/match.model.js";
 import AuthenMw from "../middleware/authen.mw.js";
 import slideModel from "../model/slide.model.js";
+import presentationListerner from "../listener/presentation.listerner.js";
 
 const matchingQueue = [];
 
@@ -76,12 +77,14 @@ async function sendDataToOwner(socket, userId, room, slide) {
   // join or create room
   const result = await MatchModel.joinMatch(userId, true, room, slide);
   if (result) {
-    const { curState, curQues, data, joinedUser } = result;
+    const { curState, curQues, data, joinedUser, isEnd, isFirst } = result;
 
     if (curQues) {
       SocketModel.sendEvent(userId, EventModel.INIT_CONNECTION, {
         curState,
-        curQues
+        curQues,
+        isEnd,
+        isFirst
         // data
       });
       socket.join(room);
@@ -211,13 +214,10 @@ export default async (path, ws) => {
 
     await sendInitData(socket);
 
-    const { room } = socket.request._query;
+    const { room, cmd, slide } = socket.request._query;
     const userId = getUidFromWs(socket);
 
-    socket.on(EventModel.SUBMIT_CHOICE, (arg) => {
-      console.log(arg);
-      MatchModel.makeChoice(userId, room, arg, ws);
-    });
+    presentationListerner(ws, socket, userId, cmd, room, slide);
 
     socket.on("error", (err) => {
       SocketModel.removeSocketConn(getUidFromWs(socket));
