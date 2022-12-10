@@ -73,6 +73,9 @@ const PresentationPlayerPage = () => {
         case WS_CLOSE.REASON_WAITING_FOR_HOST:
           setMsgClose("Waiting for host present");
           break;
+        case WS_CLOSE.REASON_SELF_HOSTED_PRESENTATION:
+          setMsgClose("You can not join to self hosted presentation to vote");
+          break;
         case WS_CLOSE.REASON_SLIDE_HAS_NO_ANS:
           console.log("slide has no answer");
         // eslint-disable-next-line no-fallthrough
@@ -91,16 +94,16 @@ const PresentationPlayerPage = () => {
         );
       }
     });
+    if (socket) setWs(socket);
 
-    setWs(socket);
     return () => {
-      socket.close();
+      if (socket) socket.close();
     };
   }, []);
 
-  return question ? (
+  return (
     <BackgroundContainer>
-      {ws ? (
+      {ws && question ? (
         <Box sx={{ width: "90%", m: "auto" }}>
           <Paper
             elevation={10}
@@ -161,9 +164,8 @@ const PresentationPlayerPage = () => {
       ) : (
         ""
       )}
-
       <PopupMsg
-        isOpen={!ws}
+        isOpen={!ws || msgClose ? true : false}
         hasOk={false}
         status={SUBMIT_STATUS.ERROR}
         handleClosePopup={() => console.log()}
@@ -171,8 +173,6 @@ const PresentationPlayerPage = () => {
         {msgClose}
       </PopupMsg>
     </BackgroundContainer>
-  ) : (
-    ""
   );
 };
 

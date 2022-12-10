@@ -30,7 +30,9 @@ function initConnection(socket) {
   if (!userId) {
     return false;
   }
-  SocketModel.saveSocketConn(userId, socket);
+  if (!SocketModel.saveSocketConn(userId, socket)) {
+    return false;
+  }
   return true;
 }
 

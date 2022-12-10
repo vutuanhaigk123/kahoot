@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 /* eslint-disable import/extensions */
 /* eslint-disable no-console */
 import HashMap from "hashmap";
@@ -18,6 +19,14 @@ export default {
 
   saveSocketConn(userId, socket) {
     if (socket !== userConns.get(userId)) {
+      // const { room } = socket.request._query;
+      // if (matchModel.isJoinSelfHostedPresentation(userId, room)) {
+      //   socket.emit(
+      //     EventModel.CLOSE_REASON,
+      //     EventModel.REASON_HAS_NEW_CONNECTION
+      //   );
+      //   return false;
+      // }
       if (userConns.get(userId)) {
         this.sendEvent(
           userId,
@@ -30,6 +39,7 @@ export default {
       userConns.set(userId, socket);
       console.log(userConns.size);
     }
+    return true;
   },
 
   removeSocketConn(userId) {

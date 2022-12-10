@@ -212,7 +212,20 @@ export default {
       };
       matchInfo.members.push(joinedUser);
     }
-    if (userId === matchInfo.owner && matchInfo.timeout) {
+    // join self hosted presentation:
+    if (userId === matchInfo.owner && !hasPresentPermission) {
+      SocketModel.sendEvent(
+        userId,
+        EventModel.CLOSE_REASON,
+        EventModel.REASON_SELF_HOSTED_PRESENTATION
+      );
+      return null;
+    }
+    if (
+      userId === matchInfo.owner &&
+      hasPresentPermission &&
+      matchInfo.timeout
+    ) {
       clearTimeout(matchInfo.timeout);
       matchInfo.timeout = null;
 
@@ -333,5 +346,9 @@ export default {
         ws
       );
     }
+  },
+
+  isJoinSelfHostedPresentation(userId, roomId) {
+    return matches.get(roomId)?.owner === userId;
   }
 };
