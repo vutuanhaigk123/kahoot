@@ -14,6 +14,9 @@ import MatchModel from "../model/match.model.js";
 import AuthenMw from "../middleware/authen.mw.js";
 import slideModel from "../model/slide.model.js";
 import presentationListerner from "../listener/presentation.listerner.js";
+import questionListener from "../listener/question.listener.js";
+import commentListener from "../listener/comment.listener.js";
+import userModel from "../model/user.model.js";
 
 const matchingQueue = [];
 
@@ -216,8 +219,11 @@ export default async (path, ws) => {
 
     const { room, cmd, slide } = socket.request._query;
     const userId = getUidFromWs(socket);
+    const { name, avt } = await userModel.getNameAndAvt(userId);
 
     presentationListerner(ws, socket, userId, cmd, room, slide);
+    questionListener(ws, socket, userId, name, avt, cmd, room, slide);
+    commentListener(ws, socket, userId, name, avt, cmd, room, slide);
 
     socket.on("error", (err) => {
       SocketModel.removeSocketConn(getUidFromWs(socket));

@@ -1,8 +1,10 @@
+/* eslint-disable import/no-cycle */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable import/extensions */
 /* eslint-disable no-console */
 import HashMap from "hashmap";
 import EventModel from "./event.model.js";
+// import MatchModel from "./match.model.js";
 
 const userConns = new HashMap();
 /*
@@ -19,11 +21,14 @@ export default {
 
   saveSocketConn(userId, socket) {
     if (socket !== userConns.get(userId)) {
-      // const { room } = socket.request._query;
-      // if (matchModel.isJoinSelfHostedPresentation(userId, room)) {
+      // const { room, cmd } = socket.request._query;
+      // if (
+      //   MatchModel.isJoinSelfHostedPresentation(userId, room) &&
+      //   cmd === EventModel.JOIN_ROOM
+      // ) {
       //   socket.emit(
       //     EventModel.CLOSE_REASON,
-      //     EventModel.REASON_HAS_NEW_CONNECTION
+      //     EventModel.REASON_SELF_HOSTED_PRESENTATION
       //   );
       //   return false;
       // }

@@ -31,23 +31,13 @@ const handleNextSlide = (ws) => {
 
 const handlePrevSlide = (ws) => {
   if (ws?.connected) {
-    // ws.io.engine.transport.opts.query = {
-    //   ...ws.io.engine.transport.opts.query,
-    //   slide: "aaaa"
-    // };
-    // ws.io.engine.opts.query = {
-    //   ...ws.io.engine.opts.query,
-    //   slide: "aaaa"
-    // };
-    // ws.io.engine.transport.opts.socket.transport.query = {
-    //   ...ws.io.engine.transport.opts.socket.transport.query,
-    //   slide: "aaaa"
-    // };
-    // ws.io.opts.query = "cmd=5&room=638c64fdda1ad866c318f1b6&slide=aaaa";
-
-    // console.log(ws);
-    // ws.disconnect().connect();
     ws.emit(WS_CMD.PREV_SLIDE_CMD);
+  }
+};
+
+const handleSendComment = (ws, data) => {
+  if (ws?.connected) {
+    ws.emit(WS_CMD.SEND_CMT_CMD, data);
   }
 };
 
@@ -117,6 +107,20 @@ const PresentationOwnerPage = () => {
       if (arg.isFirst === true) {
         setIsFirst(true);
       }
+    });
+
+    socket.on(WS_EVENT.RECEIVE_CMT_EVENT, (arg) => {
+      console.log(
+        "=====================Another member has commented====================="
+      );
+      console.log(arg);
+    });
+
+    socket.on(WS_EVENT.RECEIVE_QUESTION_EVENT, (arg) => {
+      console.log(
+        "=====================Another member has commented====================="
+      );
+      console.log(arg);
     });
 
     socket.on(WS_CLOSE.CLOSE_REASON, (arg) => {
@@ -239,6 +243,11 @@ const PresentationOwnerPage = () => {
             ) : (
               ""
             )}
+            <BasicButton
+              onClick={() => handleSendComment(ws, "Day la chat test")}
+            >
+              Send chat
+            </BasicButton>
           </Paper>
         ) : (
           ""
