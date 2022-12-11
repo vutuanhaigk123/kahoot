@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { Box, Paper, Typography } from "@mui/material";
+import { Box, Paper, Tooltip, Typography } from "@mui/material";
 import React from "react";
 import { useSearchParams } from "react-router-dom";
 import { useState } from "react";
@@ -15,8 +15,12 @@ import PresentationChart from "../../components/chart/PresentationChart";
 import PopupMsg from "../../components/notification/PopupMsg";
 import BackgroundContainer from "../../components/misc/BackgroundContainer";
 import BasicButton from "../../components/button/BasicButton";
-import { ContentCopy, Link } from "@mui/icons-material";
+import { Chat, ContentCopy, Link, QuestionAnswer } from "@mui/icons-material";
 import { CopyToClipboard } from "react-copy-to-clipboard";
+import { iconButton, iconHover } from "./../../commons/globalStyles";
+import usePopup from "./../../hooks/usePopup";
+import OwnerQuestionModal from "./modal/owner/OwnerQuestionModal";
+import ChatBox from "./modal/chat/ChatBox";
 
 const toIndex = (dataChart, choiceId) => {
   console.log(dataChart);
@@ -30,6 +34,16 @@ const PresentationOwnerPage = () => {
   const [msgClose, setMsgClose] = useState("Not found content");
   const [question, setQuestion] = useState(null);
   const [isCopy, setIsCopy] = React.useState(false);
+  const {
+    open: openQuestion,
+    handleOpenPopup: handleOpenQuestionPopup,
+    handleClosePopup: handleCloseQuestionPopup
+  } = usePopup();
+  const {
+    open: openChat,
+    handleOpenPopup: handleOpenChatPopup,
+    handleClosePopup: handleCloseChatPopup
+  } = usePopup();
 
   const [searchParam] = useSearchParams();
   const id = searchParam.get("id");
@@ -137,51 +151,81 @@ const PresentationOwnerPage = () => {
 
   return (
     <BackgroundContainer>
-      <Box sx={{ width: "80%", m: "auto" }}>
-        {isConnected && id && slide ? (
-          <Paper
-            elevation={10}
+      {isConnected && id && slide ? (
+        <Paper
+          elevation={10}
+          sx={{
+            width: "80%",
+            height: "70vh",
+            m: "auto",
+            alignItems: "center",
+            justifyContent: "center",
+            display: "flex",
+            flexDirection: "column",
+            p: 2
+          }}
+        >
+          <Typography variant="h4" sx={{ mb: 2 }}>
+            {question}
+          </Typography>
+          <CopyToClipboard
+            text={`${PAGE_ROUTES.BASE}${PAGE_ROUTES.SLIDES_JOIN}?id=${id}&slide=${slide}`}
+          >
+            <BasicButton
+              icon={isCopy ? <ContentCopy /> : <Link />}
+              onClick={() => setIsCopy(true)}
+              color={isCopy ? "success" : "primary"}
+              sx={{ mb: 2 }}
+            >
+              {isCopy ? "Link coppied" : "Get invite link"}
+            </BasicButton>
+          </CopyToClipboard>
+          <PresentationChart data={data} height={"80%"} />
+          <Box
+            direction="row"
             sx={{
-              // height: "100%",
-              height: "80vh",
               width: "100%",
-              alignItems: "center",
-              justifyContent: "center",
               display: "flex",
-              flexDirection: "column",
-              p: 2
+              justifyContent: "end",
+              gap: "10px"
             }}
           >
-            <Typography variant="h4" sx={{ mb: 2 }}>
-              {question}
-            </Typography>
-            <CopyToClipboard
-              text={`${PAGE_ROUTES.BASE}${PAGE_ROUTES.SLIDES_JOIN}?id=${id}&slide=${slide}`}
-            >
-              <BasicButton
-                icon={isCopy ? <ContentCopy /> : <Link />}
-                onClick={() => setIsCopy(true)}
-                color={isCopy ? "success" : "primary"}
-                sx={{ mb: 2 }}
-              >
-                {isCopy ? "Link coppied" : "Get invite link"}
-              </BasicButton>
-            </CopyToClipboard>
-            <PresentationChart data={data} height={"100%"} />
-          </Paper>
-        ) : (
-          ""
-        )}
+            <Tooltip title="Chat" variant="soft">
+              <Chat
+                sx={[iconHover(), iconButton]}
+                onClick={handleOpenChatPopup}
+              />
+            </Tooltip>
+            <Tooltip title="Q&A" variant="soft">
+              <QuestionAnswer
+                sx={[iconHover(), iconButton]}
+                onClick={handleOpenQuestionPopup}
+              />
+            </Tooltip>
 
-        <PopupMsg
-          isOpen={!isConnected && !ws}
-          hasOk={false}
-          status={SUBMIT_STATUS.ERROR}
-          handleClosePopup={() => console.log()}
-        >
-          {msgClose}
-        </PopupMsg>
-      </Box>
+            {/* Question modal */}
+            <OwnerQuestionModal
+              isOpen={openQuestion}
+              handleClosePopup={handleCloseQuestionPopup}
+            ></OwnerQuestionModal>
+
+            {/* Chat modal */}
+            <ChatBox
+              isOpen={openChat}
+              handleClosePopup={handleCloseChatPopup}
+            ></ChatBox>
+          </Box>
+        </Paper>
+      ) : null}
+
+      <PopupMsg
+        isOpen={!isConnected && !ws}
+        hasOk={false}
+        status={SUBMIT_STATUS.ERROR}
+        handleClosePopup={() => console.log()}
+      >
+        {msgClose}
+      </PopupMsg>
     </BackgroundContainer>
   );
 };

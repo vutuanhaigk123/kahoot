@@ -4,7 +4,7 @@ import BasicButton from "../../components/button/BasicButton";
 import { io } from "socket.io-client";
 import { useSearchParams } from "react-router-dom";
 import { useState } from "react";
-import { Box, Grid, Paper, Typography } from "@mui/material";
+import { Box, Paper, Typography } from "@mui/material";
 import BackgroundContainer from "../../components/misc/BackgroundContainer";
 import {
   SUBMIT_STATUS,
@@ -14,6 +14,10 @@ import {
 } from "../../commons/constants";
 import PopupMsg from "../../components/notification/PopupMsg";
 import { useSelector } from "react-redux";
+import { ChatBubble, QuestionAnswer } from "@mui/icons-material";
+import PlayerQuestionModal from "./modal/player/PlayerQuestionModal";
+import usePopup from "./../../hooks/usePopup";
+import ChatBox from "./modal/chat/ChatBox";
 
 const handleSubmitChoice = ({ socket, choiceId }) => {
   if (socket) {
@@ -31,6 +35,16 @@ const PresentationPlayerPage = () => {
   const [searchParam] = useSearchParams();
   const id = searchParam.get("id");
   const slide = searchParam.get("slide");
+  const {
+    open: openQAModal,
+    handleClosePopup: handleCloseQAPopup,
+    handleOpenPopup: handleOpenQAPopup
+  } = usePopup();
+  const {
+    open: openChat,
+    handleOpenPopup: handleOpenChatPopup,
+    handleClosePopup: handleCloseChatPopup
+  } = usePopup();
 
   const [ws, setWs] = useState(null);
   const [question, setQuestion] = useState(null);
@@ -104,13 +118,12 @@ const PresentationPlayerPage = () => {
   return (
     <BackgroundContainer>
       {ws && question ? (
-        <Box sx={{ width: "90%", m: "auto" }}>
+        <Box sx={{ width: "20vw", minWidth: "100px", m: "auto" }}>
           <Paper
             elevation={10}
             sx={{
-              // height: "100%",
-              height: 600,
-              width: "30%",
+              height: "70vh",
+              maxHeight: "700px",
               alignItems: "center",
               justifyContent: "center",
               display: "flex",
@@ -157,13 +170,38 @@ const PresentationPlayerPage = () => {
                     );
                   })}
                 </Box>
+                <BasicButton
+                  icon={<QuestionAnswer />}
+                  color="success"
+                  sx={{ mt: 2, width: "50%" }}
+                  onClick={handleOpenQAPopup}
+                >
+                  Open Q&A
+                </BasicButton>
+                <BasicButton
+                  icon={<ChatBubble />}
+                  color="success"
+                  sx={{ mt: 2, width: "50%" }}
+                  onClick={handleOpenChatPopup}
+                >
+                  Open chat
+                </BasicButton>
+
+                {/* Q&A modal */}
+                <PlayerQuestionModal
+                  isOpen={openQAModal}
+                  handleClosePopup={handleCloseQAPopup}
+                />
+                {/* Chat modal */}
+                <ChatBox
+                  isOpen={openChat}
+                  handleClosePopup={handleCloseChatPopup}
+                />
               </>
             )}
           </Paper>
         </Box>
-      ) : (
-        ""
-      )}
+      ) : null}
       <PopupMsg
         isOpen={!ws || msgClose ? true : false}
         hasOk={false}
