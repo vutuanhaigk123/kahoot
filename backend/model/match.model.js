@@ -1,3 +1,4 @@
+/* eslint-disable import/no-cycle */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable prefer-const */
 /* eslint-disable consistent-return */
@@ -263,11 +264,17 @@ export default {
     if (curQues && curQues.true_ans) {
       delete curQues.true_ans;
     }
+
+    const questionIndex = hasQuestion(matchInfo.questions, matchInfo.curQues);
+    const isEnd = questionIndex >= matchInfo.questions.length - 1;
+    const isFirst = questionIndex === 0;
     return {
       curState: matchInfo.curState,
       curQues,
       data,
-      joinedUser
+      joinedUser,
+      isEnd,
+      isFirst
     };
   },
 
@@ -307,9 +314,7 @@ export default {
       if (questionIndex === -1) {
         return console.log("Khong co question nay");
       }
-      if (matchInfo.curQues !== questionId) {
-        return console.log("Khac current question:");
-      }
+
       const index = matchInfo.answers.findIndex(
         (answer) => answer.id === questionId
       );
@@ -350,5 +355,63 @@ export default {
 
   isJoinSelfHostedPresentation(userId, roomId) {
     return matches.get(roomId)?.owner === userId;
+  },
+
+  nextSlide(userId, roomId, ws) {
+    const matchInfo = matches.get(roomId);
+    if (matchInfo && matchInfo.owner === userId) {
+      const questionId = matchInfo.curQues;
+      let questionIndex = hasQuestion(matchInfo.questions, questionId);
+      if (questionIndex === -1) {
+        return console.log("Khong co question nay");
+      }
+
+      if (questionIndex >= matchInfo.questions.length - 1) {
+        return console.log("Da la cau hoi cuoi");
+      }
+
+      questionIndex += 1;
+      const curQues = matchInfo.questions[questionIndex];
+      matchInfo.curQues = curQues.id;
+
+      SocketModel.sendBroadcastRoom(
+        userId,
+        roomId,
+        EventModel.RECEIVE_NEXT_SLIDE_EVENT,
+        {
+          curState: matchInfo.curState,
+          curQues,
+          isEnd: questionIndex >= matchInfo.questions.length - 1
+        },
+        ws
+      );
+    }
+  },
+
+  prevSlide(userId, roomId, ws) {
+    const matchInfo = matches.get(roomId);
+    if (matchInfo && matchInfo.owner === userId) {
+      const questionId = matchInfo.curQues;
+      let questionIndex = hasQuestion(matchInfo.questions, questionId);
+      if (questionIndex === -1) {
+        return console.log("Khong co question nay");
+      }
+
+      if (questionIndex <= 0) {
+        return console.log("Da la cau hoi dau tien");
+      }
+
+      questionIndex -= 1;
+      const curQues = matchInfo.questions[questionIndex];
+      matchInfo.curQues = curQues.id;
+
+      SocketModel.sendBroadcastRoom(
+        userId,
+        roomId,
+        EventModel.RECEIVE_PREV_SLIDE_EVENT,
+        { curState: matchInfo.curState, curQues, isFirst: questionIndex === 0 },
+        ws
+      );
+    }
   }
 };

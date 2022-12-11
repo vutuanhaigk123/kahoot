@@ -27,6 +27,24 @@ const toIndex = (dataChart, choiceId) => {
   return dataChart.findIndex((choice) => choice.id === choiceId);
 };
 
+const handleNextSlide = (ws) => {
+  if (ws?.connected) {
+    ws.emit(WS_CMD.NEXT_SLIDE_CMD);
+  }
+};
+
+const handlePrevSlide = (ws) => {
+  if (ws?.connected) {
+    ws.emit(WS_CMD.PREV_SLIDE_CMD);
+  }
+};
+
+const handleSendComment = (ws, data) => {
+  if (ws?.connected) {
+    ws.emit(WS_CMD.SEND_CMT_CMD, data);
+  }
+};
+
 const PresentationOwnerPage = () => {
   const [ws, setWs] = useState(null);
   const [data, setData] = useState([]);
@@ -44,6 +62,8 @@ const PresentationOwnerPage = () => {
     handleOpenPopup: handleOpenChatPopup,
     handleClosePopup: handleCloseChatPopup
   } = usePopup();
+  const [isEnd, setIsEnd] = useState(false);
+  const [isFirst, setIsFirst] = useState(false);
 
   const [searchParam] = useSearchParams();
   const id = searchParam.get("id");
@@ -72,7 +92,48 @@ const PresentationOwnerPage = () => {
       setIsConnected(true);
       setQuestion(arg.curQues.question);
       setData(arg.curQues.answers);
+      if (arg.isFirst === true) {
+        setIsFirst(true);
+      } else if (arg.isEnd === true) {
+        setIsEnd(true);
+      }
       console.log("==========================================");
+      console.log(arg);
+    });
+
+    socket.on(WS_EVENT.RECEIVE_NEXT_SLIDE_EVENT, (arg) => {
+      console.log("==================Next slide========================");
+      console.log(arg);
+      setQuestion(arg.curQues.question);
+      setData(arg.curQues.answers);
+      setIsFirst(false);
+      if (arg.isEnd === true) {
+        setIsEnd(true);
+      }
+    });
+
+    socket.on(WS_EVENT.RECEIVE_PREV_SLIDE_EVENT, (arg) => {
+      console.log("====================Prev Slide======================");
+      console.log(arg);
+      setQuestion(arg.curQues.question);
+      setData(arg.curQues.answers);
+      setIsEnd(false);
+      if (arg.isFirst === true) {
+        setIsFirst(true);
+      }
+    });
+
+    socket.on(WS_EVENT.RECEIVE_CMT_EVENT, (arg) => {
+      console.log(
+        "=====================Another member has commented====================="
+      );
+      console.log(arg);
+    });
+
+    socket.on(WS_EVENT.RECEIVE_QUESTION_EVENT, (arg) => {
+      console.log(
+        "=====================Another member has commented====================="
+      );
       console.log(arg);
     });
 
@@ -180,7 +241,22 @@ const PresentationOwnerPage = () => {
               {isCopy ? "Link coppied" : "Get invite link"}
             </BasicButton>
           </CopyToClipboard>
-          <PresentationChart data={data} height={"80%"} />
+          <PresentationChart data={data} height={"100%"} />
+          {!isEnd ? (
+            <BasicButton onClick={() => handleNextSlide(ws)}>Next</BasicButton>
+          ) : (
+            ""
+          )}
+          {!isFirst ? (
+            <BasicButton onClick={() => handlePrevSlide(ws)}>Prev</BasicButton>
+          ) : (
+            ""
+          )}
+          <BasicButton
+            onClick={() => handleSendComment(ws, "Day la chat test")}
+          >
+            Send chat
+          </BasicButton>
           <Box
             direction="row"
             sx={{
@@ -202,22 +278,21 @@ const PresentationOwnerPage = () => {
                 onClick={handleOpenQuestionPopup}
               />
             </Tooltip>
-
-            {/* Question modal */}
-            <OwnerQuestionModal
-              isOpen={openQuestion}
-              handleClosePopup={handleCloseQuestionPopup}
-            ></OwnerQuestionModal>
-
-            {/* Chat modal */}
-            <ChatBox
-              isOpen={openChat}
-              handleClosePopup={handleCloseChatPopup}
-            ></ChatBox>
           </Box>
+
+          {/* Question modal */}
+          <OwnerQuestionModal
+            isOpen={openQuestion}
+            handleClosePopup={handleCloseQuestionPopup}
+          ></OwnerQuestionModal>
+
+          {/* Chat modal */}
+          <ChatBox
+            isOpen={openChat}
+            handleClosePopup={handleCloseChatPopup}
+          ></ChatBox>
         </Paper>
       ) : null}
-
       <PopupMsg
         isOpen={!isConnected && !ws}
         hasOk={false}

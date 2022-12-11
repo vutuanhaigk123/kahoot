@@ -69,6 +69,13 @@ export default {
     return null;
   },
 
+  async getNameAndAvt(userId) {
+    const ret = await User.findOne({ _id: userId })
+      .select("_id name avt")
+      .exec();
+    return ret;
+  },
+
   isValidEmail(email) {
     return email.toString().toLowerCase().search(regexEmailValidator) !== -1;
   },

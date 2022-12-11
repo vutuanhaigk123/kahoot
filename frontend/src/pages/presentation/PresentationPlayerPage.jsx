@@ -22,9 +22,21 @@ import ChatBox from "./modal/chat/ChatBox";
 const handleSubmitChoice = ({ socket, choiceId }) => {
   if (socket) {
     console.log(choiceId);
-    socket.emit(WS_EVENT.SUBMIT_CHOICE_EVENT, choiceId);
+    socket.emit(WS_CMD.SUBMIT_CHOICE_CMD, choiceId);
   } else {
     console.log("Not connected to server");
+  }
+};
+
+const handleSendComment = (ws, data) => {
+  if (ws?.connected) {
+    ws.emit(WS_CMD.SEND_CMT_CMD, data);
+  }
+};
+
+const handleSendQuestion = (ws, data) => {
+  if (ws?.connected) {
+    ws.emit(WS_CMD.SEND_QUESTION_CMD, data);
   }
 };
 
@@ -67,12 +79,26 @@ const PresentationPlayerPage = () => {
 
     socket.on(WS_EVENT.RECEIVE_CHOICE_EVENT, (arg) => {
       console.log(
-        "=====================Another member has make a choice====================="
+        "=====================Another member has made a choice====================="
       );
       console.log(arg);
       if (arg.id === user.data.id) {
         setIsVoted(true);
       }
+    });
+
+    socket.on(WS_EVENT.RECEIVE_CMT_EVENT, (arg) => {
+      console.log(
+        "=====================Another member has commented====================="
+      );
+      console.log(arg);
+    });
+
+    socket.on(WS_EVENT.RECEIVE_QUESTION_EVENT, (arg) => {
+      console.log(
+        "=====================Another member has made a question====================="
+      );
+      console.log(arg);
     });
 
     socket.on(WS_CLOSE.CLOSE_REASON, (arg) => {
@@ -199,6 +225,16 @@ const PresentationPlayerPage = () => {
                 />
               </>
             )}
+            <BasicButton
+              onClick={() => handleSendComment(ws, "Day la chat test")}
+            >
+              Send chat
+            </BasicButton>
+            <BasicButton
+              onClick={() => handleSendQuestion(ws, "Day la question test")}
+            >
+              Send question
+            </BasicButton>
           </Paper>
         </Box>
       ) : null}
