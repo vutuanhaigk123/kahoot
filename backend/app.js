@@ -8,7 +8,7 @@ import { createServer } from "http";
 import { Server } from "socket.io";
 import { dirname } from "path";
 import { fileURLToPath } from "url";
-import initMw from "./middleware/init.mw.js";
+// import initMw from "./middleware/init.mw.js";
 import router from "./route/router.route.js";
 
 const dirNamePath = dirname(fileURLToPath(import.meta.url));
@@ -36,5 +36,5 @@ httpServer.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`);
 });
 
-initMw(app);
+// initMw(app);
 router(app, ws, dirNamePath);

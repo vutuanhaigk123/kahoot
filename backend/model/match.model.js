@@ -9,55 +9,6 @@ import EventModel from "./event.model.js";
 import SlideModel from "./slide.model.js";
 import SocketModel from "./socket.model.js";
 
-// const questionSamples = [
-//   {
-//     id: "question1",
-//     title: "Question 1: ... Answer = 1",
-//     true_ans: "A",
-//     answers: [
-//       {
-//         id: "A",
-//         des: "Answer A"
-//       },
-//       {
-//         id: "B",
-//         des: "Answer B"
-//       },
-//       {
-//         id: "C",
-//         des: "Answer C"
-//       },
-//       {
-//         id: "D",
-//         des: "Answer D"
-//       }
-//     ]
-//   },
-//   {
-//     id: "question2",
-//     title: "Question 2: ... Answer = 1",
-//     true_ans: "A",
-//     answers: [
-//       {
-//         id: "A",
-//         des: "Answer A"
-//       },
-//       {
-//         id: "B",
-//         des: "Answer B"
-//       },
-//       {
-//         id: "C",
-//         des: "Answer C"
-//       },
-//       {
-//         id: "D",
-//         des: "Answer D"
-//       }
-//     ]
-//   }
-// ];
-
 const matches = new HashMap();
 /*
     Structure:
@@ -73,6 +24,20 @@ const matches = new HashMap();
         name: "Name"
         score: 0
       }],
+      comments: [
+        {
+          userId: String,
+          content: String,
+          ts: Number
+        }
+      ],
+      userQuestions: [
+        {
+          userId: String,
+          content: String,
+          ts: Number
+        }
+      ],
       questions: [{
         id: question id,
         title: "question 1: ...",
@@ -129,6 +94,8 @@ function initMatch(roomId, ownerId, questions, slideId) {
     curState: STATE_LOBBY_CODE,
     curQues: slideId,
     owner: ownerId,
+    comments: [],
+    userQuestions: [],
     questions: questionsTmp,
     answers: []
   };

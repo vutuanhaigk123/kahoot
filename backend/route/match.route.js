@@ -145,9 +145,8 @@ async function sendDataToPlayer(socket, userId, room, slide) {
   SocketModel.removeSocketConn(userId);
 }
 
-async function sendInitData(socket) {
+async function sendInitData(socket, room, cmd, slide) {
   const userId = getUidFromWs(socket);
-  const { room, cmd, slide } = socket.request._query;
 
   switch (cmd) {
     case EventModel.CREATE_ROOM:
@@ -204,34 +203,44 @@ export default async (path, ws) => {
   });
 
   // middleware: stop when: invalid cmd || invalid room || invalid slide
-  ws.use(async (socket, next) => {
-    AuthenMw.wsStopWhenInvalidQuery(socket, next);
-  });
+  // ws.use(async (socket, next) => {
+  // AuthenMw.wsStopWhenInvalidQuery(socket, next);
+  // });
 
   ws.on("connection", async (socket) => {
-    if (!initConnection(socket)) {
-      socket.disconnect(true);
-    }
-
-    console.log("Connected");
-
-    await sendInitData(socket);
-
-    const { room, cmd, slide } = socket.request._query;
     const userId = getUidFromWs(socket);
-    const { name, avt } = await userModel.getNameAndAvt(userId);
+    let roomId = null;
 
-    presentationListerner(ws, socket, userId, cmd, room, slide);
-    questionListener(ws, socket, userId, name, avt, cmd, room, slide);
-    commentListener(ws, socket, userId, name, avt, cmd, room, slide);
+    socket.on(EventModel.INIT_CONNECTION, async ({ cmd, slide, room }) => {
+      if (await AuthenMw.isStopWhenInvalidQuery(cmd, slide, room)) {
+        socket.emit(EventModel.CLOSE_REASON, EventModel.REASON_INVALID_CMD);
+        socket.disconnect(true);
+        return;
+      }
+      roomId = room;
+
+      if (!initConnection(socket)) {
+        socket.disconnect(true);
+      }
+
+      console.log("Connected");
+
+      await sendInitData(socket, room, cmd, slide);
+
+      const { name, avt } = await userModel.getNameAndAvt(userId);
+
+      presentationListerner(ws, socket, userId, cmd, room, slide);
+      questionListener(ws, socket, userId, name, avt, cmd, room, slide);
+      commentListener(ws, socket, userId, name, avt, cmd, room, slide);
+    });
 
     socket.on("error", (err) => {
       SocketModel.removeSocketConn(getUidFromWs(socket));
     });
 
     socket.conn.on("close", (reason) => {
-      socket.leave(room);
-      MatchModel.leaveLobby(userId, room, ws);
+      socket.leave(roomId);
+      MatchModel.leaveLobby(userId, roomId, ws);
       SocketModel.removeSocketConn(userId);
       console.log("closed");
     });

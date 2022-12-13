@@ -88,19 +88,30 @@ export default {
     return next(new Error("Client not logged in"));
   },
 
-  async wsStopWhenInvalidQuery(socket, next) {
+  async isStopWhenInvalidQuery(cmd, slide, room) {
     if (
-      socket.request._query &&
-      socket.request._query.cmd !== "null" &&
-      socket.request._query.room !== "null" &&
-      socket.request._query.slide !== "null" &&
-      (socket.request._query.cmd === EventModel.JOIN_ROOM ||
-        socket.request._query.cmd === EventModel.CREATE_ROOM)
+      !cmd ||
+      !slide ||
+      !room ||
+      (cmd.toString() !== EventModel.JOIN_ROOM &&
+        cmd.toString() !== EventModel.CREATE_ROOM)
     ) {
-      return next();
+      return true;
     }
-    // socket.emit(EventModel.CLOSE_REASON, EventModel.REASON_NOT_FOUND_CONTENT);
-    // socket.disconnect(true);
-    return next(new Error("Client does not have valid query string"));
+    return false;
   }
+
+  // async wsStopWhenInvalidQuery(socket, next) {
+  //   if (
+  //     socket.request._query &&
+  //     socket.request._query.cmd !== "null" &&
+  //     socket.request._query.room !== "null" &&
+  //     socket.request._query.slide !== "null" &&
+  //     (socket.request._query.cmd === EventModel.JOIN_ROOM ||
+  //       socket.request._query.cmd === EventModel.CREATE_ROOM)
+  //   ) {
+  //     return next();
+  //   }
+  //   return next(new Error("Client does not have valid query string"));
+  // }
 };

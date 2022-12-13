@@ -84,8 +84,15 @@ const PresentationOwnerPage = () => {
     }
     console.log("hit");
     const socket = io(wsDomain, {
-      query: `cmd=${WS_CMD.CREATE_ROOM_CMD}&room=${id}&slide=${slide}`,
       withCredentials: true
+    });
+
+    socket.on("connect", () => {
+      socket.emit(WS_EVENT.INIT_CONNECTION_EVENT, {
+        cmd: WS_CMD.CREATE_ROOM_CMD,
+        room: id,
+        slide
+      });
     });
 
     socket.on(WS_EVENT.INIT_CONNECTION_EVENT, (arg) => {
