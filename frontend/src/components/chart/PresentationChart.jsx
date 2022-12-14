@@ -11,7 +11,6 @@ import {
 
 const PresentationChart = ({ data, height = 500 }) => {
   if (data.length === 0) return null;
-  console.log(data);
   return (
     <ResponsiveContainer width="80%" height={height}>
       <BarChart

@@ -256,13 +256,7 @@ export default {
         matchInfo.members.splice(index, 1);
       }
 
-      if (userId === matchInfo.owner) {
-        const timeoutDelete = setTimeout(() => {
-          matches.delete(roomId);
-          console.log("deleted roomId=", roomId);
-        }, 1000 * 120); // 120 seconds
-        matchInfo.timeout = timeoutDelete;
-      }
+      this.timeoutDeleteMatch(userId, roomId);
       SocketModel.sendBroadcastRoom(
         userId,
         roomId,
@@ -270,6 +264,17 @@ export default {
         { id: userId },
         ws
       );
+    }
+  },
+
+  timeoutDeleteMatch(userId, roomId, inSeconds = 120) {
+    const matchInfo = matches.get(roomId);
+    if (matchInfo && matchInfo.owner === userId) {
+      const timeoutDelete = setTimeout(() => {
+        matches.delete(roomId);
+        console.log("deleted roomId=", roomId);
+      }, 1000 * inSeconds); // 120 seconds
+      matchInfo.timeout = timeoutDelete;
     }
   },
 

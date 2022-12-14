@@ -4,9 +4,10 @@
 /* eslint-disable no-console */
 import HashMap from "hashmap";
 import EventModel from "./event.model.js";
-// import MatchModel from "./match.model.js";
+import MatchModel from "./match.model.js";
 
 const userConns = new HashMap();
+const userPresentations = new HashMap();
 /*
     Structure: allow only one connection per user
     userConns = {
@@ -19,7 +20,12 @@ export default {
     return userConns.get(userId);
   },
 
-  saveSocketConn(userId, socket) {
+  isAuthorized(userId, room) {
+    const oldRoom = userPresentations.get(userId);
+    return oldRoom === room;
+  },
+
+  saveSocketConn(userId, room, socket) {
     if (socket !== userConns.get(userId)) {
       // const { room, cmd } = socket.request._query;
       // if (
@@ -42,7 +48,16 @@ export default {
         console.log("Kick old connection");
       }
       userConns.set(userId, socket);
+      userPresentations.set(userId, room);
       console.log(userConns.size);
+    } else {
+      const oldRoom = userPresentations.get(userId);
+      if (oldRoom !== room) {
+        // send broadcast event "auto close presentation after n minutes because host is disconnected"
+        socket.leave(oldRoom);
+        MatchModel.timeoutDeleteMatch(userId, oldRoom, 0); // delete old room immediately
+        userPresentations.set(userId, room);
+      }
     }
     return true;
   },

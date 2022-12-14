@@ -45,6 +45,17 @@ const handleSendComment = (ws, data) => {
   }
 };
 
+const handleSendCmd = (ws) => {
+  if (ws?.connected) {
+    console.log("do changeeeeeeeeeeeeeeeeee");
+    ws.emit(WS_EVENT.INIT_CONNECTION_EVENT, {
+      cmd: WS_CMD.CREATE_ROOM_CMD,
+      room: "638c64fdda1ad866c318f1b6",
+      slide: "638c6512da1ad866c318f1bf"
+    });
+  }
+};
+
 const PresentationOwnerPage = () => {
   const [ws, setWs] = useState(null);
   const [data, setData] = useState([]);
@@ -68,8 +79,6 @@ const PresentationOwnerPage = () => {
   const [searchParam] = useSearchParams();
   const id = searchParam.get("id");
   const slide = searchParam.get("slide");
-  console.log("---------------------------------------");
-  console.log(id, slide);
 
   React.useEffect(() => {
     let wsDomain = process.env.REACT_APP_BACKEND_DOMAIN;
@@ -99,11 +108,8 @@ const PresentationOwnerPage = () => {
       setIsConnected(true);
       setQuestion(arg.curQues.question);
       setData(arg.curQues.answers);
-      if (arg.isFirst === true) {
-        setIsFirst(true);
-      } else if (arg.isEnd === true) {
-        setIsEnd(true);
-      }
+      setIsFirst(arg.isFirst);
+      setIsEnd(arg.isEnd);
       console.log("==========================================");
       console.log(arg);
     });
@@ -263,6 +269,9 @@ const PresentationOwnerPage = () => {
             onClick={() => handleSendComment(ws, "Day la chat test")}
           >
             Send chat
+          </BasicButton>
+          <BasicButton onClick={() => handleSendCmd(ws)}>
+            Change presentation
           </BasicButton>
           <Box
             direction="row"

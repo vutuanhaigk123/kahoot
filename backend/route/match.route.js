@@ -28,13 +28,13 @@ function getUidFromWs(socket) {
   return null;
 }
 
-function initConnection(socket) {
+function initConnection(socket, room) {
   const userId = getUidFromWs(socket);
   console.log(userId);
   if (!userId) {
     return false;
   }
-  if (!SocketModel.saveSocketConn(userId, socket)) {
+  if (!SocketModel.saveSocketConn(userId, room, socket)) {
     return false;
   }
   return true;
@@ -202,40 +202,40 @@ export default async (path, ws) => {
     AuthenMw.wsStopWhenNotLogon(socket, next);
   });
 
-  // middleware: stop when: invalid cmd || invalid room || invalid slide
-  // ws.use(async (socket, next) => {
-  // AuthenMw.wsStopWhenInvalidQuery(socket, next);
-  // });
-
   ws.on("connection", async (socket) => {
     const userId = getUidFromWs(socket);
     let roomId = null;
+    let cmdId = null;
+    let slideId = null;
 
     socket.on(EventModel.INIT_CONNECTION, async ({ cmd, slide, room }) => {
+      // middleware: stop when: invalid cmd || invalid room || invalid slide
       if (await AuthenMw.isStopWhenInvalidQuery(cmd, slide, room)) {
         socket.emit(EventModel.CLOSE_REASON, EventModel.REASON_INVALID_CMD);
         socket.disconnect(true);
         return;
       }
       roomId = room;
+      cmdId = cmd;
+      slideId = slide;
 
-      if (!initConnection(socket)) {
+      if (!initConnection(socket, room)) {
         socket.disconnect(true);
       }
 
       console.log("Connected");
 
-      await sendInitData(socket, room, cmd, slide);
+      await sendInitData(socket, room, cmdId, slideId);
 
       const { name, avt } = await userModel.getNameAndAvt(userId);
 
-      presentationListerner(ws, socket, userId, cmd, room, slide);
-      questionListener(ws, socket, userId, name, avt, cmd, room, slide);
-      commentListener(ws, socket, userId, name, avt, cmd, room, slide);
+      presentationListerner(ws, socket, userId, cmdId, roomId, slideId);
+      questionListener(ws, socket, userId, name, avt, cmdId, roomId, slideId);
+      commentListener(ws, socket, userId, name, avt, cmdId, roomId, slideId);
     });
 
     socket.on("error", (err) => {
-      SocketModel.removeSocketConn(getUidFromWs(socket));
+      SocketModel.removeSocketConn(userId);
     });
 
     socket.conn.on("close", (reason) => {

@@ -5,15 +5,23 @@ import EventModel from "../model/event.model.js";
 import MatchModel from "../model/match.model.js";
 import SocketModel from "../model/socket.model.js";
 
+const removeCommentListener = (socket) => {
+  socket.removeAllListeners(EventModel.SEND_CMT);
+};
+
 export default async (ws, socket, userId, name, avt, cmd, room, slide) => {
-  socket.on(EventModel.SEND_CMT, (arg) => {
-    console.log(arg);
-    SocketModel.sendBroadcastRoom(
-      userId,
-      room,
-      EventModel.RECEIVE_CMT_EVENT,
-      { senderId: userId, senderName: name, data: arg },
-      ws
-    );
-  });
+  removeCommentListener(socket);
+
+  if (SocketModel.isAuthorized(userId, room)) {
+    socket.on(EventModel.SEND_CMT, (arg) => {
+      console.log(arg);
+      SocketModel.sendBroadcastRoom(
+        userId,
+        room,
+        EventModel.RECEIVE_CMT_EVENT,
+        { senderId: userId, senderName: name, data: arg },
+        ws
+      );
+    });
+  }
 };
