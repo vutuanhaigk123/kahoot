@@ -8,19 +8,61 @@ import PopupForm from "../../components/notification/PopupForm";
 import usePopup from "../../hooks/usePopup";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { PAGE_ROUTES } from "../../commons/constants";
+import { PAGE_ROUTES, WS_CMD, WS_EVENT } from "../../commons/constants";
 import { useQuery } from "react-query";
 import { API } from "../../commons/constants";
-import { Stack } from "@mui/system";
 import { TabContext, TabList } from "@mui/lab";
 import { TabPanel } from "@mui/lab";
 import { handleGet } from "../../utils/fetch";
 import Empty from "./components/Empty";
+import { useSocket } from "../../context/socket-context";
+import { io } from "socket.io-client";
 
 const FormType = { CREATE: "create", JOIN: "join" };
 
 const GroupPage = () => {
   const [value, setValue] = React.useState("1");
+  const { socketContext, setSocketContext } = useSocket();
+
+  React.useEffect(() => {
+    let wsDomain = process.env.REACT_APP_BACKEND_DOMAIN;
+    if (window.location.hostname.includes("localhost")) {
+      wsDomain = process.env.REACT_APP_BACKEND_DOMAIN_DEV;
+    }
+    if (!socketContext) {
+      const newSocket = io(wsDomain, {
+        withCredentials: true
+      });
+
+      // Connect
+      newSocket.on("connect", () => {
+        setSocketContext(newSocket);
+        newSocket.emit(WS_EVENT.INIT_CONNECTION_EVENT, {
+          cmd: WS_CMD.CREATE_ROOM_CMD,
+          room: "638d2ceac40e99606e367f5c",
+          slide: "638ddedc4ec43c37ee600ae2"
+        });
+      });
+    }
+    return () => {
+      if (socketContext) {
+        socketContext.off("connect");
+      }
+    };
+  }, []);
+
+  React.useEffect(() => {
+    // Init
+    if (socketContext) {
+      socketContext.on(WS_EVENT.INIT_CONNECTION_EVENT, (arg) => {
+        console.log("==========================================");
+        console.log(arg);
+      });
+      return () => {
+        socketContext.off(WS_EVENT.INIT_CONNECTION_EVENT);
+      };
+    }
+  }, [socketContext]);
 
   const handleChange = (event, newValue) => {
     setValue(newValue);

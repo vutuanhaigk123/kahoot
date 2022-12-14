@@ -88,6 +88,12 @@ const PresentationListPage = lazy(() =>
     new Promise((resolve) => setTimeout(resolve, DELAY_TIME))
   ]).then(([module]) => module)
 );
+const SocketContextLayout = lazy(() =>
+  Promise.all([
+    import("./layout/SocketContextLayout"),
+    new Promise((resolve) => setTimeout(resolve, DELAY_TIME))
+  ]).then(([module]) => module)
+);
 
 function App() {
   const { user } = useSelector((state) => state.auth);
@@ -130,70 +136,72 @@ function App() {
           {/*================================= stop when logon ========================================*/}
 
           {/*================================= stop when NOT logon ====================================*/}
-          <Route
-            path={PAGE_ROUTES.GROUP}
-            element={
-              <Protected isLoggedIn={user?.data} isStopWhenLogon={false}>
-                <GroupPage />
-              </Protected>
-            }
-          />
-          <Route
-            path={PAGE_ROUTES.PROFILE}
-            element={
-              <Protected isLoggedIn={user?.data} isStopWhenLogon={false}>
-                <ProfilePage />
-              </Protected>
-            }
-          />
-          <Route
-            path={PAGE_ROUTES.GROUP_DETAIL}
-            element={
-              <Protected isLoggedIn={user?.data} isStopWhenLogon={false}>
-                <GroupDetailPage />
-              </Protected>
-            }
-          />
-          <Route
-            path={PAGE_ROUTES.JOIN}
-            element={
-              <Protected isLoggedIn={user?.data} isStopWhenLogon={false}>
-                <AcceptInvitePage />
-              </Protected>
-            }
-          />
-          <Route
-            path={PAGE_ROUTES.PRESENT_OWNER}
-            element={
-              <Protected isLoggedIn={user?.data} isStopWhenLogon={false}>
-                <PresentationOwnerPage />
-              </Protected>
-            }
-          />
-          <Route
-            path={PAGE_ROUTES.PRESENT_PLAYER}
-            element={
-              <Protected isLoggedIn={user?.data} isStopWhenLogon={false}>
-                <PresentationPlayerPage />
-              </Protected>
-            }
-          />
-          <Route
-            path={PAGE_ROUTES.PRESENTATION}
-            element={
-              <Protected isLoggedIn={user?.data} isStopWhenLogon={false}>
-                <PresentationListPage />
-              </Protected>
-            }
-          />
-          <Route
-            path={PAGE_ROUTES.PRESENTATION_EDIT}
-            element={
-              <Protected isLoggedIn={user?.data} isStopWhenLogon={false}>
-                <PresentationEdit />
-              </Protected>
-            }
-          />
+          <Route element={<SocketContextLayout></SocketContextLayout>}>
+            <Route
+              path={PAGE_ROUTES.GROUP}
+              element={
+                <Protected isLoggedIn={user?.data} isStopWhenLogon={false}>
+                  <GroupPage />
+                </Protected>
+              }
+            />
+            <Route
+              path={PAGE_ROUTES.PROFILE}
+              element={
+                <Protected isLoggedIn={user?.data} isStopWhenLogon={false}>
+                  <ProfilePage />
+                </Protected>
+              }
+            />
+            <Route
+              path={PAGE_ROUTES.GROUP_DETAIL}
+              element={
+                <Protected isLoggedIn={user?.data} isStopWhenLogon={false}>
+                  <GroupDetailPage />
+                </Protected>
+              }
+            />
+            <Route
+              path={PAGE_ROUTES.JOIN}
+              element={
+                <Protected isLoggedIn={user?.data} isStopWhenLogon={false}>
+                  <AcceptInvitePage />
+                </Protected>
+              }
+            />
+            <Route
+              path={PAGE_ROUTES.PRESENT_OWNER}
+              element={
+                <Protected isLoggedIn={user?.data} isStopWhenLogon={false}>
+                  <PresentationOwnerPage />
+                </Protected>
+              }
+            />
+            <Route
+              path={PAGE_ROUTES.PRESENT_PLAYER}
+              element={
+                <Protected isLoggedIn={user?.data} isStopWhenLogon={false}>
+                  <PresentationPlayerPage />
+                </Protected>
+              }
+            />
+            <Route
+              path={PAGE_ROUTES.PRESENTATION}
+              element={
+                <Protected isLoggedIn={user?.data} isStopWhenLogon={false}>
+                  <PresentationListPage />
+                </Protected>
+              }
+            />
+            <Route
+              path={PAGE_ROUTES.PRESENTATION_EDIT}
+              element={
+                <Protected isLoggedIn={user?.data} isStopWhenLogon={false}>
+                  <PresentationEdit />
+                </Protected>
+              }
+            />
+          </Route>
           {/*================================= stop when NOT logon ====================================*/}
 
           <Route path="*" element={<div>404 page</div>} />

@@ -20,10 +20,6 @@ const PresentationEditPage = () => {
     "presentaion-detail",
     () => handleGet(API.PRESENTATION_LIST + `/${presentationId}`)
   );
-  console.log(
-    "🚀 ~ file: PresentationEditPage.jsx:35 ~ PresentationEditPage ~ data",
-    data
-  );
 
   const dispatch = useDispatch();
   React.useEffect(() => {
@@ -33,10 +29,6 @@ const PresentationEditPage = () => {
   });
 
   const [slideIndex, setSlideIndex] = React.useState(0);
-  console.log(
-    "🚀 ~ file: PresentationEditPage.jsx:35 ~ PresentationEditPage ~ slideIndex",
-    slideIndex
-  );
 
   if (error) return "An error has occurred: " + error.message;
 

@@ -49,7 +49,7 @@ const OwnerQuestionModal = ({ isOpen, handleClosePopup }) => {
         {/* Sidebar */}
         <Stack sx={{ width: "20%", gap: 2 }}>
           {data.map((item) => (
-            <Box>
+            <Box key={item.question}>
               <Box sx={{ display: "flex", alignItems: "center" }}>
                 <QuestionMark />
                 {/* <Check /> */}
