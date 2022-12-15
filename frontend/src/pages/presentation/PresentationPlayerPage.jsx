@@ -203,35 +203,34 @@ const PresentationPlayerPage = () => {
                     );
                   })}
                 </Box>
-                <BasicButton
-                  icon={<QuestionAnswer />}
-                  color="success"
-                  sx={{ mt: 2, width: "50%" }}
-                  onClick={handleOpenQAPopup}
-                >
-                  Open Q&A
-                </BasicButton>
-                <BasicButton
-                  icon={<ChatBubble />}
-                  color="success"
-                  sx={{ mt: 2, width: "50%" }}
-                  onClick={handleOpenChatPopup}
-                >
-                  Open chat
-                </BasicButton>
-
-                {/* Q&A modal */}
-                <PlayerQuestionModal
-                  isOpen={openQAModal}
-                  handleClosePopup={handleCloseQAPopup}
-                />
-                {/* Chat modal */}
-                <ChatBox
-                  isOpen={openChat}
-                  handleClosePopup={handleCloseChatPopup}
-                />
               </>
             )}
+            <BasicButton
+              icon={<QuestionAnswer />}
+              color="success"
+              sx={{ mt: 2, width: "50%" }}
+              onClick={handleOpenQAPopup}
+            >
+              Open Q&A
+            </BasicButton>
+            <BasicButton
+              icon={<ChatBubble />}
+              color="success"
+              sx={{ mt: 2, width: "50%" }}
+              onClick={handleOpenChatPopup}
+            >
+              Open chat
+            </BasicButton>
+            {/* Q&A modal */}
+            <PlayerQuestionModal
+              isOpen={openQAModal}
+              handleClosePopup={handleCloseQAPopup}
+            />
+            {/* Chat modal */}
+            <ChatBox
+              isOpen={openChat}
+              handleClosePopup={handleCloseChatPopup}
+            />
             <BasicButton
               onClick={() => handleSendComment(ws, "Day la chat test")}
             >

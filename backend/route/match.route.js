@@ -28,13 +28,13 @@ function getUidFromWs(socket) {
   return null;
 }
 
-function initConnection(socket, room) {
+function initConnection(socket, room, cmd) {
   const userId = getUidFromWs(socket);
   console.log(userId);
   if (!userId) {
     return false;
   }
-  if (!SocketModel.saveSocketConn(userId, room, socket)) {
+  if (!SocketModel.saveSocketConn(userId, room, cmd, socket)) {
     return false;
   }
   return true;
@@ -80,13 +80,15 @@ async function sendDataToOwner(socket, userId, room, slide) {
   // join or create room
   const result = await MatchModel.joinMatch(userId, true, room, slide);
   if (result) {
-    const { curState, curQues, data, joinedUser, isEnd, isFirst } = result;
+    const { curState, curQues, chatHistory, data, joinedUser, isEnd, isFirst } =
+      result;
 
     if (curQues) {
       SocketModel.sendEvent(userId, EventModel.INIT_CONNECTION, {
         curState,
         curQues,
         isEnd,
+        chatHistory,
         isFirst
         // data
       });
@@ -100,17 +102,6 @@ async function sendDataToOwner(socket, userId, room, slide) {
     );
     SocketModel.removeSocketConn(userId);
     return;
-
-    // send broadcast when new user joined lobby (for lobby mode)
-    // if (curState === MatchModel.STATE_LOBBY && joinedUser) {
-    //   SocketModel.sendBroadcastRoom(
-    //     userId,
-    //     room,
-    //     EventModel.JOIN_ROOM,
-    //     joinedUser
-    //   );
-    //   return;
-    // }
   }
   SocketModel.removeSocketConn(userId);
 }
@@ -120,27 +111,17 @@ async function sendDataToPlayer(socket, userId, room, slide) {
   const result = await MatchModel.joinMatch(userId, false, room, slide);
   // console.log(result);
   if (result) {
-    const { curState, curQues, data, joinedUser } = result;
+    const { curState, curQues, data, chatHistory, joinedUser } = result;
     if (curQues) {
       SocketModel.sendEvent(userId, EventModel.INIT_CONNECTION, {
         curState,
-        curQues
+        curQues,
+        chatHistory
         // data
       });
       socket.join(room);
       return;
     }
-
-    // send broadcast when new user joined lobby (for lobby mode)
-    // if (curState === MatchModel.STATE_LOBBY && joinedUser) {
-    //   SocketModel.sendBroadcastRoom(
-    //     userId,
-    //     room,
-    //     EventModel.JOIN_ROOM,
-    //     joinedUser
-    //   );
-    //   return;
-    // }
   }
   SocketModel.removeSocketConn(userId);
 }
@@ -159,41 +140,6 @@ async function sendInitData(socket, room, cmd, slide) {
       sendUnknownCommand(userId);
       break;
   }
-
-  // // check user has content (to present) or not (vote in present)
-  // if (cmd === EventModel.CREATE_ROOM && !(await hasContent(socket))) {
-  //   // TODO: send have no present permission
-  //   SocketModel.sendEvent(
-  //     userId,
-  //     EventModel.CLOSE_REASON,
-  //     EventModel.REASON_NOT_FOUND_CONTENT
-  //   );
-
-  //   return SocketModel.removeSocketConn(userId);
-  // }
-
-  // // join or create room
-  // const result = await MatchModel.joinMatch(userId, room);
-  // if (result) {
-  //   const { curState, curQues, data, joinedUser } = result;
-  //   SocketModel.sendEvent(userId, EventModel.INIT_CONNECTION, {
-  //     curState,
-  //     curQues
-  //     // data
-  //   });
-  //   socket.join(room);
-  //   if (curState === MatchModel.STATE_LOBBY && joinedUser) {
-  //     return SocketModel.sendBroadcastRoom(
-  //       userId,
-  //       room,
-  //       EventModel.JOIN_ROOM,
-  //       joinedUser
-  //     );
-  //   }
-  //   // prevent removeSocketConn
-  //   return true;
-  // }
-  // return SocketModel.removeSocketConn(userId);
 }
 
 export default async (path, ws) => {
@@ -219,7 +165,7 @@ export default async (path, ws) => {
       cmdId = cmd;
       slideId = slide;
 
-      if (!initConnection(socket, room)) {
+      if (!initConnection(socket, room, cmd)) {
         socket.disconnect(true);
       }
 

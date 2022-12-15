@@ -25,12 +25,11 @@ export default {
     return oldRoom === room;
   },
 
-  saveSocketConn(userId, room, socket) {
+  saveSocketConn(userId, room, cmd, socket) {
     if (socket !== userConns.get(userId)) {
-      // const { room, cmd } = socket.request._query;
       // if (
-      //   MatchModel.isJoinSelfHostedPresentation(userId, room) &&
-      //   cmd === EventModel.JOIN_ROOM
+      //   cmd === EventModel.JOIN_ROOM &&
+      //   MatchModel.isJoinSelfHostedPresentation(userId, room)
       // ) {
       //   socket.emit(
       //     EventModel.CLOSE_REASON,

@@ -8,7 +8,7 @@ import {
   Tooltip,
   Typography
 } from "@mui/material";
-import React from "react";
+import React, { useState } from "react";
 import { Close, Send } from "@mui/icons-material";
 import { iconButton, iconHover } from "./../../../../commons/globalStyles";
 import Transition from "../components/Transition";
@@ -17,17 +17,21 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { grey } from "@mui/material/colors";
+import { useSocket } from "../../../../context/socket-context";
+import { WS_CMD, WS_EVENT } from "../../../../commons/constants";
 
-const data = [
-  {
-    name: "user 1 dsadsadsa d",
-    text: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Odio ex, suscipitdasdasdsadsadsad dsadsadsadasdasdsadsadasdasd dsadsa",
-    currentUser: 0
-  },
-  { name: "user 2", text: "Chào cl", currentUser: 1 }
-];
+// const data = [
+//   {
+//     name: "user 1 dsadsadsa d",
+//     text: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Odio ex, suscipitdasdasdsadsadsad dsadsadsadasdasdsadsadasdasd dsadsa",
+//     currentUser: 0
+//   },
+//   { name: "user 2", text: "Chào cl", currentUser: 1 }
+// ];
 
 const ChatBox = ({ isOpen, handleClosePopup }) => {
+  const [chatHistory, setChatHistory] = useState([]);
+  const { socketContext } = useSocket();
   const schema = yup.object({
     msg: yup.string().required("Required")
   });
@@ -38,9 +42,39 @@ const ChatBox = ({ isOpen, handleClosePopup }) => {
   } = useForm({
     resolver: yupResolver(schema)
   });
-  const onSubmit = (data) => {
-    console.log("🚀 ~ file: ChatBox.jsx:21 ~ ChatBox ~ data", data);
+  const onSubmit = async (data) => {
+    // console.log("🚀 ~ file: ChatBox.jsx:21 ~ ChatBox ~ data", data);
+    socketContext.emit(WS_CMD.SEND_CMT_CMD, data.msg);
   };
+
+  React.useEffect(() => {
+    if (socketContext) {
+      socketContext.on(WS_EVENT.INIT_CONNECTION_EVENT, (arg) => {
+        if (arg && arg.chatHistory) {
+          setChatHistory(arg.chatHistory);
+        }
+      });
+      return () => {
+        socketContext.off(WS_EVENT.INIT_CONNECTION_EVENT);
+      };
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [socketContext]);
+
+  React.useEffect(() => {
+    if (socketContext) {
+      socketContext.on(WS_EVENT.RECEIVE_CMT_EVENT, (arg) => {
+        if (arg) {
+          // console.log(arg);
+          setChatHistory([...chatHistory, { ...arg }]);
+        }
+      });
+      return () => {
+        socketContext.off(WS_EVENT.RECEIVE_CMT_EVENT);
+      };
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chatHistory, socketContext]);
 
   return (
     <Dialog
@@ -85,7 +119,7 @@ const ChatBox = ({ isOpen, handleClosePopup }) => {
                 minWidth: 0
               }}
             >
-              {data.map((item, index) => (
+              {chatHistory.map((item, index) => (
                 <Box
                   key={index}
                   sx={{

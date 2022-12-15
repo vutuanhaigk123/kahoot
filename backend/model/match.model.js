@@ -5,6 +5,7 @@
 /* eslint-disable import/extensions */
 /* eslint-disable no-console */
 import HashMap from "hashmap";
+import CommentModel from "./comment.model.js";
 import EventModel from "./event.model.js";
 import SlideModel from "./slide.model.js";
 import SocketModel from "./socket.model.js";
@@ -68,7 +69,7 @@ async function getQuestionsInRoom(roomId) {
   return ret;
 }
 
-function initMatch(roomId, ownerId, questions, slideId) {
+function initMatch(roomId, ownerId, questions, slideId, comments = []) {
   const questionsTmp = [];
   questions.forEach((eachQuestion) => {
     const ansListOfQues = [];
@@ -94,7 +95,7 @@ function initMatch(roomId, ownerId, questions, slideId) {
     curState: STATE_LOBBY_CODE,
     curQues: slideId,
     owner: ownerId,
-    comments: [],
+    comments,
     userQuestions: [],
     questions: questionsTmp,
     answers: []
@@ -202,7 +203,13 @@ export default {
         return null;
       }
 
-      matchInfo = initMatch(roomId, userId, questions, slideId);
+      matchInfo = initMatch(
+        roomId,
+        userId,
+        questions,
+        slideId,
+        matchInfo.comments
+      );
       matches.set(roomId, matchInfo);
       console.log("delete timeout");
     }
@@ -235,9 +242,11 @@ export default {
     const questionIndex = hasQuestion(matchInfo.questions, matchInfo.curQues);
     const isEnd = questionIndex >= matchInfo.questions.length - 1;
     const isFirst = questionIndex === 0;
+    console.log(matchInfo.comments);
     return {
       curState: matchInfo.curState,
       curQues,
+      chatHistory: matchInfo.comments,
       data,
       joinedUser,
       isEnd,
@@ -385,5 +394,9 @@ export default {
         ws
       );
     }
+  },
+
+  doComment(userId, name, roomId, content) {
+    return CommentModel.doComment(userId, name, content, matches.get(roomId));
   }
 };

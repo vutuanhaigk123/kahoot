@@ -97,7 +97,7 @@ const PresentationOwnerPage = () => {
         if (ws) socket.close();
       };
     }
-    console.log("hit");
+
     let socket = null;
     if (!socketContext) {
       socket = io(wsDomain, {
@@ -155,19 +155,19 @@ const PresentationOwnerPage = () => {
         }
       });
 
-      socketContext.on(WS_EVENT.RECEIVE_CMT_EVENT, (arg) => {
-        console.log(
-          "=====================Another member has commented====================="
-        );
-        console.log(arg);
-      });
+      // socketContext.on(WS_EVENT.RECEIVE_CMT_EVENT, (arg) => {
+      //   console.log(
+      //     "=====================Another member has commented====================="
+      //   );
+      //   console.log(arg);
+      // });
 
-      socketContext.on(WS_EVENT.RECEIVE_QUESTION_EVENT, (arg) => {
-        console.log(
-          "=====================Another member has commented====================="
-        );
-        console.log(arg);
-      });
+      // socketContext.on(WS_EVENT.RECEIVE_QUESTION_EVENT, (arg) => {
+      //   console.log(
+      //     "=====================Another member has commented====================="
+      //   );
+      //   console.log(arg);
+      // });
 
       socketContext.on(WS_CLOSE.CLOSE_REASON, (arg) => {
         console.log(

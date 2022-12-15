@@ -15,7 +15,7 @@ const SocketProvider = (props) => {
 const useSocket = () => {
   const context = useContext(SocketContext);
   if (typeof context === "undefined")
-    throw new Error("useSocket must be used withing a SocketProvider");
+    throw new Error("useSocket must be used within a SocketProvider");
   return context;
 };
 
