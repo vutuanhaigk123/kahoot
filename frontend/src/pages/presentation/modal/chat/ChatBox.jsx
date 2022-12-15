@@ -38,6 +38,7 @@ const ChatBox = ({ isOpen, handleClosePopup }) => {
   const {
     handleSubmit,
     control,
+    reset,
     formState: { errors }
   } = useForm({
     resolver: yupResolver(schema)
@@ -45,6 +46,7 @@ const ChatBox = ({ isOpen, handleClosePopup }) => {
   const onSubmit = async (data) => {
     // console.log("🚀 ~ file: ChatBox.jsx:21 ~ ChatBox ~ data", data);
     socketContext.emit(WS_CMD.SEND_CMT_CMD, data.msg);
+    reset();
   };
 
   React.useEffect(() => {

@@ -2,15 +2,7 @@
 import { Box, Paper, Tooltip, Typography } from "@mui/material";
 import React from "react";
 import { useSearchParams } from "react-router-dom";
-import { useState } from "react";
-import { io } from "socket.io-client";
-import {
-  PAGE_ROUTES,
-  SUBMIT_STATUS,
-  WS_CLOSE,
-  WS_CMD,
-  WS_EVENT
-} from "../../commons/constants";
+import { PAGE_ROUTES, SUBMIT_STATUS } from "../../commons/constants";
 import PresentationChart from "../../components/chart/PresentationChart";
 import PopupMsg from "../../components/notification/PopupMsg";
 import BackgroundContainer from "../../components/misc/BackgroundContainer";
@@ -22,47 +14,9 @@ import usePopup from "./../../hooks/usePopup";
 import OwnerQuestionModal from "./modal/owner/OwnerQuestionModal";
 import ChatBox from "./modal/chat/ChatBox";
 import { useSocket } from "../../context/socket-context";
-
-const toIndex = (dataChart, choiceId) => {
-  console.log(dataChart);
-  return dataChart.findIndex((choice) => choice.id === choiceId);
-};
-
-const handleNextSlide = (ws) => {
-  if (ws?.connected) {
-    ws.emit(WS_CMD.NEXT_SLIDE_CMD);
-  }
-};
-
-const handlePrevSlide = (ws) => {
-  if (ws?.connected) {
-    ws.emit(WS_CMD.PREV_SLIDE_CMD);
-  }
-};
-
-const handleSendComment = (ws, data) => {
-  if (ws?.connected) {
-    ws.emit(WS_CMD.SEND_CMT_CMD, data);
-  }
-};
-
-const handleSendCmd = (ws) => {
-  if (ws?.connected) {
-    console.log("do changeeeeeeeeeeeeeeeeee");
-    ws.emit(WS_EVENT.INIT_CONNECTION_EVENT, {
-      cmd: WS_CMD.CREATE_ROOM_CMD,
-      room: "638c64fdda1ad866c318f1b6",
-      slide: "638c6512da1ad866c318f1bf"
-    });
-  }
-};
+import usePresentationOwner from "../../hooks/socket/owner/usePresentationOwner";
 
 const PresentationOwnerPage = () => {
-  const [ws, setWs] = useState(null);
-  const [data, setData] = useState([]);
-  const [isConnected, setIsConnected] = useState(true);
-  const [msgClose, setMsgClose] = useState("Not found content");
-  const [question, setQuestion] = useState(null);
   const [isCopy, setIsCopy] = React.useState(false);
   // Popup
   const {
@@ -75,179 +29,28 @@ const PresentationOwnerPage = () => {
     handleOpenPopup: handleOpenChatPopup,
     handleClosePopup: handleCloseChatPopup
   } = usePopup();
-  const [isEnd, setIsEnd] = useState(false);
-  const [isFirst, setIsFirst] = useState(false);
 
   const [searchParam] = useSearchParams();
   const id = searchParam.get("id");
   const slide = searchParam.get("slide");
 
   // Socket context
-  // const dispatch = useDispatch();
   const { socketContext, setSocketContext } = useSocket();
 
-  React.useEffect(() => {
-    let wsDomain = process.env.REACT_APP_BACKEND_DOMAIN;
-    if (window.location.hostname.includes("localhost")) {
-      wsDomain = process.env.REACT_APP_BACKEND_DOMAIN_DEV;
-    }
-
-    if (!id || !slide) {
-      return () => {
-        if (ws) socket.close();
-      };
-    }
-
-    let socket = null;
-    if (!socketContext) {
-      socket = io(wsDomain, {
-        withCredentials: true
-      });
-
-      socket.on("connect", () => {
-        setSocketContext(socket);
-      });
-    } else {
-      socket = socketContext;
-    }
-    setWs(socket);
-    return () => {
-      socket.off(WS_EVENT.INIT_CONNECTION_EVENT);
-    };
-  }, []);
-
-  React.useEffect(() => {
-    if (socketContext) {
-      socketContext.emit(WS_EVENT.INIT_CONNECTION_EVENT, {
-        cmd: WS_CMD.CREATE_ROOM_CMD,
-        room: id,
-        slide
-      });
-
-      socketContext.on(WS_EVENT.INIT_CONNECTION_EVENT, (arg) => {
-        setIsConnected(true);
-        setQuestion(arg.curQues.question);
-        setData(arg.curQues.answers);
-        setIsFirst(arg.isFirst);
-        setIsEnd(arg.isEnd);
-        console.log("==========================================");
-        console.log(arg);
-      });
-      socketContext.on(WS_EVENT.RECEIVE_NEXT_SLIDE_EVENT, (arg) => {
-        console.log("==================Next slide========================");
-        console.log(arg);
-        setQuestion(arg.curQues.question);
-        setData(arg.curQues.answers);
-        setIsFirst(false);
-        if (arg.isEnd === true) {
-          setIsEnd(true);
-        }
-      });
-
-      socketContext.on(WS_EVENT.RECEIVE_PREV_SLIDE_EVENT, (arg) => {
-        console.log("====================Prev Slide======================");
-        console.log(arg);
-        setQuestion(arg.curQues.question);
-        setData(arg.curQues.answers);
-        setIsEnd(false);
-        if (arg.isFirst === true) {
-          setIsFirst(true);
-        }
-      });
-
-      // socketContext.on(WS_EVENT.RECEIVE_CMT_EVENT, (arg) => {
-      //   console.log(
-      //     "=====================Another member has commented====================="
-      //   );
-      //   console.log(arg);
-      // });
-
-      // socketContext.on(WS_EVENT.RECEIVE_QUESTION_EVENT, (arg) => {
-      //   console.log(
-      //     "=====================Another member has commented====================="
-      //   );
-      //   console.log(arg);
-      // });
-
-      socketContext.on(WS_CLOSE.CLOSE_REASON, (arg) => {
-        console.log(
-          "================= Closing connection signal from server ======================",
-          arg
-        );
-        switch (arg) {
-          case WS_CLOSE.REASON_HAS_NEW_CONNECTION:
-            setMsgClose("Only support 1 connection at a time");
-            break;
-          case WS_CLOSE.REASON_NOT_FOUND_CONTENT:
-            setMsgClose("Not found content");
-            break;
-          case WS_CLOSE.REASON_WAITING_FOR_HOST:
-            setMsgClose("Waiting for host present");
-            break;
-          case WS_CLOSE.REASON_SLIDE_HAS_NO_ANS:
-            console.log("slide has no answer");
-          // eslint-disable-next-line no-fallthrough
-          case WS_CLOSE.REASON_INVALID_CMD:
-          default:
-            setMsgClose("Unknown Server Error");
-            break;
-        }
-        setSocketContext(null);
-        setWs(null);
-      });
-
-      // socket.on(JOIN_ROOM_EVENT, (arg) => {
-      //   console.log(
-      //     "=====================Member has just joined room====================="
-      //   );
-      //   console.log(arg);
-      // });
-
-      // socket.on(EXIT_ROOM_EVENT, (arg) => {
-      //   console.log(
-      //     "=====================Member has just leaved room====================="
-      //   );
-      //   console.log(arg);
-      // });
-
-      socketContext.io.on("close", (reason) => {
-        if (reason !== "forced close") {
-          return console.log(
-            "PresentationOwnerPage: error to connect socket, " + reason
-          );
-        }
-        setIsConnected(false);
-      });
-
-      return () => {
-        socketContext.off(WS_EVENT.INIT_CONNECTION_EVENT);
-        socketContext.off(WS_EVENT.RECEIVE_NEXT_SLIDE_EVENT);
-        socketContext.off(WS_EVENT.RECEIVE_PREV_SLIDE_EVENT);
-        socketContext.off(WS_EVENT.RECEIVE_CMT_EVENT);
-        socketContext.off(WS_EVENT.RECEIVE_QUESTION_EVENT);
-        socketContext.off(WS_CLOSE.CLOSE_REASON);
-        socketContext.off(WS_EVENT.RECEIVE_CHOICE_EVENT);
-      };
-    }
-  }, [socketContext]);
-
-  React.useEffect(() => {
-    if (ws) {
-      ws.on(WS_EVENT.RECEIVE_CHOICE_EVENT, (arg) => {
-        console.log(
-          "=====================Another player has make a choice====================="
-        );
-        console.log(arg);
-        const choiceId = arg.choiceId.toString();
-        const index = toIndex(data, choiceId);
-        if (index !== -1) {
-          data[index].total += 1;
-          return setData([...data]);
-        }
-      });
-      return () => ws.off(WS_EVENT.RECEIVE_CHOICE_EVENT);
-    }
-  }, [ws, data]);
+  // Handle socket
+  const {
+    isEnd,
+    isFirst,
+    isConnected,
+    data,
+    ws,
+    msgClose,
+    question,
+    handleNextSlide,
+    handlePrevSlide,
+    handleSendComment,
+    handleSendCmd
+  } = usePresentationOwner(socketContext, setSocketContext, id, slide);
 
   return (
     <BackgroundContainer>

@@ -1,0 +1,169 @@
+import React from "react";
+import { useSelector } from "react-redux";
+import { io } from "socket.io-client";
+import { WS_CLOSE, WS_CMD, WS_EVENT } from "../../../commons/constants";
+
+const getDomain = () => {
+  let wsDomain = process.env.REACT_APP_BACKEND_DOMAIN;
+  if (window.location.hostname.includes("localhost")) {
+    wsDomain = process.env.REACT_APP_BACKEND_DOMAIN_DEV;
+  }
+  return wsDomain;
+};
+
+const handleSubmitChoice = ({ socket, choiceId }) => {
+  if (socket) {
+    console.log(choiceId);
+    socket.emit(WS_CMD.SUBMIT_CHOICE_CMD, choiceId);
+  } else {
+    console.log("Not connected to server");
+  }
+};
+
+const handleSendComment = (ws, data) => {
+  if (ws?.connected) {
+    ws.emit(WS_CMD.SEND_CMT_CMD, data);
+  }
+};
+
+const handleSendQuestion = (ws, data) => {
+  if (ws?.connected) {
+    ws.emit(WS_CMD.SEND_QUESTION_CMD, data);
+  }
+};
+
+const usePresentationPlayer = (socketContext, setSocketContext, id, slide) => {
+  const { user } = useSelector((state) => state?.auth);
+  const [ws, setWs] = React.useState(null);
+  const [question, setQuestion] = React.useState(null);
+  const [isVoted, setIsVoted] = React.useState(false);
+  const [msgClose, setMsgClose] = React.useState(null);
+
+  // Connect socket
+  React.useEffect(() => {
+    const wsDomain = getDomain();
+    let socket = null;
+
+    // Check id || slide valid
+    if (!id || !slide) {
+      return () => {
+        if (ws) socket.close();
+      };
+    }
+    console.log("hit - player");
+
+    if (!socketContext) {
+      socket = io(wsDomain, {
+        withCredentials: true
+      });
+
+      socket.on("connect", () => {
+        setSocketContext(socket);
+      });
+    } else {
+      socket = socketContext;
+    }
+    setWs(socket);
+    return () => {
+      socket.off("connect");
+    };
+  }, []);
+
+  // Handel event
+  React.useEffect(() => {
+    if (socketContext) {
+      socketContext.emit(WS_EVENT.INIT_CONNECTION_EVENT, {
+        cmd: WS_CMD.JOIN_ROOM_CMD,
+        room: id,
+        slide
+      });
+
+      socketContext.on(WS_EVENT.INIT_CONNECTION_EVENT, (arg) => {
+        console.log("==========================================");
+        console.log(arg);
+        setQuestion(arg.curQues);
+      });
+
+      socketContext.on(WS_EVENT.RECEIVE_CHOICE_EVENT, (arg) => {
+        console.log(
+          "=====================Another member has made a choice====================="
+        );
+        console.log(arg);
+        if (arg.id === user.data.id) {
+          setIsVoted(true);
+        }
+      });
+
+      socketContext.on(WS_EVENT.RECEIVE_CMT_EVENT, (arg) => {
+        console.log(
+          "=====================Another member has commented====================="
+        );
+        console.log(arg);
+      });
+
+      socketContext.on(WS_EVENT.RECEIVE_QUESTION_EVENT, (arg) => {
+        console.log(
+          "=====================Another member has made a question====================="
+        );
+        console.log(arg);
+      });
+
+      socketContext.on(WS_CLOSE.CLOSE_REASON, (arg) => {
+        console.log(
+          "================= Closing connection signal from server ======================",
+          arg
+        );
+        switch (arg) {
+          case WS_CLOSE.REASON_NOT_FOUND_CONTENT:
+            setMsgClose("Not found content");
+            break;
+          case WS_CLOSE.REASON_WAITING_FOR_HOST:
+            setMsgClose("Waiting for host present");
+            break;
+          case WS_CLOSE.REASON_SELF_HOSTED_PRESENTATION:
+            setMsgClose("You can not join to self hosted presentation to vote");
+            break;
+          case WS_CLOSE.REASON_SLIDE_HAS_NO_ANS:
+            console.log("slide has no answer");
+          // eslint-disable-next-line no-fallthrough
+          case WS_CLOSE.REASON_INVALID_CMD:
+          default:
+            setMsgClose("Unknown Server Error");
+            break;
+        }
+        setWs(null);
+      });
+
+      socketContext.io.on("close", (reason) => {
+        if (reason !== "forced close") {
+          return console.log(
+            "PresentationPlayerPage: error to connect socket, " + reason
+          );
+        }
+      });
+    }
+
+    return () => {
+      if (socketContext) {
+        socketContext.off(WS_EVENT.INIT_CONNECTION_EVENT);
+        socketContext.off(WS_EVENT.RECEIVE_CHOICE_EVENT);
+        socketContext.off(WS_EVENT.RECEIVE_CMT_EVENT);
+        socketContext.off(WS_EVENT.RECEIVE_QUESTION_EVENT);
+        socketContext.off(WS_CLOSE.CLOSE_REASON);
+        socketContext.close();
+      }
+    };
+  }, [socketContext]);
+
+  return {
+    ws,
+    question,
+    isVoted,
+    msgClose,
+    handleSubmitChoice,
+    handleSendComment,
+    handleSendQuestion
+  };
+};
+
+export default usePresentationPlayer;
