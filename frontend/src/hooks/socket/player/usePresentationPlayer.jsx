@@ -67,9 +67,10 @@ const usePresentationPlayer = (socketContext, setSocketContext, id, slide) => {
     return () => {
       socket.off("connect");
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Handel event
+  // Handle event
   React.useEffect(() => {
     if (socketContext) {
       socketContext.emit(WS_EVENT.INIT_CONNECTION_EVENT, {
@@ -79,9 +80,9 @@ const usePresentationPlayer = (socketContext, setSocketContext, id, slide) => {
       });
 
       socketContext.on(WS_EVENT.INIT_CONNECTION_EVENT, (arg) => {
+        setQuestion(arg.curQues);
         console.log("==========================================");
         console.log(arg);
-        setQuestion(arg.curQues);
       });
 
       socketContext.on(WS_EVENT.RECEIVE_CHOICE_EVENT, (arg) => {
@@ -94,19 +95,19 @@ const usePresentationPlayer = (socketContext, setSocketContext, id, slide) => {
         }
       });
 
-      socketContext.on(WS_EVENT.RECEIVE_CMT_EVENT, (arg) => {
-        console.log(
-          "=====================Another member has commented====================="
-        );
-        console.log(arg);
-      });
+      // socketContext.on(WS_EVENT.RECEIVE_CMT_EVENT, (arg) => {
+      //   console.log(
+      //     "=====================Another member has commented====================="
+      //   );
+      //   console.log(arg);
+      // });
 
-      socketContext.on(WS_EVENT.RECEIVE_QUESTION_EVENT, (arg) => {
-        console.log(
-          "=====================Another member has made a question====================="
-        );
-        console.log(arg);
-      });
+      // socketContext.on(WS_EVENT.RECEIVE_QUESTION_EVENT, (arg) => {
+      //   console.log(
+      //     "=====================Another member has made a question====================="
+      //   );
+      //   console.log(arg);
+      // });
 
       socketContext.on(WS_CLOSE.CLOSE_REASON, (arg) => {
         console.log(
@@ -131,6 +132,7 @@ const usePresentationPlayer = (socketContext, setSocketContext, id, slide) => {
             setMsgClose("Unknown Server Error");
             break;
         }
+        setSocketContext(null);
         setWs(null);
       });
 
@@ -141,18 +143,16 @@ const usePresentationPlayer = (socketContext, setSocketContext, id, slide) => {
           );
         }
       });
-    }
 
-    return () => {
-      if (socketContext) {
-        socketContext.off(WS_EVENT.INIT_CONNECTION_EVENT);
-        socketContext.off(WS_EVENT.RECEIVE_CHOICE_EVENT);
-        socketContext.off(WS_EVENT.RECEIVE_CMT_EVENT);
-        socketContext.off(WS_EVENT.RECEIVE_QUESTION_EVENT);
-        socketContext.off(WS_CLOSE.CLOSE_REASON);
-        socketContext.close();
-      }
-    };
+      return () => {
+        if (socketContext) {
+          socketContext.off(WS_EVENT.INIT_CONNECTION_EVENT);
+          socketContext.off(WS_EVENT.RECEIVE_CHOICE_EVENT);
+          socketContext.off(WS_CLOSE.CLOSE_REASON);
+        }
+      };
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [socketContext]);
 
   return {

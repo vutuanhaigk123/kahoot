@@ -7,16 +7,44 @@ import {
   Stack,
   Typography
 } from "@mui/material";
-import React from "react";
+import React, { useState } from "react";
 import { iconButton, iconHover } from "../../../../commons/globalStyles";
 import Carousel from "./components/Carousel";
 import Transition from "./../components/Transition";
+import { useSocket } from "../../../../context/socket-context";
+import { WS_EVENT } from "../../../../commons/constants";
 
 const OwnerQuestionModal = ({ isOpen, handleClosePopup }) => {
   const data = [
     { slideQuestion: "Câu hỏi slide", question: "Câu hỏi người chơi" },
     { slideQuestion: "Câu hỏi slide 2", question: "Câu hỏi người chơi 2" }
   ];
+  const { socketContext } = useSocket();
+  const [quesHistory, setQuesHistory] = useState([]);
+
+  React.useEffect(() => {
+    if (socketContext) {
+      socketContext.on(WS_EVENT.INIT_CONNECTION_EVENT, (arg) => {
+        console.log("init connection event in question modal");
+      });
+      return () => {
+        socketContext.off(WS_EVENT.INIT_CONNECTION_EVENT);
+      };
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [socketContext]);
+
+  React.useEffect(() => {
+    if (socketContext) {
+      socketContext.on(WS_EVENT.RECEIVE_QUESTION_EVENT, (arg) => {
+        setQuesHistory([...quesHistory, { ...arg }]);
+        console.log(arg);
+      });
+      return () => {
+        socketContext.off(WS_EVENT.RECEIVE_QUESTION_EVENT);
+      };
+    }
+  }, [quesHistory, socketContext]);
 
   return (
     <Dialog

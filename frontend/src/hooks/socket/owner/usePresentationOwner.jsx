@@ -35,7 +35,6 @@ const handleSendComment = (ws, data) => {
 
 const handleSendCmd = (ws) => {
   if (ws?.connected) {
-    console.log("do changeeeeeeeeeeeeeeeeee");
     ws.emit(WS_EVENT.INIT_CONNECTION_EVENT, {
       cmd: WS_CMD.CREATE_ROOM_CMD,
       room: "638c64fdda1ad866c318f1b6",
@@ -83,9 +82,10 @@ const usePresentationOwner = (socketContext, setSocketContext, id, slide) => {
     return () => {
       socket.off("connect");
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Handel event
+  // Handle event
   React.useEffect(() => {
     if (socketContext) {
       socketContext.emit(WS_EVENT.INIT_CONNECTION_EVENT, {
@@ -183,11 +183,10 @@ const usePresentationOwner = (socketContext, setSocketContext, id, slide) => {
         socketContext.off(WS_EVENT.INIT_CONNECTION_EVENT);
         socketContext.off(WS_EVENT.RECEIVE_NEXT_SLIDE_EVENT);
         socketContext.off(WS_EVENT.RECEIVE_PREV_SLIDE_EVENT);
-        socketContext.off(WS_EVENT.RECEIVE_CMT_EVENT);
-        socketContext.off(WS_EVENT.RECEIVE_QUESTION_EVENT);
         socketContext.off(WS_CLOSE.CLOSE_REASON);
       };
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [socketContext]);
 
   React.useEffect(() => {

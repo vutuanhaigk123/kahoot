@@ -5,8 +5,11 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import BasicButton from "../../../../../components/button/BasicButton";
 import { Box, Typography } from "@mui/material";
+import { useSocket } from "../../../../../context/socket-context";
+import { WS_CMD } from "../../../../../commons/constants";
 
 const AskQuestion = () => {
+  const { socketContext } = useSocket();
   // Form
   const schema = yup.object({
     question: yup.string().trim().required("Required")
@@ -19,10 +22,10 @@ const AskQuestion = () => {
     resolver: yupResolver(schema)
   });
   const onSubmit = (data) => {
-    console.log("🚀 ~ file: AskQuestion.jsx:20 ~ onSubmit ~ data", data);
-    // const resp = await handlePost(API.CHANGE_PASSWORD, data);
-
     // Handle popup msg
+    if (socketContext) {
+      socketContext.emit(WS_CMD.SEND_QUESTION_CMD, data.question);
+    }
   };
 
   return (

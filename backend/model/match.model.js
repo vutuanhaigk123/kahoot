@@ -242,7 +242,6 @@ export default {
     const questionIndex = hasQuestion(matchInfo.questions, matchInfo.curQues);
     const isEnd = questionIndex >= matchInfo.questions.length - 1;
     const isFirst = questionIndex === 0;
-    console.log(matchInfo.comments);
     return {
       curState: matchInfo.curState,
       curQues,

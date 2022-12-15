@@ -51,7 +51,9 @@ const ChatBox = ({ isOpen, handleClosePopup }) => {
 
   React.useEffect(() => {
     if (socketContext) {
+      console.log(socketContext);
       socketContext.on(WS_EVENT.INIT_CONNECTION_EVENT, (arg) => {
+        console.log(arg);
         if (arg && arg.chatHistory) {
           setChatHistory(arg.chatHistory);
         }
