@@ -12,6 +12,7 @@ import usePopup from "./../../hooks/usePopup";
 import ChatBox from "./modal/chat/ChatBox";
 import { useSocket } from "../../context/socket-context";
 import usePresentationPlayer from "../../hooks/socket/player/usePresentationPlayer";
+import useToggle from "../../hooks/useToggle";
 
 const PresentationPlayerPage = () => {
   const [searchParam] = useSearchParams();
@@ -40,6 +41,8 @@ const PresentationPlayerPage = () => {
     handleSendComment,
     handleSendQuestion
   } = usePresentationPlayer(socketContext, setSocketContext, id, slide);
+
+  const { value: isNotify, toggleValue: toggleNotify } = useToggle(false);
 
   return (
     <BackgroundContainer>
@@ -124,6 +127,7 @@ const PresentationPlayerPage = () => {
           <ChatBox
             isOpen={openChat}
             handleClosePopup={handleCloseChatPopup}
+            toggleNotify={toggleNotify}
           ></ChatBox>
           <BasicButton
             onClick={() => handleSendComment(ws, "Day la chat test")}

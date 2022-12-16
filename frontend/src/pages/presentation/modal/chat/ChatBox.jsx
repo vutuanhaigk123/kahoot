@@ -19,6 +19,7 @@ import * as yup from "yup";
 import { grey } from "@mui/material/colors";
 import { useSocket } from "../../../../context/socket-context";
 import { WS_CMD, WS_EVENT } from "../../../../commons/constants";
+import { useSelector } from "react-redux";
 
 // const data = [
 //   {
@@ -29,7 +30,8 @@ import { WS_CMD, WS_EVENT } from "../../../../commons/constants";
 //   { name: "user 2", text: "Chào cl", currentUser: 1 }
 // ];
 
-const ChatBox = ({ isOpen, handleClosePopup }) => {
+const ChatBox = ({ isOpen, handleClosePopup, toggleNotify }) => {
+  const { user } = useSelector((state) => state?.auth);
   const [chatHistory, setChatHistory] = useState([]);
   const { socketContext } = useSocket();
   const schema = yup.object({
@@ -69,8 +71,11 @@ const ChatBox = ({ isOpen, handleClosePopup }) => {
     if (socketContext) {
       socketContext.on(WS_EVENT.RECEIVE_CMT_EVENT, (arg) => {
         if (arg) {
-          // console.log(arg);
+          console.log(arg);
           setChatHistory([...chatHistory, { ...arg }]);
+          if (user.data.id !== arg.userId && !isOpen) {
+            toggleNotify();
+          }
         }
       });
       return () => {
@@ -78,7 +83,7 @@ const ChatBox = ({ isOpen, handleClosePopup }) => {
       };
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chatHistory, socketContext]);
+  }, [isOpen, chatHistory, socketContext]);
 
   return (
     <Dialog

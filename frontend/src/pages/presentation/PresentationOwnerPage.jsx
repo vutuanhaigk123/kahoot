@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { Box, Paper, Tooltip, Typography } from "@mui/material";
+import { Badge, Box, Paper, Tooltip, Typography } from "@mui/material";
 import React from "react";
 import { useSearchParams } from "react-router-dom";
 import { PAGE_ROUTES, SUBMIT_STATUS } from "../../commons/constants";
@@ -15,6 +15,7 @@ import OwnerQuestionModal from "./modal/owner/OwnerQuestionModal";
 import ChatBox from "./modal/chat/ChatBox";
 import { useSocket } from "../../context/socket-context";
 import usePresentationOwner from "../../hooks/socket/owner/usePresentationOwner";
+import useToggle from "./../../hooks/useToggle";
 
 const PresentationOwnerPage = () => {
   const [isCopy, setIsCopy] = React.useState(false);
@@ -33,6 +34,8 @@ const PresentationOwnerPage = () => {
   const [searchParam] = useSearchParams();
   const id = searchParam.get("id");
   const slide = searchParam.get("slide");
+
+  const { value: isNotify, toggleValue: toggleNotify } = useToggle(false);
 
   // Socket context
   const { socketContext, setSocketContext } = useSocket();
@@ -112,10 +115,15 @@ const PresentationOwnerPage = () => {
             }}
           >
             <Tooltip title="Chat" variant="soft">
-              <Chat
-                sx={[iconHover(), iconButton]}
-                onClick={handleOpenChatPopup}
-              />
+              <Badge color="primary" variant="dot" invisible={!isNotify}>
+                <Chat
+                  sx={[iconHover(), iconButton]}
+                  onClick={() => {
+                    handleOpenChatPopup();
+                    toggleNotify(false);
+                  }}
+                />
+              </Badge>
             </Tooltip>
             <Tooltip title="Q&A" variant="soft">
               <QuestionAnswer
@@ -135,6 +143,7 @@ const PresentationOwnerPage = () => {
           <ChatBox
             isOpen={openChat}
             handleClosePopup={handleCloseChatPopup}
+            toggleNotify={toggleNotify}
           ></ChatBox>
         </Paper>
       ) : null}
