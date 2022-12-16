@@ -44,98 +44,98 @@ const PresentationPlayerPage = () => {
   return (
     <BackgroundContainer>
       {ws && question ? (
-        <Box sx={{ width: "20vw", minWidth: "100px", m: "auto" }}>
-          <Paper
-            elevation={10}
-            sx={{
-              height: "70vh",
-              maxHeight: "700px",
-              alignItems: "center",
-              justifyContent: "center",
-              display: "flex",
-              flexDirection: "column",
-              p: 2,
-              m: "auto"
-            }}
-          >
-            {isVoted ? (
-              <Typography
-                variant="h4"
-                sx={{ mb: 5, alignItems: "center", justifyContent: "center" }}
-              >
-                You voted successfully
+        <Paper
+          elevation={10}
+          sx={{
+            height: "70vh",
+            maxHeight: "700px",
+            alignItems: "center",
+            justifyContent: "center",
+            display: "flex",
+            flexDirection: "column",
+            p: 2,
+            m: "auto"
+          }}
+        >
+          {isVoted ? (
+            <Typography
+              variant="h4"
+              sx={{ mb: 5, alignItems: "center", justifyContent: "center" }}
+            >
+              You voted successfully
+            </Typography>
+          ) : (
+            <>
+              <Typography variant="h4" sx={{ mb: 5 }}>
+                {question.question}
               </Typography>
-            ) : (
-              <>
-                <Typography variant="h4" sx={{ mb: 5 }}>
-                  {question.question}
-                </Typography>
-                <Box
-                  spacing={2}
-                  style={{
-                    maxHeight: "100vh",
-                    overflowY: "auto",
-                    overflowX: "hidden",
-                    height: "440px",
-                    overflow: "auto"
-                  }}
-                >
-                  {question.answers.map((value, index) => {
-                    return (
-                      <BasicButton
-                        fullWidth
-                        key={value.id}
-                        variant="contained"
-                        onClick={() =>
-                          handleSubmitChoice({ socket: ws, choiceId: value.id })
-                        }
-                        sx={{ mb: 2 }}
-                      >
-                        {value.des}
-                      </BasicButton>
-                    );
-                  })}
-                </Box>
-              </>
-            )}
-            <BasicButton
-              icon={<QuestionAnswer />}
-              color="success"
-              sx={{ mt: 2, width: "50%" }}
-              onClick={handleOpenQAPopup}
-            >
-              Open Q&A
-            </BasicButton>
-            <BasicButton
-              icon={<ChatBubble />}
-              color="success"
-              sx={{ mt: 2, width: "50%" }}
-              onClick={handleOpenChatPopup}
-            >
-              Open chat
-            </BasicButton>
-            {/* Q&A modal */}
-            <PlayerQuestionModal
-              isOpen={openQAModal}
-              handleClosePopup={handleCloseQAPopup}
-            />
-            {/* Chat modal */}
-            <ChatBox
-              isOpen={openChat}
-              handleClosePopup={handleCloseChatPopup}
-            />
-            <BasicButton
-              onClick={() => handleSendComment(ws, "Day la chat test")}
-            >
-              Send chat
-            </BasicButton>
-            <BasicButton
-              onClick={() => handleSendQuestion(ws, "Day la question test")}
-            >
-              Send question
-            </BasicButton>
-          </Paper>
-        </Box>
+              <Box
+                spacing={2}
+                style={{
+                  maxHeight: "100vh",
+                  overflowY: "auto",
+                  overflowX: "hidden",
+                  height: "440px",
+                  overflow: "auto"
+                }}
+              >
+                {question.answers.map((value, index) => {
+                  return (
+                    <BasicButton
+                      fullWidth
+                      key={value.id}
+                      variant="contained"
+                      onClick={() =>
+                        handleSubmitChoice({ socket: ws, choiceId: value.id })
+                      }
+                      sx={{ mb: 2 }}
+                    >
+                      {value.des}
+                    </BasicButton>
+                  );
+                })}
+              </Box>
+            </>
+          )}
+          <BasicButton
+            icon={<QuestionAnswer />}
+            color="success"
+            sx={{ mt: 2, width: "50%" }}
+            onClick={handleOpenQAPopup}
+          >
+            Open Q&A
+          </BasicButton>
+          <BasicButton
+            icon={<ChatBubble />}
+            color="success"
+            sx={{ mt: 2, width: "50%" }}
+            onClick={handleOpenChatPopup}
+          >
+            Open chat
+          </BasicButton>
+
+          {/* Q&A modal */}
+          <PlayerQuestionModal
+            isOpen={openQAModal}
+            handleClosePopup={handleCloseQAPopup}
+          ></PlayerQuestionModal>
+
+          {/* Chat modal */}
+          <ChatBox
+            isOpen={openChat}
+            handleClosePopup={handleCloseChatPopup}
+          ></ChatBox>
+          <BasicButton
+            onClick={() => handleSendComment(ws, "Day la chat test")}
+          >
+            Send chat
+          </BasicButton>
+          <BasicButton
+            onClick={() => handleSendQuestion(ws, "Day la question test")}
+          >
+            Send question
+          </BasicButton>
+        </Paper>
       ) : null}
       <PopupMsg
         isOpen={!ws || msgClose ? true : false}
