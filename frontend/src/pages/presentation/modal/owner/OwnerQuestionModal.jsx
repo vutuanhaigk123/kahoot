@@ -13,12 +13,10 @@ import Carousel from "./components/Carousel";
 import Transition from "./../components/Transition";
 import { useSocket } from "../../../../context/socket-context";
 import { WS_EVENT } from "../../../../commons/constants";
+import { useSelector } from "react-redux";
 
-const OwnerQuestionModal = ({ isOpen, handleClosePopup }) => {
-  const data = [
-    { slideQuestion: "Câu hỏi slide", question: "Câu hỏi người chơi" },
-    { slideQuestion: "Câu hỏi slide 2", question: "Câu hỏi người chơi 2" }
-  ];
+const OwnerQuestionModal = ({ isOpen, handleClosePopup, toggleNotify }) => {
+  const { user } = useSelector((state) => state?.auth);
   const { socketContext } = useSocket();
   const [quesHistory, setQuesHistory] = useState([]);
 
@@ -26,6 +24,8 @@ const OwnerQuestionModal = ({ isOpen, handleClosePopup }) => {
     if (socketContext) {
       socketContext.on(WS_EVENT.INIT_CONNECTION_EVENT, (arg) => {
         console.log("init connection event in question modal");
+        console.log(arg);
+        setQuesHistory(arg.quesHistory);
       });
       return () => {
         socketContext.off(WS_EVENT.INIT_CONNECTION_EVENT);
@@ -38,13 +38,15 @@ const OwnerQuestionModal = ({ isOpen, handleClosePopup }) => {
     if (socketContext) {
       socketContext.on(WS_EVENT.RECEIVE_QUESTION_EVENT, (arg) => {
         setQuesHistory([...quesHistory, { ...arg }]);
-        console.log(arg);
+        if (user.data.id !== arg.userId && !isOpen) {
+          toggleNotify();
+        }
       });
       return () => {
         socketContext.off(WS_EVENT.RECEIVE_QUESTION_EVENT);
       };
     }
-  }, [quesHistory, socketContext]);
+  }, [isOpen, quesHistory, socketContext]);
 
   return (
     <Dialog
@@ -76,18 +78,18 @@ const OwnerQuestionModal = ({ isOpen, handleClosePopup }) => {
         />
         {/* Sidebar */}
         <Stack sx={{ width: "20%", gap: 2 }}>
-          {data.map((item) => (
-            <Box key={item.question}>
+          {quesHistory.map((item, index) => (
+            <Box key={index}>
               <Box sx={{ display: "flex", alignItems: "center" }}>
                 <QuestionMark />
                 {/* <Check /> */}
-                <Typography variant="h6">{item.question}</Typography>
+                <Typography variant="h6">{item.content}</Typography>
               </Box>
               <Divider orientation="horizontal" flexItem sx={{ mt: 2 }} />
             </Box>
           ))}
         </Stack>
-        <Carousel slides={data} />
+        <Carousel slides={quesHistory} />
       </DialogContent>
     </Dialog>
   );

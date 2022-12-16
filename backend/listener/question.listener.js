@@ -15,11 +15,12 @@ export default async (ws, socket, userId, name, avt, cmd, room, slide) => {
   socket.on(EventModel.SEND_QUESTION, (arg) => {
     if (SocketModel.isAuthorized(userId, room)) {
       console.log(arg);
+      const data = MatchModel.doAsk(userId, name, room, arg);
       SocketModel.sendBroadcastRoom(
         userId,
         room,
         EventModel.RECEIVE_QUESTION_EVENT,
-        { senderId: userId, senderName: name, data: arg },
+        data,
         ws
       );
     }

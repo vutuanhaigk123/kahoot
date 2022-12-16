@@ -3,6 +3,7 @@ import React from "react";
 import BasicButton from "../../../../../components/button/BasicButton";
 
 const CarouselItem = ({ data }) => {
+  console.log(data);
   return (
     <Box
       textAlign="center"
@@ -17,11 +18,10 @@ const CarouselItem = ({ data }) => {
       {/* Questions */}
       <Box textAlign="center">
         <Typography variant="h6">
-          Asked on:{" "}
-          <span style={{ fontWeight: "bold" }}>{data.slideQuestion}</span>
+          Asked by: <span style={{ fontWeight: "bold" }}>{data.name}</span>
         </Typography>
         <Typography variant="h3" sx={{ fontWeight: "bold" }}>
-          {data.question}
+          {data.content}
         </Typography>
       </Box>
 

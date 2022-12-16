@@ -5,6 +5,7 @@ import CarouselItem from "./CarouselItem";
 import { iconButton } from "../../../../../commons/globalStyles";
 
 const Carousel = ({ slides }) => {
+  console.log(slides);
   const [current, setCurrent] = React.useState(0);
   const length = slides.length;
 

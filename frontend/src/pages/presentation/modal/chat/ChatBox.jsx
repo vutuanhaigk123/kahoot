@@ -21,15 +21,6 @@ import { useSocket } from "../../../../context/socket-context";
 import { WS_CMD, WS_EVENT } from "../../../../commons/constants";
 import { useSelector } from "react-redux";
 
-// const data = [
-//   {
-//     name: "user 1 dsadsadsa d",
-//     text: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Odio ex, suscipitdasdasdsadsadsad dsadsadsadasdasdsadsadasdasd dsadsa",
-//     currentUser: 0
-//   },
-//   { name: "user 2", text: "Chào cl", currentUser: 1 }
-// ];
-
 const ChatBox = ({ isOpen, handleClosePopup, toggleNotify }) => {
   const { user } = useSelector((state) => state?.auth);
   const [chatHistory, setChatHistory] = useState([]);

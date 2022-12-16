@@ -68,7 +68,7 @@ const PresentationPlayerPage = () => {
               You voted successfully
             </Typography>
           ) : (
-            <>
+            <Box>
               <Typography variant="h4" sx={{ mb: 5 }}>
                 {question.question}
               </Typography>
@@ -98,7 +98,7 @@ const PresentationPlayerPage = () => {
                   );
                 })}
               </Box>
-            </>
+            </Box>
           )}
           <BasicButton
             icon={<QuestionAnswer />}

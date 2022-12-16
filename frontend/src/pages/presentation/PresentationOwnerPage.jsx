@@ -36,6 +36,8 @@ const PresentationOwnerPage = () => {
   const slide = searchParam.get("slide");
 
   const { value: isNotify, toggleValue: toggleNotify } = useToggle(false);
+  const { value: isNotifyQues, toggleValue: toggleNotifyQues } =
+    useToggle(false);
 
   // Socket context
   const { socketContext, setSocketContext } = useSocket();
@@ -126,10 +128,15 @@ const PresentationOwnerPage = () => {
               </Badge>
             </Tooltip>
             <Tooltip title="Q&A" variant="soft">
-              <QuestionAnswer
-                sx={[iconHover(), iconButton]}
-                onClick={handleOpenQuestionPopup}
-              />
+              <Badge color="primary" variant="dot" invisible={!isNotifyQues}>
+                <QuestionAnswer
+                  sx={[iconHover(), iconButton]}
+                  onClick={() => {
+                    handleOpenQuestionPopup();
+                    toggleNotifyQues(false);
+                  }}
+                />
+              </Badge>
             </Tooltip>
           </Box>
 
@@ -137,6 +144,7 @@ const PresentationOwnerPage = () => {
           <OwnerQuestionModal
             isOpen={openQuestion}
             handleClosePopup={handleCloseQuestionPopup}
+            toggleNotify={toggleNotifyQues}
           ></OwnerQuestionModal>
 
           {/* Chat modal */}

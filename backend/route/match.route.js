@@ -80,8 +80,16 @@ async function sendDataToOwner(socket, userId, room, slide) {
   // join or create room
   const result = await MatchModel.joinMatch(userId, true, room, slide);
   if (result) {
-    const { curState, curQues, chatHistory, data, joinedUser, isEnd, isFirst } =
-      result;
+    const {
+      curState,
+      curQues,
+      chatHistory,
+      quesHistory,
+      data,
+      joinedUser,
+      isEnd,
+      isFirst
+    } = result;
 
     if (curQues) {
       SocketModel.sendEvent(userId, EventModel.INIT_CONNECTION, {
@@ -89,6 +97,7 @@ async function sendDataToOwner(socket, userId, room, slide) {
         curQues,
         isEnd,
         chatHistory,
+        quesHistory,
         isFirst
         // data
       });
@@ -111,12 +120,14 @@ async function sendDataToPlayer(socket, userId, room, slide) {
   const result = await MatchModel.joinMatch(userId, false, room, slide);
   // console.log(result);
   if (result) {
-    const { curState, curQues, data, chatHistory, joinedUser } = result;
+    const { curState, curQues, data, chatHistory, quesHistory, joinedUser } =
+      result;
     if (curQues) {
       SocketModel.sendEvent(userId, EventModel.INIT_CONNECTION, {
         curState,
         curQues,
-        chatHistory
+        chatHistory,
+        quesHistory
         // data
       });
       socket.join(room);

@@ -7,6 +7,7 @@
 import HashMap from "hashmap";
 import CommentModel from "./comment.model.js";
 import EventModel from "./event.model.js";
+import QuestionModel from "./question.model.js";
 import SlideModel from "./slide.model.js";
 import SocketModel from "./socket.model.js";
 
@@ -28,7 +29,7 @@ const matches = new HashMap();
       comments: [
         {
           userId: String,
-          content: String,
+          text: String,
           ts: Number
         }
       ],
@@ -36,7 +37,8 @@ const matches = new HashMap();
         {
           userId: String,
           content: String,
-          ts: Number
+          ts: Number,
+          name
         }
       ],
       questions: [{
@@ -69,7 +71,14 @@ async function getQuestionsInRoom(roomId) {
   return ret;
 }
 
-function initMatch(roomId, ownerId, questions, slideId, comments = []) {
+function initMatch(
+  roomId,
+  ownerId,
+  questions,
+  slideId,
+  comments = [],
+  userQuestions = []
+) {
   const questionsTmp = [];
   questions.forEach((eachQuestion) => {
     const ansListOfQues = [];
@@ -96,7 +105,7 @@ function initMatch(roomId, ownerId, questions, slideId, comments = []) {
     curQues: slideId,
     owner: ownerId,
     comments,
-    userQuestions: [],
+    userQuestions,
     questions: questionsTmp,
     answers: []
   };
@@ -208,7 +217,8 @@ export default {
         userId,
         questions,
         slideId,
-        matchInfo.comments
+        matchInfo.comments,
+        matchInfo.userQuestions
       );
       matches.set(roomId, matchInfo);
       console.log("delete timeout");
@@ -246,6 +256,7 @@ export default {
       curState: matchInfo.curState,
       curQues,
       chatHistory: matchInfo.comments,
+      quesHistory: matchInfo.userQuestions,
       data,
       joinedUser,
       isEnd,
@@ -397,5 +408,9 @@ export default {
 
   doComment(userId, name, roomId, content) {
     return CommentModel.doComment(userId, name, content, matches.get(roomId));
+  },
+
+  doAsk(userId, name, roomId, content) {
+    return QuestionModel.doAsk(userId, name, content, matches.get(roomId));
   }
 };
