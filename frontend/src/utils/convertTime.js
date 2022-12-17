@@ -1,5 +1,5 @@
 export const convertTS = (ts) => {
-  var date = new Date(ts + 7 * 3600 * 1000);
+  var date = new Date(ts);
   // Hours part from the timestamp
   var hours = date.getHours();
   // Minutes part from the timestamp

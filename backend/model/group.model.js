@@ -4,6 +4,7 @@
 import Group from "../schemas/groupsSchema.js";
 import UserGroups from "../schemas/user_groupSchema.js";
 import { getNewObjectId, ROLE, toObjectId } from "../utils/database.js";
+import { getCurTimestampUTC } from "../utils/time.js";
 import authenModel from "./authen.model.js";
 import UserModel from "./user.model.js";
 
@@ -112,7 +113,9 @@ export default {
       _id: gId.toString(),
       name,
       inviteToken: authenModel.genPermanentGroupInvitationToken(gId.toString()),
-      members: [{ _id: ownerId.toString(), role: ROLE.owner, ts: Date.now() }]
+      members: [
+        { _id: ownerId.toString(), role: ROLE.owner, ts: getCurTimestampUTC() }
+      ]
     });
     try {
       const ret = await group.save();
@@ -256,7 +259,11 @@ export default {
     if (!group) {
       return null;
     }
-    group.members.push({ _id: uid, role: ROLE.member, ts: Date.now() });
+    group.members.push({
+      _id: uid,
+      role: ROLE.member,
+      ts: getCurTimestampUTC()
+    });
     const isSaved = await this.save(group);
     if (!isSaved) {
       return null;
