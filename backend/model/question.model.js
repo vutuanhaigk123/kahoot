@@ -1,5 +1,6 @@
 /* eslint-disable import/extensions */
 import { getNewObjectId } from "../utils/database.js";
+import { getCurTimestampUTC } from "../utils/time.js";
 
 export default {
   doAsk(userId, name, content, matchInfo) {
@@ -8,7 +9,7 @@ export default {
         id: getNewObjectId().toString(),
         userId,
         content,
-        ts: Date.now(),
+        ts: getCurTimestampUTC(),
         isAnswered: false,
         upVotes: [],
         name

@@ -1,5 +1,6 @@
 /* eslint-disable import/extensions */
 import { getNewObjectId } from "../utils/database.js";
+import { getCurTimestampUTC } from "../utils/time.js";
 
 export default {
   doComment(userId, name, content, matchInfo) {
@@ -8,7 +9,7 @@ export default {
         id: getNewObjectId().toString(),
         userId,
         text: content,
-        ts: Date.now(),
+        ts: getCurTimestampUTC(),
         name
       };
       matchInfo.comments.push(data);
