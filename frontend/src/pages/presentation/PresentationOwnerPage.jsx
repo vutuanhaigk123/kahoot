@@ -7,7 +7,14 @@ import PresentationChart from "../../components/chart/PresentationChart";
 import PopupMsg from "../../components/notification/PopupMsg";
 import BackgroundContainer from "../../components/misc/BackgroundContainer";
 import BasicButton from "../../components/button/BasicButton";
-import { Chat, ContentCopy, Link, QuestionAnswer } from "@mui/icons-material";
+import {
+  ArrowLeft,
+  ArrowRight,
+  Chat,
+  ContentCopy,
+  Link,
+  QuestionAnswer
+} from "@mui/icons-material";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import { iconButton, iconHover } from "./../../commons/globalStyles";
 import usePopup from "./../../hooks/usePopup";
@@ -88,17 +95,45 @@ const PresentationOwnerPage = () => {
               {isCopy ? "Link coppied" : "Get invite link"}
             </BasicButton>
           </CopyToClipboard>
-          <PresentationChart data={data} height={"100%"} />
-          {!isEnd ? (
-            <BasicButton onClick={() => handleNextSlide(ws)}>Next</BasicButton>
-          ) : (
-            ""
-          )}
-          {!isFirst ? (
-            <BasicButton onClick={() => handlePrevSlide(ws)}>Prev</BasicButton>
-          ) : (
-            ""
-          )}
+          {/* Chart */}
+          <Box
+            sx={{
+              height: "80%",
+              width: "100%",
+              position: "relative",
+              textAlign: "center",
+              display: "flex",
+              justifyContent: "center"
+            }}
+          >
+            {/* Presentation */}
+            <PresentationChart data={data} height="100%" width="90%" />
+            {/* Navigation */}
+            {!isFirst ? (
+              <ArrowLeft
+                onClick={() => handlePrevSlide(ws)}
+                fontSize="large"
+                sx={[
+                  {
+                    position: "absolute",
+                    left: 0,
+                    top: "40%"
+                  },
+                  iconButton
+                ]}
+              />
+            ) : null}
+            {!isEnd ? (
+              <ArrowRight
+                onClick={() => handleNextSlide(ws)}
+                fontSize="large"
+                sx={[
+                  { position: "absolute", top: "40%", right: 0 },
+                  iconButton
+                ]}
+              />
+            ) : null}
+          </Box>
           <BasicButton
             onClick={() => handleSendComment(ws, "Day la chat test")}
           >
@@ -107,6 +142,8 @@ const PresentationOwnerPage = () => {
           <BasicButton onClick={() => handleSendCmd(ws)}>
             Change presentation
           </BasicButton>
+
+          {/* Chat + question icon */}
           <Box
             direction="row"
             sx={{

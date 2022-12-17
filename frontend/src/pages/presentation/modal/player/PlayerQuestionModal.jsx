@@ -1,5 +1,5 @@
 import { ArrowBack, Close } from "@mui/icons-material";
-import { Dialog, DialogContent, Slide, Stack } from "@mui/material";
+import { Dialog, DialogContent, Stack } from "@mui/material";
 import React, { useState } from "react";
 import { iconButton, iconHover } from "../../../../commons/globalStyles";
 import BasicButton from "../../../../components/button/BasicButton";
@@ -101,7 +101,7 @@ const PlayerQuestionModal = ({ isOpen, handleClosePopup }) => {
               onClick={() => setCurPage(PAGE.ASK_PAGE)}
             />
           ) : (
-            <AskQuestion />
+            <AskQuestion returnToListPage={() => setCurPage(PAGE.LIST_PAGE)} />
           )}
         </Stack>
       </DialogContent>

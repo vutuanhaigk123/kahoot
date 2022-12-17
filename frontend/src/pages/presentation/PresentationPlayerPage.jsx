@@ -2,7 +2,7 @@
 import React from "react";
 import BasicButton from "../../components/button/BasicButton";
 import { useSearchParams } from "react-router-dom";
-import { Box, Paper, Typography } from "@mui/material";
+import { Badge, Box, Paper, Typography } from "@mui/material";
 import BackgroundContainer from "../../components/misc/BackgroundContainer";
 import { SUBMIT_STATUS } from "../../commons/constants";
 import PopupMsg from "../../components/notification/PopupMsg";
@@ -14,6 +14,7 @@ import { useSocket } from "../../context/socket-context";
 import usePresentationPlayer from "../../hooks/socket/player/usePresentationPlayer";
 import useToggle from "../../hooks/useToggle";
 import PresentationChart from "../../components/chart/PresentationChart";
+import { grey } from "@mui/material/colors";
 
 const PresentationPlayerPage = () => {
   const [searchParam] = useSearchParams();
@@ -45,6 +46,8 @@ const PresentationPlayerPage = () => {
   } = usePresentationPlayer(socketContext, setSocketContext, id, slide);
 
   const { value: isNotify, toggleValue: toggleNotify } = useToggle(false);
+  const { value: isNotifyQues, toggleValue: toggleNotifyQues } =
+    useToggle(false);
 
   return (
     <BackgroundContainer>
@@ -52,8 +55,9 @@ const PresentationPlayerPage = () => {
         <Paper
           elevation={10}
           sx={{
-            height: "70vh",
-            maxHeight: "700px",
+            minWidth: 300,
+            maxWidth: "20vw",
+            maxHeight: "70vh",
             alignItems: "center",
             justifyContent: "center",
             display: "flex",
@@ -62,22 +66,31 @@ const PresentationPlayerPage = () => {
             m: "auto"
           }}
         >
-          <Box>
-            <Typography variant="h4" sx={{ mb: 5 }}>
-              {question.question}
-            </Typography>
-            <Box
-              spacing={2}
-              style={{
-                maxHeight: "100vh",
-                overflowY: "auto",
-                overflowX: "hidden",
-                height: "440px",
-                overflow: "auto"
-              }}
-            >
-              {!isVoted ? (
-                question.answers.map((value, index) => {
+          <Typography variant="h4" sx={{ mb: 5 }}>
+            {question.question}
+          </Typography>
+
+          {isVoted ? (
+            <PresentationChart data={data} height={"100%"} />
+          ) : (
+            <>
+              {/* Options container */}
+              <Box
+                sx={{
+                  overflowY: "auto",
+                  height: "70%",
+                  border: 1,
+                  p: 2,
+                  borderRadius: 1,
+                  borderColor: grey[300],
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 2,
+                  width: "90%"
+                }}
+              >
+                {/* Options list */}
+                {question.answers.map((value, index) => {
                   return (
                     <BasicButton
                       fullWidth
@@ -86,33 +99,52 @@ const PresentationPlayerPage = () => {
                       onClick={() =>
                         handleSubmitChoice({ socket: ws, choiceId: value.id })
                       }
-                      sx={{ mb: 2 }}
                     >
                       {value.des}
                     </BasicButton>
                   );
-                })
-              ) : (
-                <PresentationChart data={data} height={"100%"} />
-              )}
-            </Box>
-          </Box>
-          <BasicButton
-            icon={<QuestionAnswer />}
-            color="success"
-            sx={{ mt: 2, width: "50%" }}
-            onClick={handleOpenQAPopup}
+                })}
+              </Box>
+            </>
+          )}
+          {/* Q&A button */}
+          <Badge
+            color="primary"
+            variant="dot"
+            invisible={!isNotifyQues}
+            sx={{ mt: 2 }}
           >
-            Open Q&A
-          </BasicButton>
-          <BasicButton
-            icon={<ChatBubble />}
-            color="success"
-            sx={{ mt: 2, width: "50%" }}
-            onClick={handleOpenChatPopup}
+            <BasicButton
+              icon={<QuestionAnswer />}
+              color="success"
+              sx={{ width: "20vw" }}
+              onClick={() => {
+                handleOpenQAPopup();
+                toggleNotifyQues(false);
+              }}
+            >
+              Open Q&A
+            </BasicButton>
+          </Badge>
+          {/* Chat button */}
+          <Badge
+            color="primary"
+            variant="dot"
+            invisible={!isNotify}
+            sx={{ mt: 2 }}
           >
-            Open chat
-          </BasicButton>
+            <BasicButton
+              icon={<ChatBubble />}
+              color="success"
+              sx={{ width: "20vw" }}
+              onClick={() => {
+                handleOpenChatPopup();
+                toggleNotify(false);
+              }}
+            >
+              Open chat
+            </BasicButton>
+          </Badge>
 
           {/* Q&A modal */}
           <PlayerQuestionModal
@@ -127,6 +159,7 @@ const PresentationPlayerPage = () => {
             toggleNotify={toggleNotify}
           ></ChatBox>
           <BasicButton
+            sx={{ mt: 2 }}
             onClick={() => handleSendComment(ws, "Day la chat test")}
           >
             Send chat

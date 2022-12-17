@@ -1,5 +1,4 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-import { Check, Close, QuestionMark } from "@mui/icons-material";
+import { Check, Close, QuestionMark, ThumbUpOffAlt } from "@mui/icons-material";
 import {
   Box,
   Dialog,
@@ -19,6 +18,7 @@ import Transition from "./../components/Transition";
 import { useSocket } from "../../../../context/socket-context";
 import { SORT_BY, SORT_BY_ARR, WS_EVENT } from "../../../../commons/constants";
 import { useSelector } from "react-redux";
+import { convertTS } from "./../../../../utils/convertTime";
 
 const sortBy = (originalData, sortType) => {};
 
@@ -26,6 +26,7 @@ const OwnerQuestionModal = ({ isOpen, handleClosePopup, toggleNotify }) => {
   const { user } = useSelector((state) => state?.auth);
   const { socketContext } = useSocket();
   const [quesHistory, setQuesHistory] = useState([]);
+  const [currentQues, setCurrentQues] = React.useState(0);
 
   const [sortBy, setSortBy] = useState(SORT_BY.TIME_ASKED_ASC);
   const handleChange = (event) => {
@@ -102,38 +103,86 @@ const OwnerQuestionModal = ({ isOpen, handleClosePopup, toggleNotify }) => {
           onClick={handleClosePopup}
         />
         {/* Sidebar */}
-        <Stack sx={{ width: "20%", gap: 2 }}>
-          <FormControl fullWidth>
-            <InputLabel id="demo-simple-select-label">Sort by</InputLabel>
-            <Select
-              labelId="demo-simple-select-label"
-              id="demo-simple-select"
-              value={sortBy}
-              label="Sort by"
-              onChange={handleChange}
-            >
-              {SORT_BY_ARR.map((sortType, key) => {
-                return (
-                  <MenuItem key={key} value={sortType.value}>
-                    {sortType.name}
-                  </MenuItem>
-                );
-              })}
-            </Select>
-          </FormControl>
+        {quesHistory.length !== 0 ? (
+          <>
+            <Stack sx={{ width: "20%", gap: 2 }}>
+              {/* Dropdonw */}
+              <FormControl fullWidth>
+                <InputLabel id="demo-simple-select-label">Sort by</InputLabel>
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="demo-simple-select"
+                  value={sortBy}
+                  label="Sort by"
+                  onChange={handleChange}
+                >
+                  {SORT_BY_ARR.map((sortType, key) => {
+                    return (
+                      <MenuItem key={key} value={sortType.value}>
+                        {sortType.name}
+                      </MenuItem>
+                    );
+                  })}
+                </Select>
+              </FormControl>
 
-          {quesHistory.map((item, index) => (
-            <Box key={index}>
-              <Box sx={{ display: "flex", alignItems: "center" }}>
-                {item.isAnswered ? <Check /> : <QuestionMark />}
-                {/* <Check /> */}
-                <Typography variant="h6">{item.content}</Typography>
-              </Box>
-              <Divider orientation="horizontal" flexItem sx={{ mt: 2 }} />
-            </Box>
-          ))}
-        </Stack>
-        <Carousel slides={quesHistory} />
+              {/* Question list */}
+              {quesHistory.map((item, index) => (
+                <Box
+                  key={index}
+                  onClick={() => setCurrentQues(index)}
+                  sx={{ cursor: "pointer" }}
+                >
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between"
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        maxWidth: "80%",
+                        gap: "2px"
+                      }}
+                    >
+                      {item.isAnswered ? <Check /> : <QuestionMark />}
+                      <Typography
+                        variant="h6"
+                        sx={{
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap"
+                        }}
+                      >
+                        {item.content}
+                      </Typography>
+                    </Box>
+                    <Box
+                      sx={{ display: "flex", alignItems: "center", gap: "2px" }}
+                    >
+                      <ThumbUpOffAlt />
+                      <Typography variant="subtitle1">{5}</Typography>
+                    </Box>
+                  </Box>
+                  {convertTS(item.ts)}
+                  <Divider orientation="horizontal" flexItem sx={{ mt: 2 }} />
+                </Box>
+              ))}
+            </Stack>
+            <Carousel
+              currentQues={currentQues}
+              setCurrentQues={setCurrentQues}
+              slides={quesHistory}
+            />
+          </>
+        ) : (
+          <Typography variant="h2" sx={{ m: "auto" }}>
+            No question yet
+          </Typography>
+        )}
       </DialogContent>
     </Dialog>
   );

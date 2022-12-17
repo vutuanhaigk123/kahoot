@@ -8,7 +8,7 @@ import { Box, Typography } from "@mui/material";
 import { useSocket } from "../../../../../context/socket-context";
 import { WS_CMD } from "../../../../../commons/constants";
 
-const AskQuestion = () => {
+const AskQuestion = ({ returnToListPage }) => {
   const { socketContext } = useSocket();
   // Form
   const schema = yup.object({
@@ -17,6 +17,7 @@ const AskQuestion = () => {
   const {
     handleSubmit,
     control,
+    reset,
     formState: { errors }
   } = useForm({
     resolver: yupResolver(schema)
@@ -25,6 +26,8 @@ const AskQuestion = () => {
     // Handle popup msg
     if (socketContext) {
       socketContext.emit(WS_CMD.SEND_QUESTION_CMD, data.question);
+      reset(); // Reset field
+      returnToListPage(); // Return to question list page
     }
   };
 
