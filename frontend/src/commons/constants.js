@@ -98,6 +98,24 @@ export const WS_CLOSE = {
   REASON_SELF_HOSTED_PRESENTATION: "-992"
 };
 
+export const SORT_BY = {
+  TIME_ASKED_ASC: 1,
+  TIME_ASKED_DESC: -1,
+  TOTAL_VOTE_ASC: 2,
+  TOTAL_VOTE_DESC: -2,
+  ANSWERED: 3,
+  UNANSWERED: -3
+};
+
+export const SORT_BY_ARR = [
+  { name: "Sort by time asked asc", value: SORT_BY.TIME_ASKED_ASC },
+  { name: "Sort by time asked desc", value: SORT_BY.TIME_ASKED_DESC },
+  { name: "Sort by total vote asc", value: SORT_BY.TOTAL_VOTE_ASC },
+  { name: "Sort by total vote desc", value: SORT_BY.TOTAL_VOTE_DESC },
+  { name: "Sort by answered", value: SORT_BY.ANSWERED },
+  { name: "Sort by unanswered", value: SORT_BY.UNANSWERED }
+];
+
 // Group role
 export const ROLE = {
   owner: 0,

@@ -29,6 +29,7 @@ const matches = new HashMap();
       }],
       comments: [
         {
+          id: String,
           userId: String,
           text: String,
           ts: Number
@@ -36,9 +37,12 @@ const matches = new HashMap();
       ],
       userQuestions: [
         {
+          id: String,
           userId: String,
           content: String,
           ts: Number,
+          isAnswered: boolean,
+          upVotes: [uid],
           name
         }
       ],
@@ -417,5 +421,14 @@ export default {
 
   doAsk(userId, name, roomId, content) {
     return QuestionModel.doAsk(userId, name, content, matches.get(roomId));
+  },
+
+  markQuesAnswered(userId, name, roomId, quesId) {
+    return QuestionModel.doMarkAnsweredQues(
+      userId,
+      name,
+      quesId,
+      matches.get(roomId)
+    );
   }
 };

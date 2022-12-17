@@ -42,15 +42,21 @@ export default async (ws, socket, userId, name, avt, cmd, room, slide) => {
 
   socket.on(EventModel.MARK_QUESTION_ANSWERED, (arg) => {
     if (SocketModel.isAuthorized(userId, room)) {
-      console.log(arg);
-      const data = "test mark answered";
-      SocketModel.sendBroadcastRoom(
+      const result = MatchModel.markQuesAnswered(
         userId,
+        name,
         room,
-        EventModel.RECEIVE_MARK_QUES_ANSWERED_EVENT,
-        data,
-        ws
+        arg.toString()
       );
+      if (result) {
+        SocketModel.sendBroadcastRoom(
+          userId,
+          room,
+          EventModel.RECEIVE_MARK_QUES_ANSWERED_EVENT,
+          arg,
+          ws
+        );
+      }
     }
   });
 };

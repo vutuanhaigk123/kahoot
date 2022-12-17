@@ -5,7 +5,6 @@ import CarouselItem from "./CarouselItem";
 import { iconButton } from "../../../../../commons/globalStyles";
 
 const Carousel = ({ slides }) => {
-  console.log(slides);
   const [current, setCurrent] = React.useState(0);
   const length = slides.length;
 
@@ -29,7 +28,7 @@ const Carousel = ({ slides }) => {
       }}
     >
       <ArrowLeft
-        onClick={nextSlide}
+        onClick={prevSlide}
         fontSize="large"
         sx={[
           {
@@ -41,7 +40,7 @@ const Carousel = ({ slides }) => {
         ]}
       />
       <ArrowRight
-        onClick={prevSlide}
+        onClick={nextSlide}
         fontSize="large"
         sx={[{ position: "absolute", top: "20%", right: "-20%" }, iconButton]}
       />
