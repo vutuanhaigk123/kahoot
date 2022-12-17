@@ -13,6 +13,7 @@ import ChatBox from "./modal/chat/ChatBox";
 import { useSocket } from "../../context/socket-context";
 import usePresentationPlayer from "../../hooks/socket/player/usePresentationPlayer";
 import useToggle from "../../hooks/useToggle";
+import PresentationChart from "../../components/chart/PresentationChart";
 
 const PresentationPlayerPage = () => {
   const [searchParam] = useSearchParams();
@@ -37,6 +38,7 @@ const PresentationPlayerPage = () => {
     msgClose,
     question,
     ws,
+    data,
     handleSubmitChoice,
     handleSendComment,
     handleSendQuestion
@@ -60,29 +62,22 @@ const PresentationPlayerPage = () => {
             m: "auto"
           }}
         >
-          {isVoted ? (
-            <Typography
-              variant="h4"
-              sx={{ mb: 5, alignItems: "center", justifyContent: "center" }}
-            >
-              You voted successfully
+          <Box>
+            <Typography variant="h4" sx={{ mb: 5 }}>
+              {question.question}
             </Typography>
-          ) : (
-            <Box>
-              <Typography variant="h4" sx={{ mb: 5 }}>
-                {question.question}
-              </Typography>
-              <Box
-                spacing={2}
-                style={{
-                  maxHeight: "100vh",
-                  overflowY: "auto",
-                  overflowX: "hidden",
-                  height: "440px",
-                  overflow: "auto"
-                }}
-              >
-                {question.answers.map((value, index) => {
+            <Box
+              spacing={2}
+              style={{
+                maxHeight: "100vh",
+                overflowY: "auto",
+                overflowX: "hidden",
+                height: "440px",
+                overflow: "auto"
+              }}
+            >
+              {!isVoted ? (
+                question.answers.map((value, index) => {
                   return (
                     <BasicButton
                       fullWidth
@@ -96,10 +91,12 @@ const PresentationPlayerPage = () => {
                       {value.des}
                     </BasicButton>
                   );
-                })}
-              </Box>
+                })
+              ) : (
+                <PresentationChart data={data} height={"100%"} />
+              )}
             </Box>
-          )}
+          </Box>
           <BasicButton
             icon={<QuestionAnswer />}
             color="success"

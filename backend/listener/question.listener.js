@@ -25,4 +25,32 @@ export default async (ws, socket, userId, name, avt, cmd, room, slide) => {
       );
     }
   });
+
+  socket.on(EventModel.UPVOTE_QUESTION, (arg) => {
+    if (SocketModel.isAuthorized(userId, room)) {
+      console.log(arg);
+      const data = "test upvote";
+      SocketModel.sendBroadcastRoom(
+        userId,
+        room,
+        EventModel.RECEIVE_UPVOTE_QUESTION_EVENT,
+        data,
+        ws
+      );
+    }
+  });
+
+  socket.on(EventModel.MARK_QUESTION_ANSWERED, (arg) => {
+    if (SocketModel.isAuthorized(userId, room)) {
+      console.log(arg);
+      const data = "test mark answered";
+      SocketModel.sendBroadcastRoom(
+        userId,
+        room,
+        EventModel.RECEIVE_MARK_QUES_ANSWERED_EVENT,
+        data,
+        ws
+      );
+    }
+  });
 };

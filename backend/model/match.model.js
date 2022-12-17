@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable import/no-cycle */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable prefer-const */
@@ -134,9 +135,9 @@ function getQuestion(questions, questionId) {
     return null;
   }
   // ignore 2 cases above
-  if (questions[index].answers.length === 0) {
-    return null;
-  }
+  // if (questions[index].answers.length === 0) {
+  //   return null;
+  // }
   return questions[index];
 }
 
@@ -307,7 +308,7 @@ export default {
       }
 
       const index = matchInfo.answers.findIndex(
-        (answer) => answer.id === questionId
+        (question) => question.id === questionId
       );
       let ans = null;
       if (index === -1) {
@@ -334,13 +335,17 @@ export default {
       matchInfo.questions[questionIndex].answers[choiceIndex].total += 1;
       SlideModel.addChoiceUid(questionId, roomId, choiceId, userId);
 
-      SocketModel.sendBroadcastRoom(
-        userId,
-        roomId,
-        EventModel.RECEIVE_CHOICE,
-        { id: userId, choiceId },
-        ws
-      );
+      const curQues = getQuestion(matchInfo.questions, matchInfo.curQues);
+
+      SocketModel.sendEvent(userId, EventModel.RECEIVE_CHOICE, {
+        id: userId,
+        choiceId,
+        curQues
+      });
+      SocketModel.sendBroadcastRoom(userId, roomId, EventModel.RECEIVE_CHOICE, {
+        id: userId,
+        choiceId
+      });
     }
   },
 

@@ -4,6 +4,8 @@ dotenv.config();
 
 const args = process.argv.slice(2);
 const isDev = !args[0] || args[0].toLowerCase() === "dev";
+// eslint-disable-next-line no-console
+console.log("Domain:", isDev ? process.env.DOMAIN_DEV : process.env.DOMAIN);
 
 const envVar = {
   DB_HOST: process.env.DB_HOST,

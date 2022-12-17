@@ -11,6 +11,11 @@ const getDomain = () => {
   return wsDomain;
 };
 
+const toIndex = (dataChart, choiceId) => {
+  console.log(dataChart);
+  return dataChart.findIndex((choice) => choice.id === choiceId);
+};
+
 const handleSubmitChoice = ({ socket, choiceId }) => {
   if (socket) {
     console.log(choiceId);
@@ -35,6 +40,7 @@ const handleSendQuestion = (ws, data) => {
 const usePresentationPlayer = (socketContext, setSocketContext, id, slide) => {
   const { user } = useSelector((state) => state?.auth);
   const [ws, setWs] = React.useState(null);
+  const [data, setData] = React.useState([]);
   const [question, setQuestion] = React.useState(null);
   const [isVoted, setIsVoted] = React.useState(false);
   const [msgClose, setMsgClose] = React.useState(null);
@@ -92,7 +98,25 @@ const usePresentationPlayer = (socketContext, setSocketContext, id, slide) => {
         console.log(arg);
         if (arg.id === user.data.id) {
           setIsVoted(true);
+          setData(arg.curQues.answers);
+        } else {
+          const choiceId = arg.choiceId.toString();
+          const index = toIndex(data, choiceId);
+          if (index !== -1) {
+            data[index].total += 1;
+            return setData([...data]);
+          }
         }
+      });
+
+      socketContext.on(WS_EVENT.RECEIVE_NEXT_SLIDE_EVENT, (arg) => {
+        setQuestion(arg.curQues);
+        setIsVoted(false);
+      });
+
+      socketContext.on(WS_EVENT.RECEIVE_PREV_SLIDE_EVENT, (arg) => {
+        setQuestion(arg.curQues);
+        setIsVoted(false);
       });
 
       // socketContext.on(WS_EVENT.RECEIVE_CMT_EVENT, (arg) => {
@@ -153,10 +177,11 @@ const usePresentationPlayer = (socketContext, setSocketContext, id, slide) => {
       };
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [socketContext]);
+  }, [socketContext, data]);
 
   return {
     ws,
+    data,
     question,
     isVoted,
     msgClose,
