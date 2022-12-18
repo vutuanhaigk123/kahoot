@@ -1,7 +1,11 @@
 import React from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { io } from "socket.io-client";
 import { WS_CLOSE, WS_CMD, WS_EVENT } from "../../../commons/constants";
+import {
+  clearSocket,
+  setSocket
+} from "../../../redux-toolkit/socketPlayerSlice";
 
 const getDomain = () => {
   let wsDomain = process.env.REACT_APP_BACKEND_DOMAIN;
@@ -39,6 +43,7 @@ const handleSendQuestion = (ws, data) => {
 
 const usePresentationPlayer = (socketContext, setSocketContext, id, slide) => {
   const { user } = useSelector((state) => state?.auth);
+  const dispatch = useDispatch();
   const [ws, setWs] = React.useState(null);
   const [data, setData] = React.useState([]);
   const [question, setQuestion] = React.useState(null);
@@ -87,6 +92,7 @@ const usePresentationPlayer = (socketContext, setSocketContext, id, slide) => {
 
       socketContext.on(WS_EVENT.INIT_CONNECTION_EVENT, (arg) => {
         setQuestion(arg.curQues);
+        dispatch(setSocket(arg));
         console.log("==========================================");
         console.log(arg);
       });
@@ -157,6 +163,7 @@ const usePresentationPlayer = (socketContext, setSocketContext, id, slide) => {
             break;
         }
         setSocketContext(null);
+        dispatch(clearSocket());
         setWs(null);
       });
 

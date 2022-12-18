@@ -12,7 +12,7 @@ import {
 import storage from "redux-persist/lib/storage"; // defaults to localStorage for web
 import authSlice from "./authSlice";
 import presentationSlice from "./presentationSlice";
-import socketSlice from "./socketSlice";
+import socketPlayerSlice from "./socketPlayerSlice";
 
 const persistConfig = {
   key: "root",
@@ -23,7 +23,7 @@ const persistConfig = {
 const reducer = combineReducers({
   auth: authSlice,
   presentation: presentationSlice,
-  socket: socketSlice
+  socketPlayer: socketPlayerSlice
 });
 
 const persistedReducer = persistReducer(persistConfig, reducer);

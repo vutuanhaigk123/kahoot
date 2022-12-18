@@ -3,7 +3,6 @@ import {
   Box,
   Dialog,
   DialogContent,
-  Divider,
   FormControl,
   InputLabel,
   MenuItem,
@@ -19,6 +18,7 @@ import { useSocket } from "../../../../context/socket-context";
 import { SORT_BY, SORT_BY_ARR, WS_EVENT } from "../../../../commons/constants";
 import { useSelector } from "react-redux";
 import { convertTS } from "./../../../../utils/convertTime";
+import { grey } from "@mui/material/colors";
 
 const sortBy = (originalData, sortType) => {};
 
@@ -53,7 +53,7 @@ const OwnerQuestionModal = ({ isOpen, handleClosePopup, toggleNotify }) => {
       socketContext.on(WS_EVENT.RECEIVE_QUESTION_EVENT, (arg) => {
         setQuesHistory([...quesHistory, { ...arg }]);
         if (user.data.id !== arg.userId && !isOpen) {
-          toggleNotify();
+          toggleNotify(true);
         }
       });
 
@@ -72,6 +72,7 @@ const OwnerQuestionModal = ({ isOpen, handleClosePopup, toggleNotify }) => {
         socketContext.off(WS_EVENT.RECEIVE_MARK_QUES_ANSWERED_EVENT);
       };
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, quesHistory, socketContext]);
 
   return (
@@ -102,9 +103,9 @@ const OwnerQuestionModal = ({ isOpen, handleClosePopup, toggleNotify }) => {
           ]}
           onClick={handleClosePopup}
         />
-        {/* Sidebar */}
         {quesHistory.length !== 0 ? (
           <>
+            {/* Sidebar */}
             <Stack sx={{ width: "20%", gap: 2 }}>
               {/* Dropdonw */}
               <FormControl fullWidth>
@@ -131,7 +132,16 @@ const OwnerQuestionModal = ({ isOpen, handleClosePopup, toggleNotify }) => {
                 <Box
                   key={index}
                   onClick={() => setCurrentQues(index)}
-                  sx={{ cursor: "pointer" }}
+                  sx={{
+                    cursor: "pointer",
+                    border: 1,
+                    p: 1,
+                    borderColor:
+                      index === currentQues ? "primary.main" : grey[400],
+                    borderRadius: 1,
+                    transition: "transform .2s",
+                    transform: index === currentQues ? "scale(1.05)" : null
+                  }}
                 >
                   <Box
                     sx={{
@@ -167,11 +177,13 @@ const OwnerQuestionModal = ({ isOpen, handleClosePopup, toggleNotify }) => {
                       <Typography variant="subtitle1">{5}</Typography>
                     </Box>
                   </Box>
-                  {convertTS(item.ts)}
-                  <Divider orientation="horizontal" flexItem sx={{ mt: 2 }} />
+                  <Typography variant="caption">
+                    {convertTS(item.ts)}
+                  </Typography>
                 </Box>
               ))}
             </Stack>
+            {/* Question carousel */}
             <Carousel
               currentQues={currentQues}
               setCurrentQues={setCurrentQues}

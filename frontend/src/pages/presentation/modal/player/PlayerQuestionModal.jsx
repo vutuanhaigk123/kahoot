@@ -1,49 +1,20 @@
 import { ArrowBack, Close } from "@mui/icons-material";
 import { Dialog, DialogContent, Stack } from "@mui/material";
-import React, { useState } from "react";
+import React from "react";
 import { iconButton, iconHover } from "../../../../commons/globalStyles";
 import BasicButton from "../../../../components/button/BasicButton";
 import AskQuestion from "./components/AskQuestion";
 import QuestionList from "../owner/components/QuestionList";
 import Transition from "../components/Transition";
 import { useSocket } from "../../../../context/socket-context";
-import { WS_EVENT } from "../../../../commons/constants";
+import useQuesHistory from "./../../../../hooks/socket/useQuesHistory";
 
 const PAGE = { LIST_PAGE: 0, ASK_PAGE: 1 };
 
 const PlayerQuestionModal = ({ isOpen, handleClosePopup }) => {
   const { socketContext } = useSocket();
-  const [quesHistory, setQuesHistory] = useState([]);
-  const data = [
-    { slideQuestion: "Câu hỏi slide", question: "Câu hỏi người chơi" },
-    { slideQuestion: "Câu hỏi slide 2", question: "Câu hỏi người chơi 2" }
-  ];
-
+  const { quesHistory } = useQuesHistory(socketContext);
   const [curPage, setCurPage] = React.useState(PAGE.LIST_PAGE);
-
-  React.useEffect(() => {
-    if (socketContext) {
-      socketContext.on(WS_EVENT.INIT_CONNECTION_EVENT, (arg) => {
-        console.log("init connection event in question modal");
-      });
-      return () => {
-        socketContext.off(WS_EVENT.INIT_CONNECTION_EVENT);
-      };
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [socketContext]);
-
-  React.useEffect(() => {
-    if (socketContext) {
-      socketContext.on(WS_EVENT.RECEIVE_QUESTION_EVENT, (arg) => {
-        setQuesHistory([...quesHistory, { ...arg }]);
-        console.log(arg);
-      });
-      return () => {
-        socketContext.off(WS_EVENT.RECEIVE_QUESTION_EVENT);
-      };
-    }
-  }, [quesHistory, socketContext]);
 
   return (
     <Dialog
@@ -97,7 +68,7 @@ const PlayerQuestionModal = ({ isOpen, handleClosePopup }) => {
         >
           {curPage === PAGE.LIST_PAGE ? (
             <QuestionList
-              data={data}
+              data={quesHistory}
               onClick={() => setCurPage(PAGE.ASK_PAGE)}
             />
           ) : (

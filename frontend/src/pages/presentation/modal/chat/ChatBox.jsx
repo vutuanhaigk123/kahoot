@@ -8,7 +8,7 @@ import {
   Tooltip,
   Typography
 } from "@mui/material";
-import React, { useState } from "react";
+import React from "react";
 import { Close, Send } from "@mui/icons-material";
 import { iconButton, iconHover } from "./../../../../commons/globalStyles";
 import Transition from "../components/Transition";
@@ -18,13 +18,14 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { grey } from "@mui/material/colors";
 import { useSocket } from "../../../../context/socket-context";
-import { WS_CMD, WS_EVENT } from "../../../../commons/constants";
+import { WS_CMD } from "../../../../commons/constants";
+import useChat from "./../../../../hooks/socket/useChat";
 import { useSelector } from "react-redux";
 
 const ChatBox = ({ isOpen, handleClosePopup, toggleNotify }) => {
-  const { user } = useSelector((state) => state?.auth);
-  const [chatHistory, setChatHistory] = useState([]);
+  const { user } = useSelector((state) => state.auth);
   const { socketContext } = useSocket();
+  const { chatHistory } = useChat(socketContext, toggleNotify, isOpen);
   const schema = yup.object({
     msg: yup.string().required("Required")
   });
@@ -37,44 +38,9 @@ const ChatBox = ({ isOpen, handleClosePopup, toggleNotify }) => {
     resolver: yupResolver(schema)
   });
   const onSubmit = async (data) => {
-    // console.log("🚀 ~ file: ChatBox.jsx:21 ~ ChatBox ~ data", data);
     socketContext.emit(WS_CMD.SEND_CMT_CMD, data.msg);
     reset();
   };
-
-  React.useEffect(() => {
-    if (socketContext) {
-      console.log(socketContext);
-      socketContext.on(WS_EVENT.INIT_CONNECTION_EVENT, (arg) => {
-        console.log(arg);
-        if (arg && arg.chatHistory) {
-          setChatHistory(arg.chatHistory);
-        }
-      });
-      return () => {
-        socketContext.off(WS_EVENT.INIT_CONNECTION_EVENT);
-      };
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [socketContext]);
-
-  React.useEffect(() => {
-    if (socketContext) {
-      socketContext.on(WS_EVENT.RECEIVE_CMT_EVENT, (arg) => {
-        if (arg) {
-          console.log(arg);
-          setChatHistory([...chatHistory, { ...arg }]);
-          if (user.data.id !== arg.userId && !isOpen) {
-            toggleNotify();
-          }
-        }
-      });
-      return () => {
-        socketContext.off(WS_EVENT.RECEIVE_CMT_EVENT);
-      };
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen, chatHistory, socketContext]);
 
   return (
     <Dialog
@@ -135,7 +101,12 @@ const ChatBox = ({ isOpen, handleClosePopup, toggleNotify }) => {
                   </Tooltip>
                   {/* Text */}
                   <Box>
-                    <Typography variant="caption" color={grey[600]}>
+                    <Typography
+                      variant="caption"
+                      color={
+                        user.data.id === item.userId ? "primary" : grey[600]
+                      }
+                    >
                       {item.name}
                     </Typography>
                     <Typography
