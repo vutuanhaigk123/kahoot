@@ -11,8 +11,7 @@ const EditArea = ({ slideIndex, refetch }) => {
     <Paper
       elevation={10}
       sx={{
-        maxHeight: "40vh",
-        // width: "100%",
+        maxHeight: "60vh",
         p: 2,
         overflowY: "scroll",
         textAlign: "center"

@@ -44,6 +44,14 @@ const PresentationPlayerPage = () => {
     handleSendComment,
     handleSendQuestion
   } = usePresentationPlayer(socketContext, setSocketContext, id, slide);
+  console.log(
+    "🚀 ~ file: PresentationPlayerPage.jsx:47 ~ PresentationPlayerPage ~ data",
+    data
+  );
+  console.log(
+    "🚀 ~ file: PresentationPlayerPage.jsx:47 ~ PresentationPlayerPage ~ isVoted",
+    isVoted
+  );
 
   const { value: isNotify, toggleValue: toggleNotify } = useToggle(false);
   const { value: isNotifyQues, toggleValue: toggleNotifyQues } =
@@ -71,7 +79,9 @@ const PresentationPlayerPage = () => {
           </Typography>
 
           {isVoted ? (
-            <PresentationChart data={data} height={"100%"} />
+            <Box sx={{ height: "50vh", width: "20vw", m: "auto" }}>
+              <PresentationChart data={data} height={"100%"} />
+            </Box>
           ) : (
             <>
               {/* Options container */}

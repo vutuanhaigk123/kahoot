@@ -60,9 +60,7 @@ const TitleArea = ({ refetch, slideIndex }) => {
           />
         </Box>
         {/* Start button */}
-        {presentation._id &&
-        presentation.slides.length > 0 &&
-        presentation.slides[slideIndex].answers.length > 0 ? (
+        {presentation._id && presentation.slides.length > 0 ? (
           <Button
             color="secondary"
             variant="contained"

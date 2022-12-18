@@ -5,7 +5,6 @@ import BasicButton from "../../../../../components/button/BasicButton";
 import { iconButton, iconHover } from "./../../../../../commons/globalStyles";
 
 const QuestionList = ({ data, onClick }) => {
-  console.log("🚀 ~ file: QuestionList.jsx:8 ~ QuestionList ~ data", data);
   const handleUpvote = () => {
     console.log("upvoted");
   };

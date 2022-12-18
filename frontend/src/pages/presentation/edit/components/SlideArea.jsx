@@ -11,7 +11,6 @@ const SlideArea = ({ slideIndex }) => {
       elevation={10}
       sx={{
         height: "60vh",
-        // width: "100%",
         alignItems: "center",
         justifyContent: "center",
         display: "flex",

@@ -50,7 +50,6 @@ const SideBar = ({ refetch, setSlideIndex, slideIndex }) => {
       elevation={10}
       sx={{
         height: "60vh",
-        // width: "100%",
         p: 2,
         overflowY: "scroll",
         textAlign: "center"

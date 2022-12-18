@@ -9,7 +9,7 @@ import {
   ResponsiveContainer
 } from "recharts";
 
-const PresentationChart = ({ data, height = 500, width = "80%" }) => {
+const PresentationChart = ({ data, height = 500, width = "100%" }) => {
   if (data.length === 0) return null;
   return (
     <ResponsiveContainer width={width} height={height}>

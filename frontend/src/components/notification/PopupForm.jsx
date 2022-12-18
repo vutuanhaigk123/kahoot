@@ -24,7 +24,8 @@ const PopupForm = ({
   api,
   fieldName = "name",
   otherField = {},
-  successMsg = "Created successfully"
+  successMsg = "Created successfully",
+  buttonLabel = "Create"
 }) => {
   const {
     open: openMsg,
@@ -77,7 +78,7 @@ const PopupForm = ({
             />
             <DialogActions sx={{ justifyContent: "center" }}>
               <BasicButton onClick={handleClose}>Cancel</BasicButton>
-              <BasicButton type="submit">Create</BasicButton>
+              <BasicButton type="submit">{buttonLabel}</BasicButton>
             </DialogActions>
           </form>
         </DialogContent>

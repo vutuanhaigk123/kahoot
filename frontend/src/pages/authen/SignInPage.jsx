@@ -19,9 +19,16 @@ import { API } from "../../commons/constants";
 import { useNavigate } from "react-router-dom";
 import { GoogleLogin } from "@react-oauth/google";
 import usePopup from "../../hooks/usePopup";
+import { Box } from "@mui/system";
+import PopupForm from "../../components/notification/PopupForm";
 
 const SignInPage = () => {
   const { open, handleClosePopup, handleOpenPopup } = usePopup();
+  const {
+    open: openForgotPass,
+    handleClosePopup: handleCloseForgotPass,
+    handleOpenPopup: handleOpenForgotPass
+  } = usePopup();
 
   // Google login
   const dispatch = useDispatch();
@@ -95,14 +102,26 @@ const SignInPage = () => {
 
   return (
     <BasicForm>
-      <PopupMsg
-        status={status.type}
-        isOpen={open}
-        handleClosePopup={handleClosePopup}
-        navigateTo={PAGE_ROUTES.HOME}
-      >
-        {status.msg}
-      </PopupMsg>
+      {/* Modal */}
+      <Box>
+        <PopupMsg
+          status={status.type}
+          isOpen={open}
+          handleClosePopup={handleClosePopup}
+          navigateTo={PAGE_ROUTES.HOME}
+        >
+          {status.msg}
+        </PopupMsg>
+        <PopupForm
+          isOpen={openForgotPass}
+          handleClose={handleCloseForgotPass}
+          // refetch={refetch}
+          // api={API.CREATE_GROUP}
+          header="Please enter your email ?"
+          label="Email"
+          buttonLabel="Send"
+        />
+      </Box>
       <form onSubmit={handleSubmit(onSubmit)}>
         <FormHeader title="Sign in"></FormHeader>
         <FormContent>
@@ -126,7 +145,7 @@ const SignInPage = () => {
             name="password"
             control={control}
           />
-          <Typography variant="caption" sx={{ m: 0, alignSelf: "start" }}>
+          <Typography variant="caption" sx={{ alignSelf: "start" }}>
             Don't have an account?{" "}
             <Typography
               variant="inherit"
@@ -136,6 +155,15 @@ const SignInPage = () => {
             >
               Register
             </Typography>
+          </Typography>
+          {/* Forgot password */}
+          <Typography
+            color="primary"
+            variant="caption"
+            sx={{ alignSelf: "start", cursor: "pointer" }}
+            onClick={handleOpenForgotPass}
+          >
+            Forgot your password?
           </Typography>
           {/* Login button */}
           <FormButton>Login</FormButton>
