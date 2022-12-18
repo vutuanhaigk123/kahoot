@@ -33,16 +33,6 @@ const handleSendComment = (ws, data) => {
   }
 };
 
-const handleSendCmd = (ws) => {
-  if (ws?.connected) {
-    ws.emit(WS_EVENT.INIT_CONNECTION_EVENT, {
-      cmd: WS_CMD.CREATE_ROOM_CMD,
-      room: "638c64fdda1ad866c318f1b6",
-      slide: "638c6512da1ad866c318f1bf"
-    });
-  }
-};
-
 const usePresentationOwner = (socketContext, setSocketContext, id, slide) => {
   // Socket context state
   // To-do: slide id and presentation id needed
@@ -217,8 +207,7 @@ const usePresentationOwner = (socketContext, setSocketContext, id, slide) => {
     question,
     handleNextSlide,
     handlePrevSlide,
-    handleSendComment,
-    handleSendCmd
+    handleSendComment
   };
 };
 

@@ -34,16 +34,8 @@ const PresentationPlayerPage = () => {
   // Socket context
   const { socketContext, setSocketContext } = useSocket();
 
-  const {
-    isVoted,
-    msgClose,
-    question,
-    ws,
-    data,
-    handleSubmitChoice,
-    handleSendComment,
-    handleSendQuestion
-  } = usePresentationPlayer(socketContext, setSocketContext, id, slide);
+  const { isVoted, msgClose, question, ws, data, handleSubmitChoice } =
+    usePresentationPlayer(socketContext, setSocketContext, id, slide);
 
   const { value: isNotify, toggleValue: toggleNotify } = useToggle(false);
   const { value: isNotifyQues, toggleValue: toggleNotifyQues } =
@@ -167,17 +159,6 @@ const PresentationPlayerPage = () => {
             handleClosePopup={handleCloseChatPopup}
             toggleNotify={toggleNotify}
           ></ChatBox>
-          <BasicButton
-            sx={{ mt: 2 }}
-            onClick={() => handleSendComment(ws, "Day la chat test")}
-          >
-            Send chat
-          </BasicButton>
-          <BasicButton
-            onClick={() => handleSendQuestion(ws, "Day la question test")}
-          >
-            Send question
-          </BasicButton>
         </Paper>
       ) : null}
       <PopupMsg

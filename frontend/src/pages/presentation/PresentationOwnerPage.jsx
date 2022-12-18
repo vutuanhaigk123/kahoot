@@ -59,9 +59,7 @@ const PresentationOwnerPage = () => {
     msgClose,
     question,
     handleNextSlide,
-    handlePrevSlide,
-    handleSendComment,
-    handleSendCmd
+    handlePrevSlide
   } = usePresentationOwner(socketContext, setSocketContext, id, slide);
 
   return (
@@ -139,14 +137,6 @@ const PresentationOwnerPage = () => {
               />
             ) : null}
           </Box>
-          <BasicButton
-            onClick={() => handleSendComment(ws, "Day la chat test")}
-          >
-            Send chat
-          </BasicButton>
-          <BasicButton onClick={() => handleSendCmd(ws)}>
-            Change presentation
-          </BasicButton>
 
           {/* Chat + question icon */}
           <Box
