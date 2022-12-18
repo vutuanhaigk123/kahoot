@@ -10,7 +10,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
 import TextBox from "../input/TextBox";
 import PopupMsg from "./PopupMsg";
-import usePopup from "./../../hooks/usePopup";
+import usePopup from "../../hooks/usePopup";
 import { handlePost } from "./../../utils/fetch";
 import BasicButton from "./../button/BasicButton";
 import useStatus from "../../hooks/useStatus";
@@ -51,14 +51,18 @@ const PopupForm = ({
       ...otherField,
       [fieldName]: data.name
     });
-    handleStatus(resp, successMsg);
+    if (resp) {
+      handleStatus(resp, successMsg);
 
-    // Close current popup form
-    handleClose();
-    // Open popup message
-    handleOpenMsg();
-    // Refetch groups data
-    refetch();
+      // Close current popup form
+      handleClose();
+      // Open popup message
+      handleOpenMsg();
+      // Refetch groups data
+      refetch();
+    } else {
+      console.log(data);
+    }
   };
 
   return (

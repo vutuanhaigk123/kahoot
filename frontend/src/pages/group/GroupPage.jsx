@@ -119,16 +119,14 @@ const Panel = ({ value, data, formType, refetch }) => {
         }}
       >
         {/* Form to create group */}
-        {formType === FormType.CREATE ? (
-          <PopupForm
-            isOpen={open}
-            handleClose={handleClosePopup}
-            refetch={refetch}
-            api={API.CREATE_GROUP}
-            header="What will we call your group ?"
-            label="Group's name"
-          ></PopupForm>
-        ) : null}
+        <PopupForm
+          isOpen={open}
+          handleClose={handleClosePopup}
+          refetch={refetch}
+          api={API.CREATE_GROUP}
+          header="What will we call your group ?"
+          label="Group's name"
+        />
 
         {/* Group grid */}
         <Paper

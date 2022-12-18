@@ -1,5 +1,5 @@
 import React from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
@@ -21,6 +21,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../redux-toolkit/authSlice";
 import { API, PAGE_ROUTES } from "../commons/constants";
 import { AccountBox, ExitToApp } from "@mui/icons-material";
+import useUserPopup from "../hooks/popup/useUserPopup";
 
 const pages = [
   { link: PAGE_ROUTES.GROUP, text: "Group" },
@@ -33,30 +34,20 @@ const settings = [
 ];
 
 const Header = () => {
-  const { pathname } = useLocation();
-
   const navigate = useNavigate();
   const { user } = useSelector((state) => state?.auth);
 
   const dispatch = useDispatch();
-  const [anchorElUser, setAnchorElUser] = React.useState(null);
-
-  React.useEffect(() => {
-    handleCloseUserMenu();
-  }, [pathname]);
+  const {
+    anchorEl: anchorElUser,
+    handleCloseMenu: handleCloseUserMenu,
+    handleOpenMenu: handleOpenUserMenu
+  } = useUserPopup();
 
   const handleAvatarClick = React.useCallback(
     () => navigate(PAGE_ROUTES.LOGIN),
     [navigate]
   );
-
-  const handleOpenUserMenu = (event) => {
-    setAnchorElUser(event.currentTarget);
-  };
-
-  const handleCloseUserMenu = () => {
-    setAnchorElUser(null);
-  };
 
   const handleSignOut = async (e) => {
     try {

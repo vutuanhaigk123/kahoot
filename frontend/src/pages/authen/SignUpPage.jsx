@@ -19,10 +19,6 @@ function SignupPage() {
   const { open, handleClosePopup, handleOpenPopup } = usePopup();
   // Form
   const [status, setStatus] = React.useState({});
-  console.log(
-    "🚀 ~ file: SignUpPage.jsx ~ line 22 ~ SignupPage ~ status",
-    status
-  );
   const schema = yup.object({
     name: yup.string().required("Required"),
     email: yup.string().email("Email not valid").required("Required"),

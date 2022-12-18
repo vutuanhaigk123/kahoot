@@ -125,6 +125,17 @@ const SignInPage = () => {
       <form onSubmit={handleSubmit(onSubmit)}>
         <FormHeader title="Sign in"></FormHeader>
         <FormContent>
+          <Typography variant="caption">
+            Don't have an account?{" "}
+            <Typography
+              variant="inherit"
+              component={Link}
+              to={PAGE_ROUTES.REGISTER}
+              color="primary"
+            >
+              Register
+            </Typography>
+          </Typography>
           {/* email */}
           <TextBox
             required
@@ -145,17 +156,6 @@ const SignInPage = () => {
             name="password"
             control={control}
           />
-          <Typography variant="caption" sx={{ alignSelf: "start" }}>
-            Don't have an account?{" "}
-            <Typography
-              variant="inherit"
-              component={Link}
-              to={PAGE_ROUTES.REGISTER}
-              color="primary"
-            >
-              Register
-            </Typography>
-          </Typography>
           {/* Forgot password */}
           <Typography
             color="primary"
