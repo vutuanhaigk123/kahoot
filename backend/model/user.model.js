@@ -70,6 +70,9 @@ export default {
   },
 
   async multiGetShortInfoByIds(ids) {
+    if (ids.length === 0) {
+      return null;
+    }
     const ret = await User.find({
       _id: { $in: ids }
     })

@@ -241,11 +241,25 @@ router.get("/:id", AuthenMw.stopWhenNotLogon, async (req, res) => {
     });
   });
 
+  const collaborators = [];
+  const userMap = await UserModel.multiGetShortInfoByIds(
+    presentation.collaborators
+  );
+  if (userMap) {
+    presentation.collaborators.forEach((collaboratorId) => {
+      collaborators.push({
+        id: collaboratorId,
+        name: userMap.get(collaboratorId)
+      });
+    });
+  }
+
   return res.json({
     status: 0,
     info: {
       _id: presentation._id,
       title: presentation.title,
+      collaborators,
       slides: slidesRes
     }
   });
