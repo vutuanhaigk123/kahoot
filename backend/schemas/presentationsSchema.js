@@ -6,6 +6,7 @@ const Presentations = new Schema(
     _id: String,
     title: String,
     ownerId: String,
+    collaborators: [String],
     slides: [String]
   },
   { versionKey: false }

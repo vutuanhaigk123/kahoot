@@ -10,6 +10,8 @@ import { dirname } from "path";
 import { fileURLToPath } from "url";
 // import initMw from "./middleware/init.mw.js";
 import router from "./route/router.route.js";
+// import userModel from "./model/user.model.js";
+// import presentationModel from "./model/presentation.model.js";
 
 const dirNamePath = dirname(fileURLToPath(import.meta.url));
 
@@ -38,3 +40,22 @@ httpServer.listen(port, () => {
 
 // initMw(app);
 router(app, ws, dirNamePath);
+
+// console.log(
+//   await presentationModel.addCollaborator(
+//     "6377b6636c13318921bd9863",
+//     "638b23ef95e572e6e5b6e7fb",
+//     "637632b8b0d122858cb9b1f8"
+//   )
+// );
+
+// console.log(
+//   await presentationModel.getAllByCollaborator("6373a7da2ed8b26d6bd97dff")
+// );
+
+// console.log(
+//   await userModel.multiGetShortInfoByIds([
+//     "6373a7da2ed8b26d6bd97dff",
+//     "6374f94cba8fa051441918e6"
+//   ])
+// );

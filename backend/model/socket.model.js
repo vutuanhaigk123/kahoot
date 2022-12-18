@@ -37,13 +37,13 @@ export default {
       //   );
       //   return false;
       // }
-      if (userConns.get(userId)) {
-        this.sendEvent(
-          userId,
+      const oldConn = userConns.get(userId);
+      if (oldConn) {
+        oldConn.emit(
           EventModel.CLOSE_REASON,
           EventModel.REASON_HAS_NEW_CONNECTION
         );
-        userConns.get(userId).disconnect(true);
+        oldConn.disconnect(true);
         console.log("Kick old connection");
       }
       userConns.set(userId, socket);

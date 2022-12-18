@@ -204,6 +204,7 @@ export default {
       );
       return null;
     }
+    // owner reconnecting...
     if (
       userId === matchInfo.owner &&
       hasPresentPermission &&
@@ -221,7 +222,7 @@ export default {
         roomId,
         userId,
         questions,
-        slideId,
+        matchInfo.curQues,
         matchInfo.comments,
         matchInfo.userQuestions
       );

@@ -192,13 +192,17 @@ export default async (path, ws) => {
     });
 
     socket.on("error", (err) => {
+      console.log("error: ", err);
       SocketModel.removeSocketConn(userId);
     });
 
     socket.conn.on("close", (reason) => {
+      console.log("reason: ", reason);
       socket.leave(roomId);
       MatchModel.leaveLobby(userId, roomId, ws);
-      SocketModel.removeSocketConn(userId);
+      if (reason === "transport close") {
+        SocketModel.removeSocketConn(userId);
+      }
       console.log("closed");
     });
   });

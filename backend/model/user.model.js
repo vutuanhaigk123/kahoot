@@ -69,6 +69,22 @@ export default {
     return null;
   },
 
+  async multiGetShortInfoByIds(ids) {
+    const ret = await User.find({
+      _id: { $in: ids }
+    })
+      .select({ _id: 1, name: 1 })
+      .exec();
+    if (ret.length) {
+      const result = new Map();
+      ret.forEach(({ _id, name }) => {
+        return result.set(_id.toString(), name);
+      });
+      return result;
+    }
+    return null;
+  },
+
   async getNameAndAvt(userId) {
     const ret = await User.findOne({ _id: userId })
       .select("_id name avt")

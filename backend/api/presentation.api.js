@@ -8,6 +8,7 @@ import AuthenMw from "../middleware/authen.mw.js";
 import AuthenModel from "../model/authen.model.js";
 import PresentationModel from "../model/presentation.model.js";
 import SlideModel from "../model/slide.model.js";
+import UserModel from "../model/user.model.js";
 
 const router = express.Router();
 
@@ -26,6 +27,67 @@ function isReqValid(title, ownerId) {
   }
   return null;
 }
+
+router.post("/add-colab", AuthenMw.stopWhenNotLogon, async (req, res) => {
+  const { presentationId, email } = req.body;
+  const ownerId = AuthenModel.getUidFromReq(req);
+  const isValid = isReqValid(email, ownerId);
+  if (isValid !== null) {
+    return res.json(isValid);
+  }
+  if (!presentationId || presentationId.trim().length === 0) {
+    return {
+      status: 400,
+      message: "Invalid fields"
+    };
+  }
+
+  const user = await UserModel.findByEmail(email.trim());
+  if (!user) {
+    return res.json({
+      status: 404,
+      message: "This email does not belong to any user in system"
+    });
+  }
+
+  if (user._id === ownerId) {
+    return res.json({
+      status: 403,
+      message: "You can not invite yourself as collaborator"
+    });
+  }
+
+  const result = await PresentationModel.addCollaborator(
+    ownerId,
+    presentationId,
+    user._id
+  );
+  if (result.modifiedCount > 0) {
+    return res.json({ status: 0 });
+  }
+  return res.json({ status: 405, message: "Already exist this collaborator" });
+});
+
+router.post("/del-colab", AuthenMw.stopWhenNotLogon, async (req, res) => {
+  const { presentationId, collaboratorId } = req.body;
+  const ownerId = AuthenModel.getUidFromReq(req);
+  const isValid = isReqValid(collaboratorId, ownerId);
+  if (isValid !== null) {
+    return res.json(isValid);
+  }
+  if (!presentationId || presentationId.trim().length === 0) {
+    return {
+      status: 400,
+      message: "Invalid fields"
+    };
+  }
+
+  // remove async
+  PresentationModel.deleteCollaborator(ownerId, presentationId, collaboratorId);
+  return res.json({
+    status: 0
+  });
+});
 
 router.post("/create", AuthenMw.stopWhenNotLogon, async (req, res) => {
   const { title } = req.body;
@@ -120,6 +182,21 @@ router.get("/", AuthenMw.stopWhenNotLogon, async (req, res) => {
     };
   }
   const presentation = await PresentationModel.getAllByOwnerId(ownerId);
+  return res.json({
+    status: 0,
+    info: presentation
+  });
+});
+
+router.get("/colab", AuthenMw.stopWhenNotLogon, async (req, res) => {
+  const ownerId = AuthenModel.getUidFromReq(req);
+  if (!ownerId) {
+    return {
+      status: 400,
+      message: "Invalid access token"
+    };
+  }
+  const presentation = await PresentationModel.getAllByCollaborator(ownerId);
   return res.json({
     status: 0,
     info: presentation
