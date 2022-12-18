@@ -88,7 +88,12 @@ const PresentationOwnerPage = () => {
           >
             <BasicButton
               icon={isCopy ? <ContentCopy /> : <Link />}
-              onClick={() => setIsCopy(true)}
+              onClick={() => {
+                setIsCopy(true);
+                setTimeout(() => {
+                  setIsCopy(false);
+                }, 2000);
+              }}
               color={isCopy ? "success" : "primary"}
               sx={{ mb: 2 }}
             >

@@ -81,7 +81,13 @@ export default {
         cookies[CookieModel.ACCESS_TOKEN] &&
         cookies[CookieModel.REFRESH_TOKEN]
       ) {
-        return next();
+        const { code } = AuthModel.verifyAccessToken(
+          cookies[CookieModel.ACCESS_TOKEN],
+          false
+        );
+        if (code === AuthModel.VALID_TOKEN) {
+          return next();
+        }
       }
     }
     socket.disconnect(true);
