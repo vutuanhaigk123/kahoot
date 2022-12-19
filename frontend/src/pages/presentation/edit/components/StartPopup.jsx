@@ -36,7 +36,9 @@ const StartPopup = ({ isOpen, handleClose, slideIndex }) => {
 
   const [allGroup, setAllGroup] = React.useState([]);
   React.useEffect(() => {
-    if (createdGroup && joinedGroup) {
+    if (createdGroup && joinedGroup && createdGroup.info && joinedGroup.data) {
+      console.log("created group:", createdGroup);
+      console.log("joined group:", joinedGroup);
       setAllGroup([...createdGroup?.info.groups, ...joinedGroup?.info.groups]);
     }
   }, [createdGroup, joinedGroup]);

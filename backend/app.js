@@ -10,6 +10,7 @@ import { dirname } from "path";
 import { fileURLToPath } from "url";
 import initMw from "./middleware/init.mw.js";
 import router from "./route/router.route.js";
+import env from "./utils/env.js";
 
 const dirNamePath = dirname(fileURLToPath(import.meta.url));
 
@@ -26,7 +27,7 @@ const port = process.env.PORT || 3001;
 const httpServer = createServer(app);
 const ws = new Server(httpServer, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: env.DOMAIN,
     methods: ["GET", "POST"],
     transports: ["websocket", "polling"],
     credentials: true
