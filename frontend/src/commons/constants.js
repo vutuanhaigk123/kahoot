@@ -59,7 +59,8 @@ export const API = {
   DELETE_ANSWER: "/api/slide/answer/delete",
   UPDATE_ANSWER: "/api/slide/answer/update",
   DELETE_SLIDE: "/api/slide/delete",
-  UPDATE_PRESENTATION: "/api/presentation/update"
+  UPDATE_PRESENTATION: "/api/presentation/update",
+  PRESENTATION_LIST_COLAB: "/api/presentation/colab"
 };
 
 export const WS_CMD = {

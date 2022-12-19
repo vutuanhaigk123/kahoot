@@ -84,7 +84,7 @@ const PresentationEdit = lazy(() =>
 );
 const PresentationListPage = lazy(() =>
   Promise.all([
-    import("./pages/presentation/presentaion-list/PresentationList.jsx"),
+    import("./pages/presentation/presentaion-list/PresentationListPage.jsx"),
     new Promise((resolve) => setTimeout(resolve, DELAY_TIME))
   ]).then(([module]) => module)
 );
