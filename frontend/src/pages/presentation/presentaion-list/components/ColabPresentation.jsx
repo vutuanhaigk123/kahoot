@@ -21,7 +21,7 @@ const ColabPresentation = () => {
   const navigate = useNavigate();
 
   const { isLoading, error, data } = useQuery("presentationListColab", () =>
-    handleGet(API.PRESENTATION_LIST_COLAB)
+    handleGet(API.PRESENTATION_LIST_COLLAB)
   );
 
   if (error) return "An error has occurred: " + error.message;

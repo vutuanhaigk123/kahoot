@@ -20,7 +20,8 @@ const PopupMsg = ({
   handleClosePopup,
   navigateTo,
   hasOk = true,
-  hideOnSuccess = false
+  hideOnSuccess = false,
+  sx
 }) => {
   const navigate = useNavigate();
 
@@ -39,7 +40,7 @@ const PopupMsg = ({
       TransitionComponent={Transition}
       keepMounted
       onClose={handleClose}
-      aria-describedby="alert-dialog-slide-description"
+      sx={[...(Array.isArray(sx) ? sx : [sx])]}
     >
       <Box
         sx={{

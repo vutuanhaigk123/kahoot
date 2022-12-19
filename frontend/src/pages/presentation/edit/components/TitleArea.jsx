@@ -1,13 +1,16 @@
-import { Button, Typography } from "@mui/material";
+import { Typography } from "@mui/material";
 import React from "react";
 import { useSelector } from "react-redux";
 
 import usePopup from "./../../../../hooks/usePopup";
-import { API, PAGE_ROUTES } from "../../../../commons/constants";
+import { API } from "../../../../commons/constants";
 import { Box } from "@mui/system";
-import { Edit, PlayCircleFilledWhite } from "@mui/icons-material";
+import { Edit, Groups, PlayCircleFilledWhite } from "@mui/icons-material";
 import PopupForm from "../../../../components/notification/PopupForm";
-import { useNavigate } from "react-router-dom";
+import BasicButton from "./../../../../components/button/BasicButton";
+import CollabPopup from "./CollabPopup";
+import { iconHover } from "../../../../commons/globalStyles";
+import StartPopup from "./StartPopup";
 
 const iconButton = {
   bgcolor: "black",
@@ -18,16 +21,33 @@ const iconButton = {
 };
 
 const TitleArea = ({ refetch, slideIndex }) => {
-  const navigate = useNavigate();
-
   // Get data from redux store
   const presentation = useSelector((state) => state.presentation);
 
   // Handle edit
-  const { open, handleClosePopup, handleOpenPopup } = usePopup();
+  const {
+    open: openEditTitle,
+    handleClosePopup: handleCloseEditTitlePopup,
+    handleOpenPopup: handleOpenEditTitlePopup
+  } = usePopup();
+
+  // Handle collab
+  const {
+    open: openCollab,
+    handleClosePopup: handleCloseCollabPopup,
+    handleOpenPopup: handleOpenCollabPopup
+  } = usePopup();
+
+  // Handle start presentation
+  const {
+    open: openStart,
+    handleClosePopup: handleCloseStartPopup,
+    handleOpenPopup: handleOpenStartPopup
+  } = usePopup();
 
   return (
     <>
+      {/* Main content */}
       <Box
         sx={{
           display: "flex",
@@ -46,50 +66,61 @@ const TitleArea = ({ refetch, slideIndex }) => {
         >
           <Typography variant="h4">{presentation.title}</Typography>
           <Edit
-            sx={[
-              {
-                "&:hover": {
-                  bgcolor: "warning.light",
-                  color: "white"
-                }
-              },
-              iconButton
-            ]}
+            sx={[iconButton, iconHover("warning.light")]}
             fontSize="small"
-            onClick={handleOpenPopup}
+            onClick={handleOpenEditTitlePopup}
           />
         </Box>
-        {/* Start button */}
-        {presentation._id && presentation.slides.length > 0 ? (
-          <Button
-            color="secondary"
+        {/* Button group */}
+        <Box sx={{ display: "flex", gap: 1 }}>
+          {/* Collab view button */}
+          <BasicButton
             variant="contained"
-            startIcon={<PlayCircleFilledWhite />}
-            onClick={() =>
-              navigate(
-                PAGE_ROUTES.SLIDES_PRESENT +
-                  `?id=${presentation._id}&slide=${presentation.slides[slideIndex]._id}`
-              )
-            }
+            icon={<Groups />}
+            onClick={handleOpenCollabPopup}
           >
-            Start
-          </Button>
-        ) : null}
+            Collaborator
+          </BasicButton>
+          {/* Start button */}
+          {presentation._id && presentation.slides.length > 0 ? (
+            <BasicButton
+              color="secondary"
+              variant="contained"
+              icon={<PlayCircleFilledWhite />}
+              onClick={() => handleOpenStartPopup()}
+            >
+              Start
+            </BasicButton>
+          ) : null}
+        </Box>
       </Box>
-      {/* Edit popup form */}
-      <PopupForm
-        isOpen={open}
-        handleClose={handleClosePopup}
-        refetch={refetch}
-        api={API.UPDATE_PRESENTATION}
-        header="Please enter your new title name"
-        label="Title's name"
-        fieldName="title"
-        otherField={{
-          presentationId: presentation._id
-        }}
-        successMsg="Changes saved"
-      ></PopupForm>
+      <div className="modal-area">
+        {/* Edit title popup form */}
+        <PopupForm
+          isOpen={openEditTitle}
+          handleClose={handleCloseEditTitlePopup}
+          refetch={refetch}
+          api={API.UPDATE_PRESENTATION}
+          header="Please enter your new title name"
+          label="Title's name"
+          fieldName="title"
+          otherField={{
+            presentationId: presentation._id
+          }}
+          buttonLabel="Rename"
+          successMsg="Changes saved"
+        />
+        <CollabPopup
+          isOpen={openCollab}
+          handleClose={handleCloseCollabPopup}
+          refetch={refetch}
+        />
+        <StartPopup
+          isOpen={openStart}
+          handleClose={handleCloseStartPopup}
+          slideIndex={slideIndex}
+        />
+      </div>
     </>
   );
 };

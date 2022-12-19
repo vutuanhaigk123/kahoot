@@ -18,6 +18,7 @@ import PopupMsg from "../../../../components/notification/PopupMsg";
 import useStatus from "../../../../hooks/useStatus";
 import SelectField from "./../../../../components/input/SelectField";
 import { useParams } from "react-router-dom";
+import Transition from "./../../modal/components/Transition";
 
 const options = [
   {
@@ -66,7 +67,11 @@ const CreateSlideForm = ({ isOpen, handleClose, refetch }) => {
   return (
     <>
       {/* Close form when recieved resp */}
-      <Dialog open={isOpen} onClose={handleClose}>
+      <Dialog
+        open={isOpen}
+        onClose={handleClose}
+        TransitionComponent={Transition}
+      >
         <DialogTitle>Slide options</DialogTitle>
         <DialogContent style={{ paddingTop: "10px" }}>
           <form onSubmit={handleSubmit(onSubmit)}>

@@ -53,7 +53,7 @@ const GroupPage = () => {
     data: createdGroup,
     refetch
   } = useQuery("created-groups", () =>
-    handleGet(`${API.CREATED_GROUP}?page=${0}&limit=${10}`)
+    handleGet(`${API.CREATED_GROUP}?page=${0}&limit=${100}`)
   );
 
   const {

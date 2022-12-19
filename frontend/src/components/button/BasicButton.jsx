@@ -1,5 +1,5 @@
 import React from "react";
-import { Button } from "@mui/material";
+import LoadingButton from "@mui/lab/LoadingButton";
 
 const BasicButton = ({
   children,
@@ -11,7 +11,7 @@ const BasicButton = ({
   ...props
 }) => {
   return (
-    <Button
+    <LoadingButton
       variant={variant}
       color={color}
       startIcon={icon}
@@ -20,7 +20,7 @@ const BasicButton = ({
       {...props}
     >
       {children}
-    </Button>
+    </LoadingButton>
   );
 };
 

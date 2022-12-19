@@ -26,7 +26,8 @@ const PresentationEditPage = () => {
     if (data?.status === 0) {
       dispatch(set(data.info));
     }
-  });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data]);
 
   const [slideIndex, setSlideIndex] = React.useState(0);
 
@@ -38,7 +39,11 @@ const PresentationEditPage = () => {
     <BackgroundContainer>
       <Box sx={{ width: "90vw", m: "auto" }}>
         {/* Title */}
-        <TitleArea refetch={refetch} slideIndex={slideIndex}></TitleArea>
+        <TitleArea
+          refetch={refetch}
+          slideIndex={slideIndex}
+          wrap="nowrap"
+        ></TitleArea>
         <Grid container columnGap={2}>
           {/* Left side bar */}
           <Grid item xs={2}>
