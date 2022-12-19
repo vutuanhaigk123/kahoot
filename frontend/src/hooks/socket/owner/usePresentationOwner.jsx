@@ -137,7 +137,7 @@ const usePresentationOwner = (socketContext, setSocketContext, id, slide) => {
         );
         switch (arg) {
           case WS_CLOSE.REASON_HAS_NEW_CONNECTION:
-            setMsgClose("Only support 1 connection at a time");
+            setMsgClose("You has already joined room in another tab");
             break;
           case WS_CLOSE.REASON_NOT_FOUND_CONTENT:
             setMsgClose("Not found content");

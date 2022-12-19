@@ -154,6 +154,9 @@ const usePresentationPlayer = (socketContext, setSocketContext, id, slide) => {
           case WS_CLOSE.REASON_SELF_HOSTED_PRESENTATION:
             setMsgClose("You can not join to self hosted presentation to vote");
             break;
+          case WS_CLOSE.REASON_HAS_NEW_CONNECTION:
+            setMsgClose("You has already joined room in another tab");
+            break;
           case WS_CLOSE.REASON_SLIDE_HAS_NO_ANS:
             console.log("slide has no answer");
           // eslint-disable-next-line no-fallthrough

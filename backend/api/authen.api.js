@@ -49,23 +49,28 @@ router.get(
   }
 );
 
-router.post("/logout", AuthMW.stopWhenNotLogon, async (req, res) => {
-  const refreshTok = CookieModel.getRefreshToken(req.cookies);
-  const accessTok = CookieModel.getAccessToken(req.cookies);
-  // const uid = CookieModel.getField(req.cookies, CookieModel.UID);
+router.post(
+  "/logout",
+  passport.authenticate("jwt", { session: false }),
+  AuthMW.renewAccessToken,
+  async (req, res) => {
+    const refreshTok = CookieModel.getRefreshToken(req.cookies);
+    const accessTok = CookieModel.getAccessToken(req.cookies);
+    // const uid = CookieModel.getField(req.cookies, CookieModel.UID);
 
-  // Just remove access token, cookie, uid from cookie of request and response to client
-  CookieModel.removeField(res, CookieModel.ACCESS_TOKEN);
-  CookieModel.removeField(res, CookieModel.REFRESH_TOKEN);
-  CookieModel.removeField(res, CookieModel.UID);
+    // Just remove access token, cookie, uid from cookie of request and response to client
+    CookieModel.removeField(res, CookieModel.ACCESS_TOKEN);
+    CookieModel.removeField(res, CookieModel.REFRESH_TOKEN);
+    CookieModel.removeField(res, CookieModel.UID);
 
-  res.json({
-    code: 200,
-    message: "Logged out"
-  });
+    res.json({
+      code: 200,
+      message: "Logged out"
+    });
 
-  AuthModel.logout(accessTok, refreshTok);
-});
+    AuthModel.logout(accessTok, refreshTok);
+  }
+);
 
 router.post("/google", async (req, res) => {
   const { credential } = req.body;

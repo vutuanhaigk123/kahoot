@@ -105,6 +105,19 @@ export default {
       return true;
     }
     return false;
+  },
+
+  renewAccessToken(req, res, next) {
+    if (req.user) {
+      const { auth } = req.user;
+
+      if (auth && auth.accessToken && auth.refreshToken) {
+        CookieModel.setToken(res, CookieModel.ACCESS_TOKEN, auth.accessToken);
+        CookieModel.setToken(res, CookieModel.REFRESH_TOKEN, auth.refreshToken);
+        console.log("renewed access token");
+      }
+    }
+    next();
   }
 
   // async wsStopWhenInvalidQuery(socket, next) {
