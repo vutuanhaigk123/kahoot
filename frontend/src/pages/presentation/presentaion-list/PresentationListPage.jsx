@@ -18,7 +18,7 @@ const panelList = [
 ];
 
 const PresentationListPage = () => {
-  const { value, handleSwitchPanel } = usePanel(0);
+  const { value, handleSwitchPanel } = usePanel(panelList[0].label);
 
   return (
     <BackgroundContainer>
@@ -37,14 +37,15 @@ const PresentationListPage = () => {
               onChange={handleSwitchPanel}
               aria-label="lab API tabs example"
             >
-              {panelList.map((item, index) => (
-                <Tab label={item.label} value={index} />
+              {panelList.map((item) => (
+                <Tab key={item.label} label={item.label} value={item.label} />
               ))}
             </TabList>
           </Box>
-          {panelList.map((item, index) => (
+          {panelList.map((item) => (
             <TabPanel
-              value={index}
+              key={item.label}
+              value={item.label}
               sx={{
                 p: 0
               }}
