@@ -35,26 +35,13 @@ const StartPopup = ({ isOpen, handleClose, slideIndex }) => {
   );
 
   const [allGroup, setAllGroup] = React.useState([]);
-  // React.useEffect(() => {
-  //   console.log(
-  //     "🚀 ~ file: StartPopup.jsx:40 ~ React.useEffect ~ createdGroup",
-  //     createdGroup
-  //   );
-  //   console.log(
-  //     "🚀 ~ file: StartPopup.jsx:44 ~ React.useEffect ~ joinedGroup",
-  //     joinedGroup
-  //   );
-  //   if (createdGroup.info && joinedGroup.info === null) {
-  //     console.log("1");
-  //     setAllGroup([...createdGroup?.info?.groups]);
-  //   } else if (createdGroup.info === null && joinedGroup.info) {
-  //     console.log("2");
-  //     setAllGroup([...joinedGroup.info.groups]);
-  //   } else if (createdGroup.info && joinedGroup.info) {
-  //     console.log("3");
-  //     setAllGroup([...createdGroup.info.groups, ...joinedGroup.info.groups]);
-  //   }
-  // }, [createdGroup, joinedGroup]);
+  React.useEffect(() => {
+    if (createdGroup && joinedGroup && createdGroup.info && joinedGroup.data) {
+      console.log("created group:", createdGroup);
+      console.log("joined group:", joinedGroup);
+      setAllGroup([...createdGroup?.info.groups, ...joinedGroup?.info.groups]);
+    }
+  }, [createdGroup, joinedGroup]);
 
   // Form
   const schema = yup.object({
