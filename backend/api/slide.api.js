@@ -13,11 +13,17 @@ import SlideModel from "../model/slide.model.js";
 const router = express.Router();
 
 async function isHasEditPermission(ownerId, presentationId, slideId) {
-  const presentation = await PresentationModel.findByIdAndOwnerId(
-    presentationId,
-    ownerId
-  );
-  if (!presentation) {
+  // const presentation = await PresentationModel.findByIdAndOwnerId(
+  //   presentationId,
+  //   ownerId
+  // );
+  const presentation = await PresentationModel.findById(presentationId);
+  if (
+    !presentation ||
+    (presentation.ownerId !== ownerId &&
+      presentation.collaborators &&
+      !presentation.collaborators.includes(ownerId))
+  ) {
     return null;
   }
 
@@ -104,11 +110,17 @@ router.post(
       });
     }
 
-    const presentaion = await PresentationModel.findByIdAndOwnerId(
-      presentationId,
-      ownerId
-    );
-    if (!presentaion) {
+    // const presentation = await PresentationModel.findByIdAndOwnerId(
+    //   presentationId,
+    //   ownerId
+    // );
+    const presentation = await PresentationModel.findById(presentationId);
+    if (
+      !presentation ||
+      (presentation.ownerId !== ownerId &&
+        presentation.collaborators &&
+        !presentation.collaborators.includes(ownerId))
+    ) {
       return res.json({
         status: 400,
         message: "You do not have this content"
@@ -128,7 +140,7 @@ router.post(
     }
 
     const result = await SlideModel.create(
-      ownerId,
+      presentation.ownerId,
       presentationId,
       type,
       question,

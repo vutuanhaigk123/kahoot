@@ -150,11 +150,17 @@ router.post(
       });
     }
 
-    const presentation = await PresentationModel.findByIdAndOwnerId(
-      presentationId,
-      ownerId
-    );
-    if (!presentation) {
+    const presentation = await PresentationModel.findById(presentationId);
+    // const presentation = await PresentationModel.findByIdAndOwnerId(
+    //   presentationId,
+    //   ownerId
+    // );
+    if (
+      !presentation ||
+      (presentation.ownerId !== ownerId &&
+        presentation.collaborators &&
+        !presentation.collaborators.includes(ownerId))
+    ) {
       return res.json({
         status: 404,
         message: "Not found presentationId"
@@ -259,11 +265,17 @@ router.get(
         message: "Invalid access token"
       };
     }
-    const presentation = await PresentationModel.findByIdAndOwnerId(
-      presentationId,
-      ownerId
-    );
-    if (!presentation) {
+    const presentation = await PresentationModel.findById(presentationId);
+    // const presentation = await PresentationModel.findByIdAndOwnerId(
+    //   presentationId,
+    //   ownerId
+    // );
+    if (
+      !presentation ||
+      (presentation.ownerId !== ownerId &&
+        presentation.collaborators &&
+        !presentation.collaborators.includes(ownerId))
+    ) {
       return res.json({
         status: 404,
         message: "You do not have this content"
@@ -301,14 +313,18 @@ router.get(
       });
     }
 
+    const info = {
+      _id: presentation._id,
+      title: presentation.title,
+      slides: slidesRes,
+      isOwner: presentation.ownerId === ownerId
+    };
+    if (presentation.ownerId === ownerId) {
+      info.collaborators = collaborators;
+    }
     return res.json({
       status: 0,
-      info: {
-        _id: presentation._id,
-        title: presentation.title,
-        collaborators,
-        slides: slidesRes
-      }
+      info
     });
   }
 );

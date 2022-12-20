@@ -22,6 +22,9 @@ export default {
 
   doMarkAnsweredQues(userId, name, quesId, matchInfo) {
     if (matchInfo) {
+      if (matchInfo.owner !== userId) {
+        return false;
+      }
       const quesInfo = matchInfo.userQuestions.find(
         (userQues) => userQues.id === quesId
       );
