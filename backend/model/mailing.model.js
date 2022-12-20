@@ -69,5 +69,21 @@ export default {
     if (personalization.to.length !== 0) {
       await sendEmail(mailMsg);
     }
+  },
+
+  async sendForgotPwdEmail({ name, email, token, hours }) {
+    const resetLink = `${env.DOMAIN}/reset-password?token=${token}`;
+    const mailMsg = {
+      to: email,
+      from: fromEmail,
+      subject: `Reset you password at Kahoot HCMUS website`,
+      templateId: env.SENDGRID_FORGOT_PASSWORD_TEMPLATE,
+      dynamicTemplateData: {
+        name,
+        hours,
+        link: resetLink
+      }
+    };
+    await sendEmail(mailMsg);
   }
 };

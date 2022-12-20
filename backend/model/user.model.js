@@ -178,6 +178,11 @@ export default {
     return bcrypt.compareSync(password, orgPwd);
   },
 
+  async updatePwd(id, pwd) {
+    const ret = await User.findOneAndUpdate({ _id: id }, { pwd }).exec();
+    return ret;
+  },
+
   async removeRefreshToken(uid, refreshToken) {
     // remove from Users schema
     await User.updateOne(
