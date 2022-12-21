@@ -16,11 +16,12 @@ import TextBox from "./../../../../components/input/TextBox";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import { grey } from "@mui/material/colors";
 import { useSocket } from "../../../../context/socket-context";
 import { WS_CMD } from "../../../../commons/constants";
 import useChat from "./../../../../hooks/socket/useChat";
 import { useSelector } from "react-redux";
+import ScrollToBottom from "react-scroll-to-bottom";
+import "./ChatBox.css";
 
 const ChatBox = ({ isOpen, handleClosePopup, toggleNotify }) => {
   const { user } = useSelector((state) => state.auth);
@@ -54,11 +55,10 @@ const ChatBox = ({ isOpen, handleClosePopup, toggleNotify }) => {
       <DialogContent
         sx={{
           display: "flex",
-          padding: "10px 50px 10px 50px",
+          p: 3,
           gap: 2,
           height: "60vh",
-          position: "relative",
-          p: "5px 10px 30px 10px"
+          position: "relative"
         }}
       >
         {/* Close button */}
@@ -70,60 +70,47 @@ const ChatBox = ({ isOpen, handleClosePopup, toggleNotify }) => {
           ]}
           onClick={handleClosePopup}
         />
-        <Stack sx={{ mt: 6, width: "100%", height: "calc(100% - 48px)" }}>
-          <form style={{ height: "100%" }} onSubmit={handleSubmit(onSubmit)}>
-            {/* Chat view area */}
-            <Box
-              sx={{
-                border: 1,
-                borderColor: grey[400],
-                borderRadius: 1,
-                height: "calc(100% - 80px)",
-                mb: 2,
-                p: 1,
-                overflowY: "scroll",
-                minWidth: 0
-              }}
-            >
-              {chatHistory.map((item, index) => (
-                <Box
-                  key={index}
-                  sx={{
-                    display: "flex",
-                    gap: 1,
-                    alignItems: "center",
-                    width: "100%"
-                  }}
-                >
-                  {/* Avatar + name */}
-                  <Tooltip title={item.name}>
-                    <Avatar />
-                  </Tooltip>
-                  {/* Text */}
-                  <Box>
-                    <Typography
-                      variant="caption"
-                      color={
-                        user.data.id === item.userId ? "primary" : grey[600]
-                      }
-                    >
-                      {item.name}
-                    </Typography>
-                    <Typography
-                      sx={{
-                        border: 1,
-                        p: 1,
-                        borderRadius: 1,
-                        mb: 1
-                      }}
-                    >
-                      {item.text}
-                    </Typography>
-                  </Box>
+        <Stack sx={{ mt: 4, width: "100%", height: "100% - 4" }}>
+          {/* Chat view area */}
+          <ScrollToBottom
+            className="chat-view"
+            followButtonClassName="scroll-button"
+          >
+            {chatHistory.map((item, index) => (
+              <Box
+                key={index}
+                sx={{
+                  display: "flex",
+                  gap: 1,
+                  alignItems: "center",
+                  width: "100%",
+                  flexDirection:
+                    user.data.id === item.userId ? "row-reverse" : "row"
+                }}
+              >
+                {/* Avatar + name */}
+                <Tooltip title={item.name}>
+                  <Avatar />
+                </Tooltip>
+                {/* Text */}
+                <Box>
+                  <Typography variant="caption">{item.name}</Typography>
+                  <Typography
+                    sx={{
+                      border: 1,
+                      p: 1,
+                      borderRadius: 1,
+                      mb: 1
+                    }}
+                  >
+                    {item.text}
+                  </Typography>
                 </Box>
-              ))}
-            </Box>
-            {/* Chat send area */}
+              </Box>
+            ))}
+          </ScrollToBottom>
+          {/* Chat send area */}
+          <form onSubmit={handleSubmit(onSubmit)}>
             <Box sx={{ display: "flex", gap: 1 }}>
               <TextBox
                 fullWidth

@@ -70,7 +70,7 @@ const OwnerQuestionModal = ({ isOpen, handleClosePopup, toggleNotify }) => {
       socketContext.on(WS_EVENT.RECEIVE_UPVOTE_QUESTION_EVENT, (arg) => {
         console.log("upvote", arg);
         const quesHisTmp = [...quesHistory];
-        const ques = quesHisTmp.find((question) => question.id === arg);
+        const ques = quesHisTmp.find((question) => question.id === arg.id);
         if (ques) {
           console.log(ques);
           ques.upVotes += 1;
@@ -191,7 +191,7 @@ const OwnerQuestionModal = ({ isOpen, handleClosePopup, toggleNotify }) => {
                       </Typography>
                     </Box>
                   </Box>
-                  <Typography variant="caption">
+                  <Typography variant="caption" color={grey[600]}>
                     {convertTS(item.ts)}
                   </Typography>
                 </Box>

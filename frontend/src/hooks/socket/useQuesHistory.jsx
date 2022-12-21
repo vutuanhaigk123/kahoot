@@ -42,10 +42,13 @@ const useQuesHistory = (socketContext) => {
       socketContext.on(WS_EVENT.RECEIVE_UPVOTE_QUESTION_EVENT, (arg) => {
         console.log("upvote", arg);
         const quesHisTmp = [...quesHistory];
-        const ques = quesHisTmp.find((question) => question.id === arg);
+        const ques = quesHisTmp.find((question) => question.id === arg.id);
         if (ques) {
           console.log(ques);
           ques.upVotes += 1;
+          if (arg.isYou) {
+            ques.isVoted = true;
+          }
           setQuesHistory(quesHisTmp);
         }
       });

@@ -33,35 +33,39 @@ const PresentationEditPage = () => {
 
   if (error) return "An error has occurred: " + error.message;
 
-  if (isLoading) return <Loading />;
-
   return (
     <BackgroundContainer>
       <Box sx={{ width: "90vw", m: "auto" }}>
-        {/* Title */}
-        <TitleArea
-          refetch={refetch}
-          slideIndex={slideIndex}
-          wrap="nowrap"
-        ></TitleArea>
-        <Grid container columnGap={2}>
-          {/* Left side bar */}
-          <Grid item xs={2}>
-            <SideBar
+        {isLoading ? (
+          <Loading />
+        ) : (
+          <>
+            {/* Title */}
+            <TitleArea
               refetch={refetch}
               slideIndex={slideIndex}
-              setSlideIndex={setSlideIndex}
-            ></SideBar>
-          </Grid>
-          {/* Slide area */}
-          <Grid item xs={true}>
-            <SlideArea slideIndex={slideIndex}></SlideArea>
-          </Grid>
-          {/* Edit option area */}
-          <Grid item xs={3}>
-            <EditArea slideIndex={slideIndex} refetch={refetch}></EditArea>
-          </Grid>
-        </Grid>
+              wrap="nowrap"
+            ></TitleArea>
+            <Grid container columnGap={2}>
+              {/* Left side bar */}
+              <Grid item xs={2}>
+                <SideBar
+                  refetch={refetch}
+                  slideIndex={slideIndex}
+                  setSlideIndex={setSlideIndex}
+                ></SideBar>
+              </Grid>
+              {/* Slide area */}
+              <Grid item xs={true}>
+                <SlideArea slideIndex={slideIndex}></SlideArea>
+              </Grid>
+              {/* Edit option area */}
+              <Grid item xs={3}>
+                <EditArea slideIndex={slideIndex} refetch={refetch}></EditArea>
+              </Grid>
+            </Grid>
+          </>
+        )}
       </Box>
     </BackgroundContainer>
   );

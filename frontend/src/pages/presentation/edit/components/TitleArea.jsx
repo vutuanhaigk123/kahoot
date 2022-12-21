@@ -72,27 +72,31 @@ const TitleArea = ({ refetch, slideIndex }) => {
           />
         </Box>
         {/* Button group */}
-        <Box sx={{ display: "flex", gap: 1 }}>
-          {/* Collab view button */}
-          <BasicButton
-            variant="contained"
-            icon={<Groups />}
-            onClick={handleOpenCollabPopup}
-          >
-            Collaborator
-          </BasicButton>
-          {/* Start button */}
-          {presentation._id && presentation.slides.length > 0 ? (
-            <BasicButton
-              color="secondary"
-              variant="contained"
-              icon={<PlayCircleFilledWhite />}
-              onClick={() => handleOpenStartPopup()}
-            >
-              Start
-            </BasicButton>
-          ) : null}
-        </Box>
+        {presentation.isOwner ? (
+          <>
+            <Box sx={{ display: "flex", gap: 1 }}>
+              {/* Collab view button */}
+              <BasicButton
+                variant="contained"
+                icon={<Groups />}
+                onClick={handleOpenCollabPopup}
+              >
+                Collaborator
+              </BasicButton>
+              {/* Start button */}
+              {presentation._id && presentation.slides.length > 0 ? (
+                <BasicButton
+                  color="secondary"
+                  variant="contained"
+                  icon={<PlayCircleFilledWhite />}
+                  onClick={() => handleOpenStartPopup()}
+                >
+                  Start
+                </BasicButton>
+              ) : null}
+            </Box>
+          </>
+        ) : null}
       </Box>
       <div className="modal-area">
         {/* Edit title popup form */}

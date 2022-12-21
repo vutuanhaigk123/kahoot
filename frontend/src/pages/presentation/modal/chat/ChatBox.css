@@ -1,0 +1,15 @@
+.chat-view {
+  border: 1px solid #c4c4c4;
+  border-radius: 4px;
+  height: calc(100% - 80px);
+  margin-bottom: 16px;
+  padding: 16px;
+  overflow-y: scroll;
+  position: relative;
+}
+
+.scroll-button {
+  background: url("../../../../../public/Chat/chat-scrolldown.png") no-repeat;
+  background-size: contain;
+  left: 50%;
+}

@@ -170,7 +170,9 @@ const FailMsg = ({ msg, status }) => {
         <LinkOff sx={{ fontSize: "120px" }}></LinkOff>
       )}
 
-      <Typography variant="h5">{msg}</Typography>
+      <Typography variant="h5">
+        {status === 400 ? "Invalid link" : msg}
+      </Typography>
       <Button
         component={Link}
         to={PAGE_ROUTES.HOME}
