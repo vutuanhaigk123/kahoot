@@ -46,11 +46,18 @@ const PopupForm = ({
   });
   const { status, handleStatus } = useStatus();
   const onSubmit = async (data) => {
-    // Handle submit
-    const resp = await handlePost(api, {
+    // Handle data
+    const submitData = {
       ...otherField,
       [fieldName]: data.name
-    });
+    };
+    console.log(
+      "🚀 ~ file: PopupForm.jsx:51 ~ onSubmit ~ submitData",
+      submitData
+    );
+
+    // Handle submit
+    const resp = await handlePost(api, submitData);
     if (resp) {
       handleStatus(resp, successMsg);
 
@@ -59,7 +66,9 @@ const PopupForm = ({
       // Open popup message
       handleOpenMsg();
       // Refetch groups data
-      refetch();
+      if (refetch) {
+        refetch();
+      }
     } else {
       console.log(data);
     }

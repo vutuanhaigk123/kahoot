@@ -6,11 +6,16 @@ const useStatus = () => {
 
   const handleStatus = (resp, successMsg = "") => {
     if (resp.status !== 0) {
-      setStatus({ type: SUBMIT_STATUS.ERROR, msg: resp.message });
+      setStatus({
+        type: SUBMIT_STATUS.ERROR,
+        msg: resp.message,
+        status: resp.status
+      });
     } else {
       setStatus({
         type: SUBMIT_STATUS.SUCCESS,
-        msg: successMsg
+        msg: successMsg,
+        status: resp.status
       });
     }
   };

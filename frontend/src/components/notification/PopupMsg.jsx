@@ -63,7 +63,9 @@ const PopupMsg = ({
           ></CheckCircleRoundedIcon>
         )}
 
-        <Typography variant="h6">{children}</Typography>
+        <Typography variant="h6" textAlign="center">
+          {children}
+        </Typography>
         <DialogActions>
           {hasOk ? (
             <Button variant="contained" onClick={handleClose}>

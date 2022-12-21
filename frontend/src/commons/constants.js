@@ -31,7 +31,8 @@ export const PAGE_ROUTES = {
   SLIDES: "/slides",
   SLIDES_EDIT: "/slides/:id",
   SLIDES_PRESENT: "/presentation/owner/present",
-  SLIDES_JOIN: "/presentation/join"
+  SLIDES_JOIN: "/presentation/join",
+  RESET_PASSWORD: "/reset-password"
 };
 
 // API
@@ -62,7 +63,10 @@ export const API = {
   UPDATE_PRESENTATION: "/api/presentation/update",
   PRESENTATION_LIST_COLLAB: "/api/presentation/colab",
   PRESENTATION_ADD_COLLAB: "/api/presentation/add-colab",
-  PRESENTATION_DELETE_COLLAB: "/api/presentation/del-colab"
+  PRESENTATION_DELETE_COLLAB: "/api/presentation/del-colab",
+  FORGOT_PASSWORD: "/api/user/forgot-password",
+  VALIDATE_RESET_PASSWORD: "/api/user/validate-reset-password",
+  RESET_PASSWORD: "/api/user/reset-password"
 };
 
 export const WS_CMD = {

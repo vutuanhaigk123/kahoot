@@ -94,6 +94,12 @@ const SocketContextLayout = lazy(() =>
     new Promise((resolve) => setTimeout(resolve, DELAY_TIME))
   ]).then(([module]) => module)
 );
+const ResetPassPage = lazy(() =>
+  Promise.all([
+    import("./pages/authen/ResetPassPage"),
+    new Promise((resolve) => setTimeout(resolve, DELAY_TIME))
+  ]).then(([module]) => module)
+);
 
 function App() {
   const { user } = useSelector((state) => state.auth);
@@ -133,6 +139,15 @@ function App() {
               </Protected>
             }
           />
+          <Route
+            path={PAGE_ROUTES.RESET_PASSWORD}
+            element={
+              <Protected isLoggedIn={user?.data} isStopWhenLogon={true}>
+                <ResetPassPage />
+              </Protected>
+            }
+          />
+
           {/*================================= stop when logon ========================================*/}
 
           {/*================================= stop when NOT logon ====================================*/}

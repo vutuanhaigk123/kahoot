@@ -10,26 +10,20 @@ import { Link } from "react-router-dom";
 import BasicForm from "../../components/form/BasicForm";
 import FormHeader from "../../components/form/FormHeader";
 import FormContent from "../../components/form/FormContent";
-import FormButton from "../../components/button/FormButton";
 import PopupMsg from "../../components/notification/PopupMsg";
-import { PAGE_ROUTES, SUBMIT_STATUS } from "../../commons/constants";
+import { PAGE_ROUTES } from "../../commons/constants";
 import { useDispatch } from "react-redux";
 import { login } from "../../redux-toolkit/authSlice";
 import { API } from "../../commons/constants";
 import { useNavigate } from "react-router-dom";
 import { GoogleLogin } from "@react-oauth/google";
 import usePopup from "../../hooks/usePopup";
-import { Box } from "@mui/system";
 import PopupForm from "../../components/notification/PopupForm";
+import useStatus from "../../hooks/useStatus";
+import { handlePost } from "../../utils/fetch";
+import BasicButton from "../../components/button/BasicButton";
 
 const SignInPage = () => {
-  const { open, handleClosePopup, handleOpenPopup } = usePopup();
-  const {
-    open: openForgotPass,
-    handleClosePopup: handleCloseForgotPass,
-    handleOpenPopup: handleOpenForgotPass
-  } = usePopup();
-
   // Google login
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -59,7 +53,6 @@ const SignInPage = () => {
   }
 
   // Form
-  const [status, setStatus] = React.useState({});
   const schema = yup.object({
     email: yup.string().email("Email not valid").required("Required"),
     password: yup.string().required("Required")
@@ -71,57 +64,63 @@ const SignInPage = () => {
   } = useForm({
     resolver: yupResolver(schema)
   });
-  const onSubmit = async (data) => {
-    console.log("🚀 ~ file: SignInPage.jsx ~ line 71 ~ onSubmit ~ data", data);
-    try {
-      const resp = await axios.post(API.LOGIN, data);
-      console.log(
-        "🚀 ~ file: SignInPage.jsx ~ line 70 ~ onSubmit ~ resp",
-        resp
-      );
 
-      // Handle login failed
-      if (resp?.data?.status !== 0) {
-        setStatus({ type: SUBMIT_STATUS.ERROR, msg: resp.data.message });
-      } else {
-        setStatus({
-          type: SUBMIT_STATUS.SUCCESS,
-          msg: "Login success"
-        });
-        // Store data
-        dispatch(login(resp.data.data));
-      }
-      handleOpenPopup();
-    } catch (error) {
-      console.log(
-        "🚀 ~ file: SignInPage.jsx ~ line 90 ~ onSubmit ~ error",
-        error
-      );
+  // Handle login
+  const { status: loginStatus, handleStatus: handleLoginStatus } = useStatus();
+  const {
+    open: openLoginPopup,
+    handleClosePopup: handleCloseLoginPopup,
+    handleOpenPopup: handleOpenLoginPopup
+  } = usePopup();
+  const [isLogining, setIsLogining] = React.useState(false);
+  const onSubmit = async (data) => {
+    setIsLogining(true);
+    const resp = await handlePost(API.LOGIN, data);
+    console.log("🚀 ~ file: SignInPage.jsx:84 ~ onSubmit ~ resp", resp);
+
+    handleLoginStatus(resp);
+
+    // Store data
+    if (resp.status === 0) {
+      dispatch(login(resp.data));
     }
+    handleOpenLoginPopup();
+    setIsLogining(false);
   };
+
+  // Handle forgot pass
+  const {
+    open: openForgotPass,
+    handleClosePopup: handleCloseForgotPass,
+    handleOpenPopup: handleOpenForgotPass
+  } = usePopup();
 
   return (
     <BasicForm>
       {/* Modal */}
-      <Box>
+      <div className="login-modal">
+        {/* Login msg */}
         <PopupMsg
-          status={status.type}
-          isOpen={open}
-          handleClosePopup={handleClosePopup}
+          status={loginStatus.type}
+          isOpen={openLoginPopup}
+          handleClosePopup={handleCloseLoginPopup}
           navigateTo={PAGE_ROUTES.HOME}
+          hideOnSuccess={true}
         >
-          {status.msg}
+          {loginStatus.msg}
         </PopupMsg>
+        {/* Forgot password modal */}
         <PopupForm
           isOpen={openForgotPass}
           handleClose={handleCloseForgotPass}
-          // refetch={refetch}
-          // api={API.CREATE_GROUP}
+          api={API.FORGOT_PASSWORD}
           header="Please enter your email ?"
           label="Email"
+          fieldName="email"
           buttonLabel="Send"
+          successMsg="Please check your email if you have already register with this email"
         />
-      </Box>
+      </div>
       <form onSubmit={handleSubmit(onSubmit)}>
         <FormHeader title="Sign in"></FormHeader>
         <FormContent>
@@ -166,7 +165,13 @@ const SignInPage = () => {
             Forgot your password?
           </Typography>
           {/* Login button */}
-          <FormButton>Login</FormButton>
+          <BasicButton
+            type="submit"
+            sx={{ width: 190, height: 34 }}
+            loading={isLogining}
+          >
+            Login
+          </BasicButton>
           {/* Continue as google */}
           <GoogleLogin
             text="continue_with"
