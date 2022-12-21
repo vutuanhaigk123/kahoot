@@ -67,6 +67,22 @@ const matches = new HashMap();
 const STATE_LOBBY_CODE = 1;
 const STATE_LEADERBOARD_CODE = 2;
 
+function hideUidVotedQues(quesHistory) {
+  const questions = [];
+  quesHistory.forEach((ques) => {
+    questions.push({ ...ques, upVotes: ques.upVotes.length });
+  });
+  return questions;
+}
+
+function assignUpVotedQuesOrNot(userId, quesHistory) {
+  const questions = [];
+  quesHistory.forEach((ques) => {
+    questions.push({ ...ques, isVoted: ques.upVotes.includes(userId) });
+  });
+  return questions;
+}
+
 function compareScore(memberA, memberB) {
   return memberA.score - memberB.score;
 }
@@ -258,11 +274,14 @@ export default {
     const questionIndex = hasQuestion(matchInfo.questions, matchInfo.curQues);
     const isEnd = questionIndex >= matchInfo.questions.length - 1;
     const isFirst = questionIndex === 0;
+
     return {
       curState: matchInfo.curState,
       curQues,
       chatHistory: matchInfo.comments,
-      quesHistory: matchInfo.userQuestions,
+      quesHistory: hideUidVotedQues(
+        assignUpVotedQuesOrNot(userId, matchInfo.userQuestions)
+      ),
       data,
       joinedUser,
       isEnd,
@@ -431,5 +450,9 @@ export default {
       quesId,
       matches.get(roomId)
     );
+  },
+
+  doUpVoteQues(userId, roomId, quesId) {
+    return QuestionModel.doUpVoteQues(userId, quesId, matches.get(roomId));
   }
 };

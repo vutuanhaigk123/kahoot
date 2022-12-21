@@ -67,9 +67,21 @@ const OwnerQuestionModal = ({ isOpen, handleClosePopup, toggleNotify }) => {
         }
       });
 
+      socketContext.on(WS_EVENT.RECEIVE_UPVOTE_QUESTION_EVENT, (arg) => {
+        console.log("upvote", arg);
+        const quesHisTmp = [...quesHistory];
+        const ques = quesHisTmp.find((question) => question.id === arg);
+        if (ques) {
+          console.log(ques);
+          ques.upVotes += 1;
+          setQuesHistory(quesHisTmp);
+        }
+      });
+
       return () => {
         socketContext.off(WS_EVENT.RECEIVE_QUESTION_EVENT);
         socketContext.off(WS_EVENT.RECEIVE_MARK_QUES_ANSWERED_EVENT);
+        socketContext.off(WS_EVENT.RECEIVE_UPVOTE_QUESTION_EVENT);
       };
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -174,7 +186,9 @@ const OwnerQuestionModal = ({ isOpen, handleClosePopup, toggleNotify }) => {
                       sx={{ display: "flex", alignItems: "center", gap: "2px" }}
                     >
                       <ThumbUpOffAlt />
-                      <Typography variant="subtitle1">{5}</Typography>
+                      <Typography variant="subtitle1">
+                        {item.upVotes && item.upVotes > 0 ? item.upVotes : ""}
+                      </Typography>
                     </Box>
                   </Box>
                   <Typography variant="caption">

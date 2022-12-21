@@ -34,5 +34,18 @@ export default {
       }
     }
     return false;
+  },
+
+  doUpVoteQues(userId, quesId, matchInfo) {
+    if (matchInfo && userId !== matchInfo.owner) {
+      const quesInfo = matchInfo.userQuestions.find(
+        (userQues) => userQues.id === quesId
+      );
+      if (quesInfo && !quesInfo.upVotes.includes(userId)) {
+        quesInfo.upVotes.push(userId);
+        return true;
+      }
+    }
+    return false;
   }
 };

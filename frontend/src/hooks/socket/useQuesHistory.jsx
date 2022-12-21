@@ -38,9 +38,22 @@ const useQuesHistory = (socketContext) => {
           setQuesHistory(quesHisTmp);
         }
       });
+
+      socketContext.on(WS_EVENT.RECEIVE_UPVOTE_QUESTION_EVENT, (arg) => {
+        console.log("upvote", arg);
+        const quesHisTmp = [...quesHistory];
+        const ques = quesHisTmp.find((question) => question.id === arg);
+        if (ques) {
+          console.log(ques);
+          ques.upVotes += 1;
+          setQuesHistory(quesHisTmp);
+        }
+      });
+
       return () => {
         socketContext.off(WS_EVENT.RECEIVE_QUESTION_EVENT);
         socketContext.off(WS_EVENT.RECEIVE_MARK_QUES_ANSWERED_EVENT);
+        socketContext.off(WS_EVENT.RECEIVE_UPVOTE_QUESTION_EVENT);
       };
     }
   }, [quesHistory, socketContext]);
