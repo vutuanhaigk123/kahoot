@@ -25,7 +25,7 @@ const PresentationListPage = () => {
       <Box
         sx={{
           margin: "auto",
-          width: "70%",
+          width: "50%",
           gap: 2,
           display: "flex",
           flexDirection: "column"

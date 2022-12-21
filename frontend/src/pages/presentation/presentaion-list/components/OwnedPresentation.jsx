@@ -58,7 +58,7 @@ const OwnedPresentation = () => {
             display: "flex",
             justifyContent: "center",
             flexDirection: "column",
-            width: "70%",
+            width: "100%",
             margin: "auto",
             gap: 2
           }}

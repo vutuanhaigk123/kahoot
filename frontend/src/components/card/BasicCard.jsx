@@ -1,5 +1,4 @@
 import React from "react";
-import { Link } from "react-router-dom";
 import {
   Card,
   CardContent,
@@ -14,9 +13,11 @@ import {
 import { Delete, Groups, Menu as MenuIcon } from "@mui/icons-material";
 import useUserPopup from "./../../hooks/popup/useUserPopup";
 import { iconButton } from "./../../commons/globalStyles";
+import { useNavigate } from "react-router-dom";
 
 const BasicCard = ({ data, navigateTo }) => {
   const { anchorEl, handleCloseMenu, handleOpenMenu } = useUserPopup();
+  const navigate = useNavigate();
   const open = Boolean(anchorEl);
   const options = [
     { link: navigateTo, text: "View", icon: <Groups /> },
@@ -50,9 +51,12 @@ const BasicCard = ({ data, navigateTo }) => {
         {options.map((option) => (
           <MenuItem
             key={option.text}
-            component={Link}
-            to={option.link}
-            onClick={handleCloseMenu}
+            onClick={() => {
+              handleCloseMenu();
+              setTimeout(() => {
+                navigate(option.link);
+              }, 100);
+            }}
           >
             <ListItemIcon>{option.icon}</ListItemIcon>
             <ListItemText>{option.text}</ListItemText>

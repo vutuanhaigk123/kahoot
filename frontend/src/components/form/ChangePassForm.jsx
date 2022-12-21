@@ -66,7 +66,7 @@ const ChangePassForm = () => {
       sx={{
         margin: "auto",
         p: 2,
-        width: "60%",
+        width: "100%",
         textAlign: "center"
       }}
     >

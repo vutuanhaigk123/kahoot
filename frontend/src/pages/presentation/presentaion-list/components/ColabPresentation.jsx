@@ -23,6 +23,10 @@ const ColabPresentation = () => {
   const { isLoading, error, data } = useQuery("presentationListColab", () =>
     handleGet(API.PRESENTATION_LIST_COLLAB)
   );
+  console.log(
+    "🚀 ~ file: ColabPresentation.jsx:24 ~ ColabPresentation ~ data",
+    data
+  );
 
   if (error) return "An error has occurred: " + error.message;
 
@@ -37,7 +41,7 @@ const ColabPresentation = () => {
             display: "flex",
             justifyContent: "center",
             flexDirection: "column",
-            width: "70%",
+            width: "100%",
             margin: "auto",
             gap: 2
           }}
@@ -47,7 +51,7 @@ const ColabPresentation = () => {
           {data?.info?.length > 0 ? (
             data.info.map((item) => (
               <Card
-                key={item._id}
+                key={item.id}
                 sx={{
                   display: "flex",
                   width: "100%",
@@ -77,7 +81,7 @@ const ColabPresentation = () => {
                     <Typography variant="h5">{item.title}</Typography>
                     <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
                       <Avatar></Avatar>
-                      <Typography variant="h7">ten ng</Typography>
+                      <Typography variant="h7">{item.ownerName}</Typography>
                     </Box>
                   </Box>
                 </Box>
@@ -98,7 +102,7 @@ const ColabPresentation = () => {
                       icon={<Edit />}
                       variant="contained"
                       onClick={() =>
-                        navigate(PAGE_ROUTES.PRESENTATION + `/${item._id}`)
+                        navigate(PAGE_ROUTES.PRESENTATION + `/${item.id}`)
                       }
                     >
                       Edit

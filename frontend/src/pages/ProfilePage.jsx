@@ -19,7 +19,6 @@ const ProfilePage = () => {
   };
 
   const {
-    isLoading,
     error: userInfoErr,
     data: userInfo,
     refetch
@@ -40,7 +39,7 @@ const ProfilePage = () => {
       <Box
         sx={{
           margin: "auto",
-          width: "50%",
+          width: "40%",
           gap: 2,
           display: "flex",
           flexDirection: "column"

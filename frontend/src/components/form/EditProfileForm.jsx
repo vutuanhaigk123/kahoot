@@ -75,7 +75,7 @@ const EditProfileForm = ({ userInfo, refetch }) => {
       sx={{
         margin: "auto",
         p: 2,
-        width: "70%"
+        width: "100%"
       }}
     >
       <PopupMsg

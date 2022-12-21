@@ -54,8 +54,10 @@ const Header = () => {
       await axios.post(API.LOGOUT);
 
       dispatch(logout());
-      navigate(PAGE_ROUTES.LOGIN);
       handleCloseUserMenu();
+      setTimeout(() => {
+        navigate(PAGE_ROUTES.LOGIN);
+      }, 1000);
     } catch (error) {
       console.log(
         "🚀 ~ file: Header.jsx ~ line 47 ~ handleSignOut ~ error",
@@ -174,9 +176,12 @@ const Header = () => {
               {settings.map((setting) => (
                 <MenuItem
                   key={setting.link}
-                  component={Link}
-                  to={`${setting.link}`}
-                  onClick={handleCloseUserMenu}
+                  onClick={() => {
+                    handleCloseUserMenu();
+                    setTimeout(() => {
+                      navigate(setting.link);
+                    }, 100);
+                  }}
                 >
                   <ListItemIcon>{setting.icon}</ListItemIcon>
                   <ListItemText>{setting.text}</ListItemText>
