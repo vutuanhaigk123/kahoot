@@ -46,7 +46,7 @@ const PresentationEditPage = () => {
               slideIndex={slideIndex}
               wrap="nowrap"
             ></TitleArea>
-            <Grid container columnGap={2}>
+            <Grid container columnSpacing={{ xs: 2 }}>
               {/* Left side bar */}
               <Grid item xs={2}>
                 <SideBar

@@ -4,7 +4,7 @@ import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
 import { handlePost } from "../../../../utils/fetch";
-import { API } from "../../../../commons/constants";
+import { API, questionType } from "../../../../commons/constants";
 import {
   Dialog,
   DialogContent,
@@ -16,14 +16,21 @@ import TextBox from "../../../../components/input/TextBox";
 import BasicButton from "../../../../components/button/BasicButton";
 import PopupMsg from "../../../../components/notification/PopupMsg";
 import useStatus from "../../../../hooks/useStatus";
-import SelectField from "./../../../../components/input/SelectField";
 import { useParams } from "react-router-dom";
 import Transition from "./../../modal/components/Transition";
 
 const options = [
   {
-    value: 0,
+    value: questionType.MULTIPLE_CHOICE,
     label: "Multiple choice"
+  },
+  {
+    value: questionType.HEADING,
+    label: "Heading"
+  },
+  {
+    value: questionType.PARAGRAPH,
+    label: "Paragraph"
   }
 ];
 
@@ -41,6 +48,7 @@ const CreateSlideForm = ({ isOpen, handleClose, refetch }) => {
   const {
     handleSubmit,
     control,
+    reset,
     formState: { errors }
   } = useForm({
     resolver: yupResolver(schema)
@@ -48,20 +56,47 @@ const CreateSlideForm = ({ isOpen, handleClose, refetch }) => {
 
   const { status, handleStatus } = useStatus();
   const { id: presentationId } = useParams();
+  const [isCreating, setIsCreating] = React.useState(false);
   const onSubmit = async (data) => {
+    setIsCreating(true);
     // Process data
     data.presentationId = presentationId;
 
     // Handle submit
-    const resp = await handlePost(API.CREATE_SLIDE, data);
-    handleStatus(resp, "");
+    console.log(data);
+    var resp = null;
+    switch (data.type) {
+      case questionType.MULTIPLE_CHOICE:
+        resp = await handlePost(API.CREATE_SLIDE, data);
 
+        break;
+      case questionType.HEADING:
+        // resp = await handlePost(API.CREATE_SLIDE, data);
+        break;
+      case questionType.PARAGRAPH:
+        // resp = await handlePost(API.CREATE_SLIDE, data);
+        break;
+
+      default:
+        console.log("Incorrect question type");
+        break;
+    }
+
+    //  Handle resp status
+    if (resp) {
+      console.log("handle");
+      handleStatus(resp);
+    }
+
+    // Open error popup message if exist
+    handleOpenMsg();
+    // Refetch slides data
+    refetch();
     // Close current popup form
     handleClose();
-    // Open popup message
-    handleOpenMsg();
-    // Refetch groups data
-    refetch();
+    reset();
+
+    setIsCreating(false);
   };
 
   return (
@@ -71,34 +106,39 @@ const CreateSlideForm = ({ isOpen, handleClose, refetch }) => {
         open={isOpen}
         onClose={handleClose}
         TransitionComponent={Transition}
+        fullWidth
+        maxWidth="sm"
       >
         <DialogTitle>Slide options</DialogTitle>
-        <DialogContent style={{ paddingTop: "10px" }}>
-          <form onSubmit={handleSubmit(onSubmit)}>
+        <DialogContent sx={{ pb: 1 }}>
+          <form onSubmit={handleSubmit(onSubmit)} style={{ paddingTop: 10 }}>
             <TextBox
               label="Question"
               type="text"
-              helperText={errors.question ? errors.question.message : " "}
+              helperText={errors.question ? errors.question.message : ""}
               name="question"
               control={control}
             />
-            <SelectField
+            <TextBox
               label="Question's type"
               select
-              // helperText={errors.question ? errors.question.message : " "}
               defaultValue={options[0].value}
               name="type"
               control={control}
+              fullWidth
+              sx={{ mt: 2 }}
             >
               {options.map((option) => (
                 <MenuItem key={option.value} value={option.value}>
                   {option.label}
                 </MenuItem>
               ))}
-            </SelectField>
+            </TextBox>
             <DialogActions sx={{ justifyContent: "center" }}>
               <BasicButton onClick={handleClose}>Cancel</BasicButton>
-              <BasicButton type="submit">Create</BasicButton>
+              <BasicButton type="submit" loading={isCreating}>
+                Create
+              </BasicButton>
             </DialogActions>
           </form>
         </DialogContent>

@@ -2,16 +2,16 @@ import React from "react";
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import useStatus from "../../../../hooks/useStatus";
-import usePopup from "../../../../hooks/usePopup";
-import { handlePost } from "../../../../utils/fetch";
-import { API } from "../../../../commons/constants";
+import useStatus from "../../../../../hooks/useStatus";
+import usePopup from "../../../../../hooks/usePopup";
+import { handlePost } from "../../../../../utils/fetch";
 import { Box, CircularProgress, IconButton, Typography } from "@mui/material";
 import { Edit, SaveAs } from "@mui/icons-material";
 import { grey } from "@mui/material/colors";
-import TextBox from "../../../../components/input/TextBox";
-import PopupMsg from "../../../../components/notification/PopupMsg";
-import useToggle from "../../../../hooks/useToggle";
+import TextBox from "../../../../../components/input/TextBox";
+import PopupMsg from "../../../../../components/notification/PopupMsg";
+import useToggle from "../../../../../hooks/useToggle";
+import { useSelector } from "react-redux";
 
 const iconButton = {
   bgcolor: grey[300],
@@ -20,10 +20,21 @@ const iconButton = {
   p: "5px"
 };
 
-const QuestionContainer = ({ presentation, slideIndex, refetch }) => {
+const EditableTextBox = ({
+  slideIndex,
+  refetch,
+  title,
+  otherField,
+  fieldName,
+  api,
+  defaultValue,
+  placeholder,
+  isMultiline = false
+}) => {
+  const presentation = useSelector((state) => state.presentation);
   // Form
   const schema = yup.object({
-    question: yup.string().required("Required")
+    question: yup.string().trim().required("Required")
   });
   const {
     handleSubmit,
@@ -45,11 +56,13 @@ const QuestionContainer = ({ presentation, slideIndex, refetch }) => {
     setIsEdit((prv) => !prv);
   };
   const onSubmit = async (data) => {
-    // Add more data to post
-    data.presentationId = presentation._id;
-    data.slideId = presentation.slides[slideIndex]._id;
-    const resp = await handlePost(API.UPDATE_SLIDE, data);
-    console.log("🚀 ~ file: QuestionContainer.jsx:52 ~ onSubmit ~ resp", resp);
+    // Handle data
+    const submitData = {
+      ...otherField,
+      [fieldName]: data.question
+    };
+    const resp = await handlePost(api, submitData);
+    console.log("🚀 ~ file: EditableTextBox.jsx:62 ~ onSubmit ~ resp", resp);
 
     handleStatus(resp); // update popup msg status
     handleOpenPopup(); // Open popup
@@ -60,17 +73,17 @@ const QuestionContainer = ({ presentation, slideIndex, refetch }) => {
 
   React.useEffect(() => {
     if (presentation._id && presentation.slides.length > 0) {
-      reset({ question: presentation.slides[slideIndex].question });
+      reset({ question: presentation.slides[slideIndex][fieldName] });
     }
-  }, [presentation, reset, slideIndex]);
+  }, [fieldName, presentation, reset, slideIndex]);
 
   return (
     <>
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form onSubmit={handleSubmit(onSubmit)} style={{ marginBottom: 20 }}>
         {/* Question */}
         <Box sx={{ display: "flex", gap: 1 }}>
           <Typography variant="h6" fontWeight="bold">
-            Your question
+            {title}
           </Typography>
           {isEdit ? (
             <Box sx={{ position: "relative" }}>
@@ -126,14 +139,15 @@ const QuestionContainer = ({ presentation, slideIndex, refetch }) => {
         >
           <TextBox
             size="small"
-            placeholder="Enter your question"
-            helperText={errors.question ? errors.question.message : " "}
-            defaultValue={
-              presentation._id ? presentation.slides[slideIndex].question : ""
-            }
+            placeholder={placeholder}
+            helperText={errors.question ? errors.question.message : ""}
+            defaultValue={defaultValue}
             name="question"
             control={control}
             disabled={disabled}
+            multiline={isMultiline}
+            maxRows={isMultiline ? 6 : null}
+            fullWidth
           ></TextBox>
         </Box>
       </form>
@@ -150,4 +164,4 @@ const QuestionContainer = ({ presentation, slideIndex, refetch }) => {
   );
 };
 
-export default QuestionContainer;
+export default EditableTextBox;

@@ -9,13 +9,7 @@ import { API } from "../../../../commons/constants";
 import useStatus from "../../../../hooks/useStatus";
 import { handlePost } from "../../../../utils/fetch";
 import PopupMsg from "../../../../components/notification/PopupMsg";
-
-const iconButton = {
-  bgcolor: grey[300],
-  borderRadius: "50%",
-  color: "black",
-  p: "2px"
-};
+import { iconButton, iconHover } from "../../../../commons/globalStyles";
 
 const SideBar = ({ refetch, setSlideIndex, slideIndex }) => {
   const { open, handleOpenPopup, handleClosePopup } = usePopup();
@@ -80,13 +74,10 @@ const SideBar = ({ refetch, setSlideIndex, slideIndex }) => {
                     fontSize: "15px",
                     position: "absolute",
                     top: 5,
-                    right: 5,
-                    "&:hover": {
-                      bgcolor: "error.main",
-                      color: "white"
-                    }
+                    right: 5
                   },
-                  iconButton
+                  iconButton,
+                  iconHover("error.main")
                 ]}
                 onClick={() => handleDelete(slide._id)}
               />

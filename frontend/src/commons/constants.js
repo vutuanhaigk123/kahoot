@@ -139,5 +139,7 @@ export const NUM_TO_ROLE = {
 };
 
 export const questionType = {
-  MULTIPLE_CHOICE: 0
+  MULTIPLE_CHOICE: 0,
+  HEADING: 1,
+  PARAGRAPH: 2
 };

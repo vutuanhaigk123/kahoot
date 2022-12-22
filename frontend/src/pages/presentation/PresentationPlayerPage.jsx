@@ -59,9 +59,7 @@ const PresentationPlayerPage = () => {
           }}
         >
           {question ? (
-            <Typography variant="h4" sx={{ mb: 5 }}>
-              {question.question}
-            </Typography>
+            <Typography variant="h4">{question.question}</Typography>
           ) : null}
 
           {isVoted ? (
@@ -86,10 +84,11 @@ const PresentationPlayerPage = () => {
                   p: 2,
                   borderRadius: 1,
                   borderColor: grey[300],
-                  display: "flex",
+                  display: question.answers.length > 0 ? "flex" : "none",
                   flexDirection: "column",
                   gap: 2,
-                  width: "90%"
+                  width: "90%",
+                  mt: 2
                 }}
               >
                 {/* Options list */}
