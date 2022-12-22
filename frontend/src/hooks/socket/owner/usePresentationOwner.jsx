@@ -33,7 +33,13 @@ const handleSendComment = (ws, data) => {
   }
 };
 
-const usePresentationOwner = (socketContext, setSocketContext, id, slide) => {
+const usePresentationOwner = (
+  socketContext,
+  setSocketContext,
+  id,
+  slide,
+  group
+) => {
   // Socket context state
   // To-do: slide id and presentation id needed
   const [ws, setWs] = React.useState(null);
@@ -78,11 +84,15 @@ const usePresentationOwner = (socketContext, setSocketContext, id, slide) => {
   // Handle event
   React.useEffect(() => {
     if (socketContext) {
-      socketContext.emit(WS_EVENT.INIT_CONNECTION_EVENT, {
+      const initPackage = {
         cmd: WS_CMD.CREATE_ROOM_CMD,
         room: id,
         slide
-      });
+      };
+      if (group && group.trim().length > 0) {
+        initPackage.group = group.trim();
+      }
+      socketContext.emit(WS_EVENT.INIT_CONNECTION_EVENT, initPackage);
 
       socketContext.on(WS_EVENT.INIT_CONNECTION_EVENT, (arg) => {
         setIsConnected(true);
@@ -116,20 +126,6 @@ const usePresentationOwner = (socketContext, setSocketContext, id, slide) => {
         }
       });
 
-      // socketContext.on(WS_EVENT.RECEIVE_CMT_EVENT, (arg) => {
-      //   console.log(
-      //     "=====================Another member has commented====================="
-      //   );
-      //   console.log(arg);
-      // });
-
-      // socketContext.on(WS_EVENT.RECEIVE_QUESTION_EVENT, (arg) => {
-      //   console.log(
-      //     "=====================Another member has commented====================="
-      //   );
-      //   console.log(arg);
-      // });
-
       socketContext.on(WS_CLOSE.CLOSE_REASON, (arg) => {
         console.log(
           "================= Closing connection signal from server ======================",
@@ -148,10 +144,13 @@ const usePresentationOwner = (socketContext, setSocketContext, id, slide) => {
           case WS_CLOSE.REASON_SELF_HOSTED_PRESENTATION:
             setMsgClose("You can not join to self hosted presentation to vote");
             break;
+          case WS_CLOSE.REASON_INVALID_CMD:
+            setMsgClose("Invalid to present this presentation");
+            break;
           case WS_CLOSE.REASON_SLIDE_HAS_NO_ANS:
             console.log("slide has no answer");
           // eslint-disable-next-line no-fallthrough
-          case WS_CLOSE.REASON_INVALID_CMD:
+
           default:
             setMsgClose("Unknown Server Error");
             break;

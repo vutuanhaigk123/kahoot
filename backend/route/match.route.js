@@ -18,8 +18,7 @@ import presentationListerner from "../listener/presentation.listerner.js";
 import questionListener from "../listener/question.listener.js";
 import commentListener from "../listener/comment.listener.js";
 import userModel from "../model/user.model.js";
-
-const matchingQueue = [];
+import GroupModel from "../model/group.model.js";
 
 function getUidFromWs(socket) {
   if (socket.handshake.headers.cookie) {
@@ -66,7 +65,7 @@ function sendUnknownCommand(userId) {
   return SocketModel.removeSocketConn(userId);
 }
 
-async function sendDataToOwner(socket, userId, room, slide) {
+async function sendDataToOwner(socket, userId, room, slide, group) {
   if (!(await hasContent(userId, room, slide))) {
     // send have no present permission
     SocketModel.sendEvent(
@@ -79,7 +78,13 @@ async function sendDataToOwner(socket, userId, room, slide) {
     return;
   }
   // join or create room
-  const result = await MatchModel.joinMatch(userId, true, room, slide);
+  const result = await MatchModel.joinMatch(
+    userId,
+    true,
+    room,
+    slide,
+    group || null
+  );
   if (result) {
     const {
       curState,
@@ -119,7 +124,6 @@ async function sendDataToOwner(socket, userId, room, slide) {
 async function sendDataToPlayer(socket, userId, room, slide) {
   // join or create room
   const result = await MatchModel.joinMatch(userId, false, room, slide);
-  // console.log(result);
   if (result) {
     const {
       curState,
@@ -146,12 +150,12 @@ async function sendDataToPlayer(socket, userId, room, slide) {
   SocketModel.removeSocketConn(userId);
 }
 
-async function sendInitData(socket, room, cmd, slide) {
+async function sendInitData(socket, room, cmd, slide, group) {
   const userId = getUidFromWs(socket);
 
   switch (cmd) {
     case EventModel.CREATE_ROOM:
-      await sendDataToOwner(socket, userId, room, slide);
+      await sendDataToOwner(socket, userId, room, slide, group);
       break;
     case EventModel.JOIN_ROOM:
       await sendDataToPlayer(socket, userId, room, slide);
@@ -174,31 +178,40 @@ export default async (path, ws) => {
     let cmdId = null;
     let slideId = null;
 
-    socket.on(EventModel.INIT_CONNECTION, async ({ cmd, slide, room }) => {
-      // middleware: stop when: invalid cmd || invalid room || invalid slide
-      if (await AuthenMw.isStopWhenInvalidQuery(cmd, slide, room)) {
-        socket.emit(EventModel.CLOSE_REASON, EventModel.REASON_INVALID_CMD);
-        socket.disconnect(true);
-        return;
+    socket.on(
+      EventModel.INIT_CONNECTION,
+      async ({ cmd, slide, room, group }) => {
+        console.log("group = ", group);
+        // middleware: stop when: invalid cmd || invalid room || invalid slide
+        if (await AuthenMw.isStopWhenInvalidQuery(cmd, slide, room)) {
+          socket.emit(EventModel.CLOSE_REASON, EventModel.REASON_INVALID_CMD);
+          socket.disconnect(true);
+          return;
+        }
+        if (group && !(await GroupModel.isGroupOwner(userId, group))) {
+          socket.emit(EventModel.CLOSE_REASON, EventModel.REASON_INVALID_CMD);
+          socket.disconnect(true);
+          return;
+        }
+        roomId = room;
+        cmdId = cmd;
+        slideId = slide;
+
+        if (!initConnection(socket, room, cmd)) {
+          socket.disconnect(true);
+        }
+
+        console.log("Connected");
+
+        await sendInitData(socket, room, cmdId, slideId, group);
+
+        const { name, avt } = await userModel.getNameAndAvt(userId);
+
+        presentationListerner(ws, socket, userId, cmdId, roomId, slideId);
+        questionListener(ws, socket, userId, name, avt, cmdId, roomId, slideId);
+        commentListener(ws, socket, userId, name, avt, cmdId, roomId, slideId);
       }
-      roomId = room;
-      cmdId = cmd;
-      slideId = slide;
-
-      if (!initConnection(socket, room, cmd)) {
-        socket.disconnect(true);
-      }
-
-      console.log("Connected");
-
-      await sendInitData(socket, room, cmdId, slideId);
-
-      const { name, avt } = await userModel.getNameAndAvt(userId);
-
-      presentationListerner(ws, socket, userId, cmdId, roomId, slideId);
-      questionListener(ws, socket, userId, name, avt, cmdId, roomId, slideId);
-      commentListener(ws, socket, userId, name, avt, cmdId, roomId, slideId);
-    });
+    );
 
     socket.on("error", (err) => {
       console.log("error: ", err);

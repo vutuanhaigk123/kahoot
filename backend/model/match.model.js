@@ -8,6 +8,7 @@
 import HashMap from "hashmap";
 import CommentModel from "./comment.model.js";
 import EventModel from "./event.model.js";
+import groupModel from "./group.model.js";
 import QuestionModel from "./question.model.js";
 import SlideModel from "./slide.model.js";
 import SocketModel from "./socket.model.js";
@@ -21,6 +22,7 @@ const matches = new HashMap();
       timeout: timeoutDelete,
       curState: (lobby) || (leaderboard),
       curQues: question id,
+      groupId: String || null,
       members: [{
         id: userId,
         picture: "picture link",
@@ -130,6 +132,7 @@ function initMatch(
   ownerId,
   questions,
   slideId,
+  groupId = null,
   comments = [],
   userQuestions = [],
   answers = [],
@@ -159,6 +162,7 @@ function initMatch(
     members,
     curState: STATE_LOBBY_CODE,
     curQues: slideId || questionsTmp[0].id,
+    groupId,
     owner: ownerId,
     comments,
     userQuestions,
@@ -196,6 +200,20 @@ function getQuestion(questions, questionId) {
   return questions[index];
 }
 
+async function isGroupMember(userId, matchInfo) {
+  if (matchInfo && matchInfo.groupId !== null) {
+    if (!(await groupModel.isGroupMember(userId, matchInfo.groupId))) {
+      SocketModel.sendEvent(
+        userId,
+        EventModel.CLOSE_REASON,
+        EventModel.REASON_NOT_FOUND_CONTENT
+      );
+      return false;
+    }
+  }
+  return true;
+}
+
 export default {
   STATE_LOBBY: STATE_LOBBY_CODE,
   STATE_LEADERBOARD: STATE_LEADERBOARD_CODE,
@@ -205,9 +223,12 @@ export default {
     return [...members];
   },
 
-  async joinMatch(userId, hasPresentPermission, roomId, slideId) {
+  async joinMatch(userId, hasPresentPermission, roomId, slideId, group = null) {
     let matchInfo = matches.get(roomId);
     let joinedUser = null;
+    if (!(await isGroupMember(userId, matchInfo))) {
+      return null;
+    }
     if (!matchInfo) {
       switch (hasPresentPermission) {
         // if userId has present permission and not init match:
@@ -217,7 +238,7 @@ export default {
             if (!questions) {
               return null;
             }
-            matchInfo = initMatch(roomId, userId, questions, slideId);
+            matchInfo = initMatch(roomId, userId, questions, slideId, group);
             matches.set(roomId, matchInfo);
 
             console.log("init new match");
@@ -274,6 +295,7 @@ export default {
         userId,
         questions,
         matchInfo.curQues,
+        matchInfo.groupId,
         matchInfo.comments,
         matchInfo.userQuestions,
         matchInfo.answers,

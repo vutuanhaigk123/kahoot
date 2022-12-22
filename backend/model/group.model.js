@@ -1,3 +1,4 @@
+/* eslint-disable import/no-cycle */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable import/extensions */
 /* eslint-disable no-console */
@@ -316,5 +317,25 @@ export default {
       );
     }
     return result;
+  },
+
+  async isGroupOwner(userId, groupId) {
+    const res = await UserGroups.findOne({
+      _id: userId,
+      created_groups: groupId
+    })
+      .select({ _id: 1 })
+      .exec();
+    return res !== null;
+  },
+
+  async isGroupMember(userId, groupId) {
+    const res = await UserGroups.findOne({
+      _id: userId,
+      joined_groups: groupId
+    })
+      .select({ _id: 1 })
+      .exec();
+    return res !== null;
   }
 };

@@ -41,6 +41,7 @@ const PresentationOwnerPage = () => {
   const [searchParam] = useSearchParams();
   const id = searchParam.get("id");
   const slide = searchParam.get("slide");
+  const group = searchParam.get("group");
 
   const { value: isNotify, toggleValue: toggleNotify } = useToggle(false);
   const { value: isNotifyQues, toggleValue: toggleNotifyQues } =
@@ -60,7 +61,7 @@ const PresentationOwnerPage = () => {
     question,
     handleNextSlide,
     handlePrevSlide
-  } = usePresentationOwner(socketContext, setSocketContext, id, slide);
+  } = usePresentationOwner(socketContext, setSocketContext, id, slide, group);
 
   return (
     <BackgroundContainer>
