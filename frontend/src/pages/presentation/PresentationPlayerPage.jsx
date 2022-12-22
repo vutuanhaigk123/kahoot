@@ -43,7 +43,7 @@ const PresentationPlayerPage = () => {
 
   return (
     <BackgroundContainer>
-      {ws && question ? (
+      {ws && (question || isVoted) ? (
         <Paper
           elevation={10}
           sx={{
@@ -58,9 +58,11 @@ const PresentationPlayerPage = () => {
             m: "auto"
           }}
         >
-          <Typography variant="h4" sx={{ mb: 5 }}>
-            {question.question}
-          </Typography>
+          {question ? (
+            <Typography variant="h4" sx={{ mb: 5 }}>
+              {question.question}
+            </Typography>
+          ) : null}
 
           {isVoted ? (
             <Box

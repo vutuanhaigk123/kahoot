@@ -63,9 +63,42 @@ const matches = new HashMap();
       
     }
 */
+const isTesting = false;
 
 const STATE_LOBBY_CODE = 1;
 const STATE_LEADERBOARD_CODE = 2;
+
+function sendMoveSlideEventForEachUser(
+  matchInfo,
+  curQues,
+  questionIndex,
+  eventName
+) {
+  const index = matchInfo.answers.findIndex(
+    (question) => question.id === matchInfo.curQues
+  );
+  if (!isTesting && index !== -1) {
+    const ans = matchInfo.answers[index];
+    matchInfo.members.forEach(({ id }) => {
+      SocketModel.sendEvent(id, eventName, {
+        curQues,
+        isVoted: ans.data.get(id) !== null
+      });
+    });
+    const customData = {
+      curState: matchInfo.curState,
+      curQues
+    };
+    if (eventName === EventModel.RECEIVE_NEXT_SLIDE_EVENT) {
+      customData.isEnd = questionIndex >= matchInfo.questions.length - 1;
+    } else if (eventName === EventModel.RECEIVE_PREV_SLIDE_EVENT) {
+      customData.isFirst = questionIndex === 0;
+    }
+    SocketModel.sendEvent(matchInfo.owner, eventName, customData);
+    return true;
+  }
+  return false;
+}
 
 function hideUidVotedQues(quesHistory) {
   const questions = [];
@@ -98,7 +131,9 @@ function initMatch(
   questions,
   slideId,
   comments = [],
-  userQuestions = []
+  userQuestions = [],
+  answers = [],
+  members = []
 ) {
   const questionsTmp = [];
   questions.forEach((eachQuestion) => {
@@ -121,14 +156,14 @@ function initMatch(
   return {
     roomId,
     timeout: null,
-    members: [],
+    members,
     curState: STATE_LOBBY_CODE,
-    curQues: slideId,
+    curQues: slideId || questionsTmp[0].id,
     owner: ownerId,
     comments,
     userQuestions,
     questions: questionsTmp,
-    answers: []
+    answers
   };
 }
 
@@ -240,7 +275,9 @@ export default {
         questions,
         matchInfo.curQues,
         matchInfo.comments,
-        matchInfo.userQuestions
+        matchInfo.userQuestions,
+        matchInfo.answers,
+        matchInfo.members
       );
       matches.set(roomId, matchInfo);
       console.log("delete timeout");
@@ -275,7 +312,7 @@ export default {
     const isEnd = questionIndex >= matchInfo.questions.length - 1;
     const isFirst = questionIndex === 0;
 
-    return {
+    const result = {
       curState: matchInfo.curState,
       curQues,
       chatHistory: matchInfo.comments,
@@ -285,8 +322,21 @@ export default {
       data,
       joinedUser,
       isEnd,
-      isFirst
+      isFirst,
+      isVoted: false
     };
+    // if this is player
+    if (!hasPresentPermission && !isTesting) {
+      const index = matchInfo.answers.findIndex(
+        (question) => question.id === matchInfo.curQues
+      );
+      if (index !== -1) {
+        const ans = matchInfo.answers[index];
+        result.isVoted = ans.data.get(userId) !== null;
+      }
+    }
+
+    return result;
   },
 
   leaveLobby(userId, roomId, ws) {
@@ -351,10 +401,10 @@ export default {
         return console.log("Khong co choiceId nay");
       }
 
-      // const isAnswered = ans.data.get(userId);
-      // if (isAnswered) {
-      //   return console.log("Da answered roi");
-      // }
+      const isAnswered = ans.data.get(userId);
+      if (isAnswered && !isTesting) {
+        return console.log("Da answered roi");
+      }
       ans.data.set(userId, choiceId);
       matchInfo.questions[questionIndex].answers[choiceIndex].total += 1;
       SlideModel.addChoiceUid(questionId, roomId, choiceId, userId);
@@ -394,17 +444,26 @@ export default {
       const curQues = matchInfo.questions[questionIndex];
       matchInfo.curQues = curQues.id;
 
-      SocketModel.sendBroadcastRoom(
-        userId,
-        roomId,
-        EventModel.RECEIVE_NEXT_SLIDE_EVENT,
-        {
-          curState: matchInfo.curState,
+      if (
+        !sendMoveSlideEventForEachUser(
+          matchInfo,
           curQues,
-          isEnd: questionIndex >= matchInfo.questions.length - 1
-        },
-        ws
-      );
+          questionIndex,
+          EventModel.RECEIVE_NEXT_SLIDE_EVENT
+        )
+      ) {
+        SocketModel.sendBroadcastRoom(
+          userId,
+          roomId,
+          EventModel.RECEIVE_NEXT_SLIDE_EVENT,
+          {
+            curState: matchInfo.curState,
+            curQues,
+            isEnd: questionIndex >= matchInfo.questions.length - 1
+          },
+          ws
+        );
+      }
     }
   },
 
@@ -425,13 +484,26 @@ export default {
       const curQues = matchInfo.questions[questionIndex];
       matchInfo.curQues = curQues.id;
 
-      SocketModel.sendBroadcastRoom(
-        userId,
-        roomId,
-        EventModel.RECEIVE_PREV_SLIDE_EVENT,
-        { curState: matchInfo.curState, curQues, isFirst: questionIndex === 0 },
-        ws
-      );
+      if (
+        !sendMoveSlideEventForEachUser(
+          matchInfo,
+          curQues,
+          questionIndex,
+          EventModel.RECEIVE_PREV_SLIDE_EVENT
+        )
+      ) {
+        SocketModel.sendBroadcastRoom(
+          userId,
+          roomId,
+          EventModel.RECEIVE_PREV_SLIDE_EVENT,
+          {
+            curState: matchInfo.curState,
+            curQues,
+            isFirst: questionIndex === 0
+          },
+          ws
+        );
+      }
     }
   },
 

@@ -306,9 +306,11 @@ router.get(
     );
     if (userMap) {
       presentation.collaborators.forEach((collaboratorId) => {
+        const { name, email } = userMap.get(collaboratorId);
         collaborators.push({
           id: collaboratorId,
-          name: userMap.get(collaboratorId)
+          name,
+          email
         });
       });
     }

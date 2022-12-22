@@ -1,3 +1,4 @@
+/* eslint-disable import/no-cycle */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable import/extensions */
 /* eslint-disable no-console */
@@ -120,14 +121,22 @@ async function sendDataToPlayer(socket, userId, room, slide) {
   const result = await MatchModel.joinMatch(userId, false, room, slide);
   // console.log(result);
   if (result) {
-    const { curState, curQues, data, chatHistory, quesHistory, joinedUser } =
-      result;
+    const {
+      curState,
+      curQues,
+      data,
+      chatHistory,
+      quesHistory,
+      joinedUser,
+      isVoted
+    } = result;
     if (curQues) {
       SocketModel.sendEvent(userId, EventModel.INIT_CONNECTION, {
         curState,
         curQues,
         chatHistory,
-        quesHistory
+        quesHistory,
+        isVoted
         // data
       });
       socket.join(room);

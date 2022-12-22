@@ -76,12 +76,12 @@ export default {
     const ret = await User.find({
       _id: { $in: ids }
     })
-      .select({ _id: 1, name: 1 })
+      .select({ _id: 1, name: 1, email: 1 })
       .exec();
     if (ret.length) {
       const result = new Map();
-      ret.forEach(({ _id, name }) => {
-        return result.set(_id.toString(), name);
+      ret.forEach(({ _id, name, email }) => {
+        return result.set(_id.toString(), { name, email });
       });
       return result;
     }

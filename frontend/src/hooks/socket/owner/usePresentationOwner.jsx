@@ -49,7 +49,7 @@ const usePresentationOwner = (socketContext, setSocketContext, id, slide) => {
     const wsDomain = getDomain();
     let socket = null;
 
-    // Check id || slide valid
+    // Check id && slide valid
     if (!id || !slide) {
       return () => {
         if (ws) socket.close();

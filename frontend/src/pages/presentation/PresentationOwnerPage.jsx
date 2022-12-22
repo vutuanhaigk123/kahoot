@@ -82,7 +82,7 @@ const PresentationOwnerPage = () => {
             {question}
           </Typography>
           <CopyToClipboard
-            text={`${PAGE_ROUTES.BASE}${PAGE_ROUTES.SLIDES_JOIN}?id=${id}&slide=${slide}`}
+            text={`${PAGE_ROUTES.BASE}${PAGE_ROUTES.SLIDES_JOIN}?id=${id}`}
           >
             <BasicButton
               icon={isCopy ? <ContentCopy /> : <Link />}

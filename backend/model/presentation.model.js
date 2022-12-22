@@ -55,7 +55,8 @@ export default {
 
       for (let i = 0; i < result.length; i++) {
         const presentation = result[i];
-        presentation.ownerName = userMap.get(presentation.ownerId);
+        const { name } = userMap.get(presentation.ownerId);
+        presentation.ownerName = name;
       }
       return result;
     }

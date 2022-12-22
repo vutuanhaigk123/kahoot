@@ -25,6 +25,7 @@ const sortBy = (originalData, sortType) => {};
 const OwnerQuestionModal = ({ isOpen, handleClosePopup, toggleNotify }) => {
   const { user } = useSelector((state) => state?.auth);
   const { socketContext } = useSocket();
+  const [originalQuesHis, setOriginalQuesHis] = useState([]);
   const [quesHistory, setQuesHistory] = useState([]);
   const [currentQues, setCurrentQues] = React.useState(0);
 
@@ -39,6 +40,7 @@ const OwnerQuestionModal = ({ isOpen, handleClosePopup, toggleNotify }) => {
       socketContext.on(WS_EVENT.INIT_CONNECTION_EVENT, (arg) => {
         console.log("init connection event in question modal");
         console.log(arg);
+        setOriginalQuesHis(arg.quesHistory);
         setQuesHistory(arg.quesHistory);
       });
       return () => {
@@ -51,6 +53,7 @@ const OwnerQuestionModal = ({ isOpen, handleClosePopup, toggleNotify }) => {
   React.useEffect(() => {
     if (socketContext) {
       socketContext.on(WS_EVENT.RECEIVE_QUESTION_EVENT, (arg) => {
+        setOriginalQuesHis([...originalQuesHis, { ...arg }]);
         setQuesHistory([...quesHistory, { ...arg }]);
         if (user.data.id !== arg.userId && !isOpen) {
           toggleNotify(true);
@@ -65,6 +68,12 @@ const OwnerQuestionModal = ({ isOpen, handleClosePopup, toggleNotify }) => {
           quesAnswered.isAnswered = true;
           setQuesHistory(quesHisTmp);
         }
+        const orgQuesHisTmp = [...originalQuesHis];
+        const orgQuesAnswered = orgQuesHisTmp.find((ques) => ques.id === arg);
+        if (orgQuesAnswered) {
+          orgQuesAnswered.isAnswered = true;
+          setOriginalQuesHis(orgQuesHisTmp);
+        }
       });
 
       socketContext.on(WS_EVENT.RECEIVE_UPVOTE_QUESTION_EVENT, (arg) => {
@@ -76,6 +85,13 @@ const OwnerQuestionModal = ({ isOpen, handleClosePopup, toggleNotify }) => {
           ques.upVotes += 1;
           setQuesHistory(quesHisTmp);
         }
+
+        const orgQuesHisTmp = [...originalQuesHis];
+        const orgQues = orgQuesHisTmp.find((question) => question.id === arg);
+        if (orgQues) {
+          orgQues.upVotes += 1;
+          setOriginalQuesHis(orgQuesHisTmp);
+        }
       });
 
       return () => {
@@ -86,6 +102,21 @@ const OwnerQuestionModal = ({ isOpen, handleClosePopup, toggleNotify }) => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, quesHistory, socketContext]);
+
+  React.useEffect(() => {
+    switch (sortBy) {
+      case SORT_BY.ANSWERED:
+      case SORT_BY.UNANSWERED:
+      case SORT_BY.TIME_ASKED_ASC:
+      case SORT_BY.TIME_ASKED_DESC:
+      case SORT_BY.TOTAL_VOTE_ASC:
+      case SORT_BY.TOTAL_VOTE_DESC:
+        break;
+
+      default:
+        break;
+    }
+  }, [originalQuesHis, sortBy]);
 
   return (
     <Dialog

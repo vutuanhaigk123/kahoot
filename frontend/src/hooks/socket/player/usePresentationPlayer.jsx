@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { io } from "socket.io-client";
@@ -55,8 +56,8 @@ const usePresentationPlayer = (socketContext, setSocketContext, id, slide) => {
     const wsDomain = getDomain();
     let socket = null;
 
-    // Check id || slide valid
-    if (!id || !slide) {
+    // Check id valid
+    if (!id) {
       return () => {
         if (ws) socket.close();
       };
@@ -86,43 +87,20 @@ const usePresentationPlayer = (socketContext, setSocketContext, id, slide) => {
     if (socketContext) {
       socketContext.emit(WS_EVENT.INIT_CONNECTION_EVENT, {
         cmd: WS_CMD.JOIN_ROOM_CMD,
-        room: id,
-        slide
+        room: id
       });
 
       socketContext.on(WS_EVENT.INIT_CONNECTION_EVENT, (arg) => {
-        setQuestion(arg.curQues);
-        dispatch(setSocket(arg));
-        console.log("==========================================");
-        console.log(arg);
-      });
-
-      socketContext.on(WS_EVENT.RECEIVE_CHOICE_EVENT, (arg) => {
-        console.log(
-          "=====================Another member has made a choice====================="
-        );
-        console.log(arg);
-        if (arg.id === user.data.id) {
+        if (arg.isVoted) {
           setIsVoted(true);
           setData(arg.curQues.answers);
         } else {
-          const choiceId = arg.choiceId.toString();
-          const index = toIndex(data, choiceId);
-          if (index !== -1) {
-            data[index].total += 1;
-            return setData([...data]);
-          }
+          setQuestion(arg.curQues);
         }
-      });
 
-      socketContext.on(WS_EVENT.RECEIVE_NEXT_SLIDE_EVENT, (arg) => {
-        setQuestion(arg.curQues);
-        setIsVoted(false);
-      });
-
-      socketContext.on(WS_EVENT.RECEIVE_PREV_SLIDE_EVENT, (arg) => {
-        setQuestion(arg.curQues);
-        setIsVoted(false);
+        dispatch(setSocket(arg));
+        console.log("==========================================");
+        console.log(arg);
       });
 
       // socketContext.on(WS_EVENT.RECEIVE_CMT_EVENT, (arg) => {
@@ -181,12 +159,61 @@ const usePresentationPlayer = (socketContext, setSocketContext, id, slide) => {
       return () => {
         if (socketContext) {
           socketContext.off(WS_EVENT.INIT_CONNECTION_EVENT);
-          socketContext.off(WS_EVENT.RECEIVE_CHOICE_EVENT);
           socketContext.off(WS_CLOSE.CLOSE_REASON);
         }
       };
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [socketContext]);
+
+  React.useEffect(() => {
+    if (socketContext) {
+      socketContext.on(WS_EVENT.RECEIVE_CHOICE_EVENT, (arg) => {
+        console.log(
+          "=====================Another member has made a choice====================="
+        );
+        console.log(arg);
+        if (arg.id === user.data.id) {
+          setIsVoted(true);
+          setData(arg.curQues.answers);
+        } else {
+          const choiceId = arg.choiceId.toString();
+          const index = toIndex(data, choiceId);
+          if (index !== -1) {
+            data[index].total += 1;
+            return setData([...data]);
+          }
+        }
+      });
+
+      socketContext.on(WS_EVENT.RECEIVE_NEXT_SLIDE_EVENT, (arg) => {
+        if (arg.isVoted) {
+          setIsVoted(true);
+          setData(arg.curQues.answers);
+        } else {
+          setQuestion(arg.curQues);
+          setIsVoted(false);
+        }
+      });
+
+      socketContext.on(WS_EVENT.RECEIVE_PREV_SLIDE_EVENT, (arg) => {
+        if (arg.isVoted) {
+          setIsVoted(true);
+          setData(arg.curQues.answers);
+        } else {
+          setQuestion(arg.curQues);
+          setIsVoted(false);
+        }
+      });
+
+      return () => {
+        if (socketContext) {
+          socketContext.off(WS_EVENT.RECEIVE_CHOICE_EVENT);
+          socketContext.off(WS_EVENT.RECEIVE_NEXT_SLIDE_EVENT);
+          socketContext.off(WS_EVENT.RECEIVE_PREV_SLIDE_EVENT);
+        }
+      };
+    }
   }, [socketContext, data]);
 
   return {
