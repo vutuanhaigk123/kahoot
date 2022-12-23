@@ -70,6 +70,12 @@ const PresentationOwnerPage = lazy(() =>
     new Promise((resolve) => setTimeout(resolve, DELAY_TIME))
   ]).then(([module]) => module)
 );
+const PresentationCoOwnerPage = lazy(() =>
+  Promise.all([
+    import("./pages/presentation/PresentationCoOwnerPage.jsx"),
+    new Promise((resolve) => setTimeout(resolve, DELAY_TIME))
+  ]).then(([module]) => module)
+);
 const PresentationPlayerPage = lazy(() =>
   Promise.all([
     import("./pages/presentation/PresentationPlayerPage.jsx"),
@@ -189,6 +195,14 @@ function App() {
               element={
                 <Protected isLoggedIn={user?.data} isStopWhenLogon={false}>
                   <PresentationOwnerPage />
+                </Protected>
+              }
+            />
+            <Route
+              path={PAGE_ROUTES.PRESENT_CO_OWNER}
+              element={
+                <Protected isLoggedIn={user?.data} isStopWhenLogon={false}>
+                  <PresentationCoOwnerPage />
                 </Protected>
               }
             />

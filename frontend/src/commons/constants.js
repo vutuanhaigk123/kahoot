@@ -27,6 +27,7 @@ export const PAGE_ROUTES = {
   PRESENTATION: "/presentaion",
   PRESENTATION_EDIT: "/presentaion/:id",
   PRESENT_OWNER: "/presentation/owner/present",
+  PRESENT_CO_OWNER: "/presentation/co-owner/present",
   PRESENT_PLAYER: "/presentation/join",
   SLIDES: "/slides",
   SLIDES_EDIT: "/slides/:id",
@@ -70,6 +71,7 @@ export const API = {
 };
 
 export const WS_CMD = {
+  JOIN_AS_CO_OWNER: "0",
   CREATE_ROOM_CMD: "5",
   JOIN_ROOM_CMD: "2",
   SUBMIT_CHOICE_CMD: "3",

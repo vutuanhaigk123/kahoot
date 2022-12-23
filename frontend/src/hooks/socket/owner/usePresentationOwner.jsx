@@ -1,6 +1,6 @@
 import React from "react";
 import { io } from "socket.io-client";
-import { WS_CLOSE, WS_CMD, WS_EVENT } from "../../../commons/constants";
+import { ROLE, WS_CLOSE, WS_CMD, WS_EVENT } from "../../../commons/constants";
 
 const getDomain = () => {
   let wsDomain = process.env.REACT_APP_BACKEND_DOMAIN;
@@ -38,7 +38,8 @@ const usePresentationOwner = (
   setSocketContext,
   id,
   slide,
-  group
+  group,
+  role = ROLE.owner
 ) => {
   // Socket context state
   // To-do: slide id and presentation id needed
@@ -56,12 +57,12 @@ const usePresentationOwner = (
     let socket = null;
 
     // Check id && slide valid
-    if (!id || !slide) {
+    if (!id || (role === ROLE.owner && !slide)) {
       return () => {
         if (ws) socket.close();
       };
     }
-    console.log("hit - owner");
+    console.log("hit - owner/ co-owner");
 
     if (!socketContext) {
       socket = io(wsDomain, {
@@ -84,7 +85,8 @@ const usePresentationOwner = (
   // Handle event
   React.useEffect(() => {
     if (socketContext) {
-      const initPackage = {
+      // default: owner's package
+      let initPackage = {
         cmd: WS_CMD.CREATE_ROOM_CMD,
         room: id,
         slide
@@ -92,6 +94,14 @@ const usePresentationOwner = (
       if (group && group.trim().length > 0) {
         initPackage.group = group.trim();
       }
+
+      if (role === ROLE.co_owner) {
+        initPackage = {
+          cmd: WS_CMD.JOIN_AS_CO_OWNER,
+          room: id
+        };
+      }
+
       socketContext.emit(WS_EVENT.INIT_CONNECTION_EVENT, initPackage);
 
       socketContext.on(WS_EVENT.INIT_CONNECTION_EVENT, (arg) => {

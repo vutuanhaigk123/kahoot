@@ -19,6 +19,7 @@ import questionListener from "../listener/question.listener.js";
 import commentListener from "../listener/comment.listener.js";
 import userModel from "../model/user.model.js";
 import GroupModel from "../model/group.model.js";
+import { ROLE } from "../utils/database.js";
 
 function getUidFromWs(socket) {
   if (socket.handshake.headers.cookie) {
@@ -77,10 +78,11 @@ async function sendDataToOwner(socket, userId, room, slide, group) {
     SocketModel.removeSocketConn(userId);
     return;
   }
+  console.log("hit group:", group);
   // join or create room
   const result = await MatchModel.joinMatch(
     userId,
-    true,
+    ROLE.owner,
     room,
     slide,
     group || null
@@ -123,7 +125,7 @@ async function sendDataToOwner(socket, userId, room, slide, group) {
 
 async function sendDataToPlayer(socket, userId, room, slide) {
   // join or create room
-  const result = await MatchModel.joinMatch(userId, false, room, slide);
+  const result = await MatchModel.joinMatch(userId, ROLE.member, room, slide);
   if (result) {
     const {
       curState,
@@ -150,6 +152,36 @@ async function sendDataToPlayer(socket, userId, room, slide) {
   SocketModel.removeSocketConn(userId);
 }
 
+async function sendDataToCoOwner(socket, userId, room, slide) {
+  const result = await MatchModel.joinMatch(userId, ROLE.co_owner, room, slide);
+  if (result) {
+    const {
+      curState,
+      curQues,
+      chatHistory,
+      quesHistory,
+      data,
+      joinedUser,
+      isEnd,
+      isFirst
+    } = result;
+    if (curQues) {
+      SocketModel.sendEvent(userId, EventModel.INIT_CONNECTION, {
+        curState,
+        curQues,
+        isEnd,
+        chatHistory,
+        quesHistory,
+        isFirst
+        // data
+      });
+      socket.join(room);
+      return;
+    }
+  }
+  SocketModel.removeSocketConn(userId);
+}
+
 async function sendInitData(socket, room, cmd, slide, group) {
   const userId = getUidFromWs(socket);
 
@@ -160,10 +192,26 @@ async function sendInitData(socket, room, cmd, slide, group) {
     case EventModel.JOIN_ROOM:
       await sendDataToPlayer(socket, userId, room, slide);
       break;
+    case EventModel.JOIN_AS_CO_OWNER:
+      await sendDataToCoOwner(socket, userId, room, slide);
+      break;
     default: // disconnect here
       sendUnknownCommand(userId);
       break;
   }
+}
+
+async function isNotGroupOwner(userId, cmd, group, socket) {
+  if (
+    cmd === EventModel.CREATE_ROOM &&
+    group &&
+    !(await GroupModel.isGroupOwner(userId, group))
+  ) {
+    socket.emit(EventModel.CLOSE_REASON, EventModel.REASON_INVALID_CMD);
+    socket.disconnect(true);
+    return true;
+  }
+  return false;
 }
 
 export default async (path, ws) => {
@@ -188,11 +236,10 @@ export default async (path, ws) => {
           socket.disconnect(true);
           return;
         }
-        if (group && !(await GroupModel.isGroupOwner(userId, group))) {
-          socket.emit(EventModel.CLOSE_REASON, EventModel.REASON_INVALID_CMD);
-          socket.disconnect(true);
+        if (await isNotGroupOwner(userId, cmd, group, socket)) {
           return;
         }
+
         roomId = room;
         cmdId = cmd;
         slideId = slide;

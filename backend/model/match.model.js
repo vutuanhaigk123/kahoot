@@ -6,6 +6,7 @@
 /* eslint-disable import/extensions */
 /* eslint-disable no-console */
 import HashMap from "hashmap";
+import { ROLE } from "../utils/database.js";
 import CommentModel from "./comment.model.js";
 import EventModel from "./event.model.js";
 import groupModel from "./group.model.js";
@@ -19,6 +20,11 @@ const matches = new HashMap();
     matches = {
       roomId: quiz room id,
       owner: owner id,
+      coOwners: [{
+        id: userId,
+        picture: "picture link",
+        name: "Name"
+      }],
       timeout: timeoutDelete,
       curState: (lobby) || (leaderboard),
       curQues: question id,
@@ -97,6 +103,9 @@ function sendMoveSlideEventForEachUser(
       customData.isFirst = questionIndex === 0;
     }
     SocketModel.sendEvent(matchInfo.owner, eventName, customData);
+    matchInfo.coOwners.forEach((coOwner) => {
+      SocketModel.sendEvent(coOwner.id, eventName, customData);
+    });
     return true;
   }
   return false;
@@ -136,7 +145,8 @@ function initMatch(
   comments = [],
   userQuestions = [],
   answers = [],
-  members = []
+  members = [],
+  coOwners = []
 ) {
   const questionsTmp = [];
   questions.forEach((eachQuestion) => {
@@ -163,6 +173,7 @@ function initMatch(
     curState: STATE_LOBBY_CODE,
     curQues: slideId || questionsTmp[0].id,
     groupId,
+    coOwners,
     owner: ownerId,
     comments,
     userQuestions,
@@ -223,16 +234,16 @@ export default {
     return [...members];
   },
 
-  async joinMatch(userId, hasPresentPermission, roomId, slideId, group = null) {
+  async joinMatch(userId, role, roomId, slideId, group = null) {
     let matchInfo = matches.get(roomId);
     let joinedUser = null;
     if (!(await isGroupMember(userId, matchInfo))) {
       return null;
     }
     if (!matchInfo) {
-      switch (hasPresentPermission) {
+      switch (role) {
         // if userId has present permission and not init match:
-        case true:
+        case ROLE.owner:
           {
             const questions = await getQuestionsInRoom(roomId);
             if (!questions) {
@@ -257,7 +268,8 @@ export default {
     // Update joinned user
     else if (
       userId !== matchInfo.owner &&
-      !matchInfo.members.find((member) => member.id === userId)
+      !matchInfo.members.find((member) => member.id === userId) &&
+      role === ROLE.member
     ) {
       joinedUser = {
         id: userId,
@@ -266,9 +278,20 @@ export default {
         score: 0
       };
       matchInfo.members.push(joinedUser);
+    } else if (
+      userId !== matchInfo.owner &&
+      !matchInfo.coOwners.find((coOwner) => coOwner.id === userId) &&
+      role === ROLE.co_owner
+    ) {
+      const newCoOwner = {
+        id: userId,
+        picture: "",
+        name: userId
+      };
+      matchInfo.coOwners.push(newCoOwner);
     }
     // join self hosted presentation:
-    if (userId === matchInfo.owner && !hasPresentPermission) {
+    if (userId === matchInfo.owner && role !== ROLE.owner) {
       SocketModel.sendEvent(
         userId,
         EventModel.CLOSE_REASON,
@@ -279,7 +302,7 @@ export default {
     // owner reconnecting...
     if (
       userId === matchInfo.owner &&
-      hasPresentPermission &&
+      role === ROLE.owner &&
       matchInfo.timeout
     ) {
       clearTimeout(matchInfo.timeout);
@@ -299,7 +322,8 @@ export default {
         matchInfo.comments,
         matchInfo.userQuestions,
         matchInfo.answers,
-        matchInfo.members
+        matchInfo.members,
+        matchInfo.coOwners
       );
       matches.set(roomId, matchInfo);
       console.log("delete timeout");
@@ -348,7 +372,7 @@ export default {
       isVoted: false
     };
     // if this is player
-    if (!hasPresentPermission && !isTesting) {
+    if (role === ROLE.member && !isTesting) {
       const index = matchInfo.answers.findIndex(
         (question) => question.id === matchInfo.curQues
       );
@@ -364,12 +388,16 @@ export default {
   leaveLobby(userId, roomId, ws) {
     const matchInfo = matches.get(roomId);
     if (matchInfo /* && matchInfo.curState === STATE_LOBBY_CODE */) {
-      const index = matchInfo.members.findIndex(
-        (member) => member.id === userId
-      );
+      let index = matchInfo.members.findIndex((member) => member.id === userId);
       if (index !== -1) {
         // remove in members
         matchInfo.members.splice(index, 1);
+      }
+
+      index = matchInfo.coOwners.findIndex((coOwner) => coOwner.id === userId);
+      if (index !== -1) {
+        // remove co-owner
+        matchInfo.coOwners.splice(index, 1);
       }
 
       this.timeoutDeleteMatch(userId, roomId);
@@ -451,7 +479,11 @@ export default {
 
   nextSlide(userId, roomId, ws) {
     const matchInfo = matches.get(roomId);
-    if (matchInfo && matchInfo.owner === userId) {
+    if (
+      matchInfo &&
+      (matchInfo.owner === userId ||
+        matchInfo.coOwners.findIndex((coOwner) => coOwner.id === userId) !== -1)
+    ) {
       const questionId = matchInfo.curQues;
       let questionIndex = hasQuestion(matchInfo.questions, questionId);
       if (questionIndex === -1) {
@@ -491,7 +523,11 @@ export default {
 
   prevSlide(userId, roomId, ws) {
     const matchInfo = matches.get(roomId);
-    if (matchInfo && matchInfo.owner === userId) {
+    if (
+      matchInfo &&
+      (matchInfo.owner === userId ||
+        matchInfo.coOwners.findIndex((coOwner) => coOwner.id === userId) !== -1)
+    ) {
       const questionId = matchInfo.curQues;
       let questionIndex = hasQuestion(matchInfo.questions, questionId);
       if (questionIndex === -1) {

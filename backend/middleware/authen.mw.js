@@ -100,7 +100,8 @@ export default {
       (!slide && cmd === EventModel.CREATE_ROOM) ||
       !room ||
       (cmd.toString() !== EventModel.JOIN_ROOM &&
-        cmd.toString() !== EventModel.CREATE_ROOM)
+        cmd.toString() !== EventModel.CREATE_ROOM &&
+        cmd.toString() !== EventModel.JOIN_AS_CO_OWNER)
     ) {
       return true;
     }
@@ -119,18 +120,4 @@ export default {
     }
     next();
   }
-
-  // async wsStopWhenInvalidQuery(socket, next) {
-  //   if (
-  //     socket.request._query &&
-  //     socket.request._query.cmd !== "null" &&
-  //     socket.request._query.room !== "null" &&
-  //     socket.request._query.slide !== "null" &&
-  //     (socket.request._query.cmd === EventModel.JOIN_ROOM ||
-  //       socket.request._query.cmd === EventModel.CREATE_ROOM)
-  //   ) {
-  //     return next();
-  //   }
-  //   return next(new Error("Client does not have valid query string"));
-  // }
 };

@@ -1,6 +1,7 @@
 export default {
   INIT_CONNECTION: "1",
   JOIN_ROOM: "2",
+  JOIN_AS_CO_OWNER: "0",
   EXIT_ROOM: "-2",
   CREATE_ROOM: "5",
   NEXT_SLIDE: "4",
