@@ -29,12 +29,6 @@ const BasicCard = ({ data, navigateTo }) => {
       variant="outlined"
       sx={{ borderRadius: "5px", boxShadow: 3, position: "relative" }}
     >
-      <CardMedia
-        component="img"
-        height="140"
-        image="/Groups/GroupCard.png"
-        alt="Group photo"
-      />
       <IconButton
         sx={{ position: "absolute", top: 0, right: 0 }}
         onClick={handleOpenMenu}
@@ -63,10 +57,24 @@ const BasicCard = ({ data, navigateTo }) => {
           </MenuItem>
         ))}
       </Menu>
-      <CardContent>
-        <Typography gutterBottom variant="h5" component="div">
-          {data.name}
-        </Typography>
+      <CardContent
+        onClick={() => {
+          navigate(navigateTo);
+        }}
+        sx={{ cursor: "pointer" }}
+      >
+        <CardMedia
+          component="img"
+          height="140"
+          image="/Groups/GroupCard.png"
+          alt="Group photo"
+        />
+
+        <CardContent>
+          <Typography gutterBottom variant="h5" component="div">
+            {data.name}
+          </Typography>
+        </CardContent>
       </CardContent>
     </Card>
   );
