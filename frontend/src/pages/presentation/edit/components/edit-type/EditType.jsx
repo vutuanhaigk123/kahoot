@@ -29,7 +29,7 @@ const EditType = ({ slideIndex, refetch }) => {
               placeholder="Enter your question"
             />
             {/* Options */}
-            <MultiChoiceOptions slideIndex={slideIndex} refetch={refetch} />;
+            <MultiChoiceOptions slideIndex={slideIndex} refetch={refetch} />
           </>
         );
       case questionType.HEADING:

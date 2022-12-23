@@ -1,9 +1,7 @@
-import { AddCircle, Close, Edit, SaveAs } from "@mui/icons-material";
-import { Typography, CircularProgress, IconButton } from "@mui/material";
-import { grey } from "@mui/material/colors";
+import { Typography } from "@mui/material";
 import { Box } from "@mui/system";
 import React from "react";
-import MultiChoiceOptions from "./options/MultiChoiceOptions";
+import MultiChoiceOptions from "./edit-type/MultiChoiceOptions";
 
 const OptionsContainer = ({ answers, slideIndex, refetch }) => {
   return (

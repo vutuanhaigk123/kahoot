@@ -19,6 +19,7 @@ import { SORT_BY, SORT_BY_ARR, WS_EVENT } from "../../../../commons/constants";
 import { useSelector } from "react-redux";
 import { convertTS } from "./../../../../utils/convertTime";
 import { grey } from "@mui/material/colors";
+import { sort } from "fast-sort";
 
 const sortBy = (originalData, sortType) => {};
 
@@ -103,9 +104,11 @@ const OwnerQuestionModal = ({ isOpen, handleClosePopup, toggleNotify }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, quesHistory, socketContext]);
 
+  // Handle sort
   React.useEffect(() => {
     switch (sortBy) {
       case SORT_BY.ANSWERED:
+        break
       case SORT_BY.UNANSWERED:
       case SORT_BY.TIME_ASKED_ASC:
       case SORT_BY.TIME_ASKED_DESC:
@@ -149,7 +152,7 @@ const OwnerQuestionModal = ({ isOpen, handleClosePopup, toggleNotify }) => {
         {quesHistory.length !== 0 ? (
           <>
             {/* Sidebar */}
-            <Stack sx={{ width: "20%", gap: 2 }}>
+            <Stack sx={{ width: "20%", gap: 2, p: 2 }}>
               {/* Dropdonw */}
               <FormControl fullWidth>
                 <InputLabel id="demo-simple-select-label">Sort by</InputLabel>

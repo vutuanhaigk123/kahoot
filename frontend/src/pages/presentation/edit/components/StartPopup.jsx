@@ -1,6 +1,17 @@
-import { Dialog, DialogContent, DialogTitle, MenuItem } from "@mui/material";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  FormControl,
+  FormControlLabel,
+  FormLabel,
+  InputLabel,
+  MenuItem,
+  Radio,
+  RadioGroup,
+  Select
+} from "@mui/material";
 import React from "react";
-import TextBox from "../../../../components/input/TextBox";
 import Transition from "../../modal/components/Transition";
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
@@ -11,14 +22,21 @@ import { useNavigate } from "react-router-dom";
 import { API, PAGE_ROUTES } from "../../../../commons/constants";
 import { useQuery } from "react-query";
 import { handleGet } from "../../../../utils/fetch";
+import Empty from "./../../../group/components/Empty";
+import useToggle from "./../../../../hooks/useToggle";
+
+const PRESNETATION_TYPE = {
+  PUBLIC: 1,
+  GROUP: 2
+};
 
 const options = [
   {
-    value: 0,
+    value: PRESNETATION_TYPE.PUBLIC,
     label: "Public"
   },
   {
-    value: 1,
+    value: PRESNETATION_TYPE.GROUP,
     label: "Group"
   }
 ];
@@ -28,20 +46,6 @@ const StartPopup = ({ isOpen, handleClose, slideIndex }) => {
     "created-groups",
     () => handleGet(`${API.CREATED_GROUP}?page=${0}&limit=${100}`)
   );
-
-  const { error: errorJoined, data: joinedGroup } = useQuery(
-    "joined-groups",
-    () => handleGet(`${API.JOINED_GROUP}?page=${0}&limit=${100}`)
-  );
-
-  const [allGroup, setAllGroup] = React.useState([]);
-  React.useEffect(() => {
-    if (createdGroup && joinedGroup && createdGroup.info && joinedGroup.data) {
-      console.log("created group:", createdGroup);
-      console.log("joined group:", joinedGroup);
-      setAllGroup([...createdGroup?.info.groups, ...joinedGroup?.info.groups]);
-    }
-  }, [createdGroup, joinedGroup]);
 
   // Form
   const schema = yup.object({
@@ -58,37 +62,29 @@ const StartPopup = ({ isOpen, handleClose, slideIndex }) => {
 
   const presentation = useSelector((state) => state.presentation);
   const navigate = useNavigate();
-  const onSubmit = async (data) => {
-    console.log("🚀 ~ file: StartPopup.jsx:75 ~ onSubmit ~ data", data);
-    // Process data
-    data.id = presentation._id;
-    data.slide = presentation.slides[slideIndex]._id;
-    console.log(data);
+  const [startType, setStartType] = React.useState(options[0].value);
+  const handleChangeType = (event) => {
+    setStartType(event.target.value);
+  };
 
-    if (data.questionType === 0) {
+  const [group, setGroup] = React.useState(createdGroup?.info?.groups[0]._id);
+  const handleChangeGroup = (event) => {
+    setGroup(event.target.value);
+  };
+
+  const handleStart = () => {
+    if (startType === PRESNETATION_TYPE.GROUP) {
+      console.log("group present");
+    } else {
       handleClose();
       navigate(
         PAGE_ROUTES.SLIDES_PRESENT +
           `?id=${presentation._id}&slide=${presentation.slides[slideIndex]._id}`
       );
-    } else {
-      console.log("handle presentation group");
     }
-
-    // // Handle submit
-    // const resp = await handlePost(API.CREATE_SLIDE, data);
-    // handleStatus(resp, "");
-
-    // // Close current popup form
-    // handleClose();
-    // // Open popup message
-    // handleOpenMsg();
-    // // Refetch groups data
-    // refetch();
   };
 
   if (errorCreated) return "An error has occurred: " + errorCreated.message;
-  if (errorJoined) return "An error has occurred: " + errorJoined.message;
 
   return (
     <Dialog
@@ -100,44 +96,56 @@ const StartPopup = ({ isOpen, handleClose, slideIndex }) => {
     >
       <DialogTitle>Choose your presentation's type</DialogTitle>
       <DialogContent>
-        <form onSubmit={handleSubmit(onSubmit)} style={{ paddingTop: 10 }}>
-          {/* Type select */}
-          <TextBox
+        {/* Type select */}
+        <FormControl fullWidth sx={{ mt: 1 }}>
+          <InputLabel>Presentation's type</InputLabel>
+          <Select
             label="Presentation's type"
-            select
-            defaultValue={options[0].value}
-            name="questionType"
-            control={control}
+            onChange={handleChangeType}
+            value={startType}
           >
-            {options.map((option) => (
-              <MenuItem key={option.value} value={option.value}>
-                {option.label}
+            {options.map((item) => (
+              <MenuItem key={item.value} value={item.value}>
+                {item.label}
               </MenuItem>
             ))}
-          </TextBox>
-          {/* Group select */}
-          {allGroup.length > 0 ? (
-            <TextBox
-              label="Group"
-              select
-              defaultValue={allGroup[0].name}
-              name="group"
-              control={control}
-              fullWidth
-              sx={{ mt: 2 }}
-            >
-              {allGroup.map((group) => (
-                <MenuItem key={group._id} value={group.name}>
-                  {group.name}
-                </MenuItem>
-              ))}
-            </TextBox>
-          ) : null}
+          </Select>
+        </FormControl>
 
-          <BasicButton type="submit" fullWidth sx={{ mt: 2 }}>
-            Start
-          </BasicButton>
-        </form>
+        {/* Group select */}
+        {startType === PRESNETATION_TYPE.GROUP ? (
+          createdGroup?.info?.groups.length > 0 ? (
+            <FormControl fullWidth sx={{ mt: 1 }}>
+              <FormLabel>Choose group to present</FormLabel>
+              <RadioGroup value={group} onChange={handleChangeGroup}>
+                {createdGroup?.info?.groups.map((item) => (
+                  <FormControlLabel
+                    key={item._id}
+                    value={item._id}
+                    control={<Radio />}
+                    label={item.name}
+                  />
+                ))}
+              </RadioGroup>
+            </FormControl>
+          ) : (
+            <Empty img="/Presentation/empty-collab.png" textVariant="h6">
+              You haven't create any group yet
+            </Empty>
+          )
+        ) : null}
+
+        <BasicButton
+          fullWidth
+          sx={{ mt: 2 }}
+          disabled={
+            createdGroup?.data === null && startType === PRESNETATION_TYPE.GROUP
+          }
+          onClick={handleStart}
+        >
+          Start
+        </BasicButton>
+        {/* </form> */}
       </DialogContent>
     </Dialog>
   );

@@ -2,10 +2,10 @@ import { Typography } from "@mui/material";
 import { Box, Stack } from "@mui/system";
 import React from "react";
 
-const Empty = ({ children, img = "/Groups/Empty.png" }) => {
+const Empty = ({ children, img = "/Groups/Empty.png", textVariant = "h4" }) => {
   return (
     <Stack sx={{ textAlign: "center" }}>
-      <Typography variant="h4">{children}</Typography>
+      <Typography variant={textVariant}>{children}</Typography>
       <Box
         component="img"
         sx={{ height: 300, objectFit: "scale-down" }}
