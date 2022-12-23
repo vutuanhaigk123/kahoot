@@ -2,7 +2,12 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { io } from "socket.io-client";
-import { WS_CLOSE, WS_CMD, WS_EVENT } from "../../../commons/constants";
+import {
+  WS_CLOSE,
+  WS_CMD,
+  WS_EVENT,
+  WS_PATH
+} from "../../../commons/constants";
 import {
   clearSocket,
   setSocket
@@ -55,6 +60,7 @@ const usePresentationPlayer = (socketContext, setSocketContext, id, slide) => {
   React.useEffect(() => {
     const wsDomain = getDomain();
     let socket = null;
+    console.log(wsDomain + WS_PATH.MATCH);
 
     // Check id valid
     if (!id) {
@@ -65,7 +71,7 @@ const usePresentationPlayer = (socketContext, setSocketContext, id, slide) => {
     console.log("hit - player");
 
     if (!socketContext) {
-      socket = io(wsDomain, {
+      socket = io(wsDomain + WS_PATH.MATCH, {
         withCredentials: true
       });
 

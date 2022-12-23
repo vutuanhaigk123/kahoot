@@ -1,6 +1,12 @@
 import React from "react";
 import { io } from "socket.io-client";
-import { ROLE, WS_CLOSE, WS_CMD, WS_EVENT } from "../../../commons/constants";
+import {
+  ROLE,
+  WS_CLOSE,
+  WS_CMD,
+  WS_EVENT,
+  WS_PATH
+} from "../../../commons/constants";
 
 const getDomain = () => {
   let wsDomain = process.env.REACT_APP_BACKEND_DOMAIN;
@@ -65,7 +71,7 @@ const usePresentationOwner = (
     console.log("hit - owner/ co-owner");
 
     if (!socketContext) {
-      socket = io(wsDomain, {
+      socket = io(wsDomain + WS_PATH.MATCH, {
         withCredentials: true
       });
 

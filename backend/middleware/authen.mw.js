@@ -7,6 +7,7 @@ import { parse } from "cookie";
 import CookieModel from "../model/cookie.model.js";
 import AuthModel from "../model/authen.model.js";
 import EventModel from "../model/event.model.js";
+import groupModel from "../model/group.model.js";
 
 const FIVE_MINS_LEFT = 5 * 60;
 
@@ -119,5 +120,15 @@ export default {
       }
     }
     next();
+  },
+
+  async isStopWhenNotGroupMember(userId, groupId) {
+    if (groupId.trim().length === 0) {
+      return true;
+    }
+    if (!(await groupModel.isBelongToGroup(userId, groupId))) {
+      return true;
+    }
+    return false;
   }
 };

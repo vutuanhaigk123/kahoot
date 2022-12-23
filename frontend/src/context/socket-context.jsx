@@ -6,7 +6,13 @@ const SocketContext = createContext();
 
 const SocketProvider = (props) => {
   const [socketContext, setSocketContext] = React.useState(null);
-  const value = { socketContext, setSocketContext };
+  const [groupSocketContext, setGroupSocketContext] = React.useState(null);
+  const value = {
+    socketContext,
+    setSocketContext,
+    groupSocketContext,
+    setGroupSocketContext
+  };
   return (
     <SocketContext.Provider value={value} {...props}></SocketContext.Provider>
   );

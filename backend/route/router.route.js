@@ -10,12 +10,14 @@ import apiSlide from "../api/slide.api.js";
 
 import authRoute from "./authen.route.js";
 import matchRoute from "./match.route.js";
+import groupRoute from "./group.route.js";
 
 // const pathInfos = ["/about", "/test", "/test2", "*"];
 
 export default (app, ws, __dirname) => {
   app.use("/login", authRoute);
-  matchRoute("/match", ws);
+  matchRoute(ws.of("/ws/match"));
+  groupRoute(ws.of("/ws/group"));
 
   app.use("/api", apiTest);
   app.use("/api/authen/", apiAuth);

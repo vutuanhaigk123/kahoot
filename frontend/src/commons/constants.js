@@ -70,6 +70,11 @@ export const API = {
   RESET_PASSWORD: "/api/user/reset-password"
 };
 
+export const WS_PATH = {
+  GROUP: "/ws/group",
+  MATCH: "/ws/match"
+};
+
 export const WS_CMD = {
   JOIN_AS_CO_OWNER: "0",
   CREATE_ROOM_CMD: "5",
@@ -94,7 +99,9 @@ export const WS_EVENT = {
   RECEIVE_QUESTION_EVENT: "-8",
 
   RECEIVE_UPVOTE_QUESTION_EVENT: "-9",
-  RECEIVE_MARK_QUES_ANSWERED_EVENT: "-10"
+  RECEIVE_MARK_QUES_ANSWERED_EVENT: "-10",
+
+  GROUP_RECEIVE_PRESENTING_EVENT: "-11"
 };
 
 export const WS_CLOSE = {

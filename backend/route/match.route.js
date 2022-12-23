@@ -20,6 +20,7 @@ import commentListener from "../listener/comment.listener.js";
 import userModel from "../model/user.model.js";
 import GroupModel from "../model/group.model.js";
 import { ROLE } from "../utils/database.js";
+import { sendGroupNotiRealtime } from "./group.route.js";
 
 function getUidFromWs(socket) {
   if (socket.handshake.headers.cookie) {
@@ -110,6 +111,7 @@ async function sendDataToOwner(socket, userId, room, slide, group) {
         // data
       });
       socket.join(room);
+      sendGroupNotiRealtime(group);
       return;
     }
     SocketModel.sendEvent(
@@ -214,7 +216,7 @@ async function isNotGroupOwner(userId, cmd, group, socket) {
   return false;
 }
 
-export default async (path, ws) => {
+export default async (ws) => {
   // middleware: stop when not logged in
   ws.use((socket, next) => {
     AuthenMw.wsStopWhenNotLogon(socket, next);

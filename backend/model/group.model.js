@@ -337,5 +337,14 @@ export default {
       .select({ _id: 1 })
       .exec();
     return res !== null;
+  },
+
+  async isBelongToGroup(userId, groupId) {
+    let res = await this.isGroupOwner(userId, groupId);
+    if (res) {
+      return true;
+    }
+    res = await this.isGroupMember(userId, groupId);
+    return res;
   }
 };

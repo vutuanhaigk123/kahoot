@@ -15,24 +15,11 @@ import { TabContext, TabList } from "@mui/lab";
 import { TabPanel } from "@mui/lab";
 import { handleGet } from "../../utils/fetch";
 import Empty from "./components/Empty";
-import { useSocket } from "../../context/socket-context";
-import usePresentationOwner from "../../hooks/socket/owner/usePresentationOwner";
 
 const FormType = { CREATE: "create", JOIN: "join" };
 
 const GroupPage = () => {
   const [value, setValue] = React.useState("1");
-
-  // Socket context
-  const { socketContext, setSocketContext } = useSocket();
-
-  // Handle socket
-  usePresentationOwner(
-    socketContext,
-    setSocketContext,
-    "638d2ceac40e99606e367f5c",
-    "638ddedc4ec43c37ee600ae2"
-  );
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
