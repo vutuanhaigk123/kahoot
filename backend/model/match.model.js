@@ -165,7 +165,6 @@ function initMatch(
       answers: ansListOfQues
     });
   });
-  // console.log(questionsTmp);
   return {
     roomId,
     timeout: null,
@@ -237,7 +236,12 @@ export default {
   async joinMatch(userId, role, roomId, slideId, group = null) {
     let matchInfo = matches.get(roomId);
     let joinedUser = null;
-    if (!(await isGroupMember(userId, matchInfo))) {
+    // co-owner or member hit:
+    if (
+      matchInfo &&
+      userId !== matchInfo.owner &&
+      !(await isGroupMember(userId, matchInfo))
+    ) {
       return null;
     }
     if (!matchInfo) {

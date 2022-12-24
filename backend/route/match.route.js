@@ -79,7 +79,6 @@ async function sendDataToOwner(socket, userId, room, slide, group) {
     SocketModel.removeSocketConn(userId);
     return;
   }
-  console.log("hit group:", group);
   // join or create room
   const result = await MatchModel.joinMatch(
     userId,
@@ -88,6 +87,7 @@ async function sendDataToOwner(socket, userId, room, slide, group) {
     slide,
     group || null
   );
+  console.log("resultttttttttttttttttttt=", result !== null);
   if (result) {
     const {
       curState,
