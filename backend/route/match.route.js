@@ -3,8 +3,6 @@
 /* eslint-disable import/extensions */
 /* eslint-disable no-console */
 /* eslint-disable no-unused-vars */
-import appWs from "express-ws";
-import HashMap from "hashmap";
 import { parse } from "cookie";
 import SocketModel from "../model/socket.model.js";
 import AuthenModel from "../model/authen.model.js";
@@ -43,7 +41,7 @@ function initConnection(socket, room, cmd) {
 }
 
 async function hasContent(userId, room, slide) {
-  if (!room || !slide) {
+  if (!room) {
     return null;
   }
   const presentation = await PresentationModel.findByIdAndOwnerId(room, userId);
@@ -51,11 +49,18 @@ async function hasContent(userId, room, slide) {
     return null;
   }
 
+  if (!slide) {
+    if (presentation.slides.length > 0) {
+      return { presentation, slide: presentation.slides[0] };
+    }
+    return { presentation, slide: null };
+  }
+
   const slideRes = await slideModel.findById(slide, room);
   if (!slideRes) {
     return null;
   }
-  return { presentation, slide: slideRes };
+  return { presentation, slide: slideRes._id };
 }
 
 function sendUnknownCommand(userId) {
@@ -68,7 +73,8 @@ function sendUnknownCommand(userId) {
 }
 
 async function sendDataToOwner(socket, userId, room, slide, group) {
-  if (!(await hasContent(userId, room, slide))) {
+  const contentData = await hasContent(userId, room, slide);
+  if (!contentData) {
     // send have no present permission
     SocketModel.sendEvent(
       userId,
@@ -79,15 +85,24 @@ async function sendDataToOwner(socket, userId, room, slide, group) {
     SocketModel.removeSocketConn(userId);
     return;
   }
+  if (contentData.slide === null) {
+    SocketModel.sendEvent(
+      userId,
+      EventModel.CLOSE_REASON,
+      EventModel.REASON_SLIDE_HAS_NO_ANS
+    );
+
+    SocketModel.removeSocketConn(userId);
+    return;
+  }
   // join or create room
   const result = await MatchModel.joinMatch(
     userId,
     ROLE.owner,
     room,
-    slide,
+    contentData.slide,
     group || null
   );
-  console.log("resultttttttttttttttttttt=", result !== null);
   if (result) {
     const {
       curState,
@@ -111,7 +126,7 @@ async function sendDataToOwner(socket, userId, room, slide, group) {
         // data
       });
       socket.join(room);
-      sendGroupNotiRealtime(group);
+      sendGroupNotiRealtime(group, room);
       return;
     }
     SocketModel.sendEvent(

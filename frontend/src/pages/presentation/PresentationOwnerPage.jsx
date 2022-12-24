@@ -65,7 +65,7 @@ const PresentationOwnerPage = () => {
 
   return (
     <BackgroundContainer>
-      {isConnected && id && slide ? (
+      {isConnected && id ? (
         <Paper
           elevation={10}
           sx={{

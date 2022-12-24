@@ -14,6 +14,8 @@ import QuestionModel from "./question.model.js";
 import SlideModel from "./slide.model.js";
 import SocketModel from "./socket.model.js";
 
+const groupMap = new HashMap();
+// groupId -> presentationId
 const matches = new HashMap();
 /*
     Structure:
@@ -165,6 +167,9 @@ function initMatch(
       answers: ansListOfQues
     });
   });
+  if (groupId) {
+    groupMap.set(groupId, roomId);
+  }
   return {
     roomId,
     timeout: null,
@@ -224,9 +229,32 @@ async function isGroupMember(userId, matchInfo) {
   return true;
 }
 
+async function isGroupCoOwner(userId, matchInfo) {
+  if (matchInfo && matchInfo.groupId !== null) {
+    if (!(await groupModel.isGroupCoOwner(userId, matchInfo.groupId))) {
+      SocketModel.sendEvent(
+        userId,
+        EventModel.CLOSE_REASON,
+        EventModel.REASON_NOT_FOUND_CONTENT
+      );
+      return false;
+    }
+  }
+  return true;
+}
+
 export default {
   STATE_LOBBY: STATE_LOBBY_CODE,
   STATE_LEADERBOARD: STATE_LEADERBOARD_CODE,
+
+  isMatchExist(presentationId) {
+    const res = matches.get(presentationId);
+    return res && res !== null;
+  },
+
+  getPresentationIdByGroupId(groupId) {
+    return groupMap.get(groupId);
+  },
 
   getLeaderboard(members) {
     members.sort(compareScore);
@@ -240,7 +268,8 @@ export default {
     if (
       matchInfo &&
       userId !== matchInfo.owner &&
-      !(await isGroupMember(userId, matchInfo))
+      ((role === ROLE.member && !(await isGroupMember(userId, matchInfo))) ||
+        (role === ROLE.co_owner && !(await isGroupCoOwner(userId, matchInfo))))
     ) {
       return null;
     }
@@ -419,6 +448,8 @@ export default {
     const matchInfo = matches.get(roomId);
     if (matchInfo && matchInfo.owner === userId) {
       const timeoutDelete = setTimeout(() => {
+        groupMap.delete(matchInfo.groupId);
+        console.log("deleted groupId in groupMap");
         matches.delete(roomId);
         console.log("deleted roomId=", roomId);
       }, 1000 * inSeconds); // 120 seconds

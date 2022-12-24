@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { CoPresent, Group, ManageAccounts, Person } from "@mui/icons-material";
 import {
   Box,
@@ -8,7 +9,7 @@ import {
   Typography
 } from "@mui/material";
 import React from "react";
-import { PAGE_ROUTES } from "../../../../../commons/constants";
+import { PAGE_ROUTES, ROLE } from "../../../../../commons/constants";
 import BasicButton from "../../../../../components/button/BasicButton";
 import PopupFormInvite from "../../../../../components/notification/PopUpFormInvite";
 import usePopup from "../../../../../hooks/usePopup";
@@ -16,32 +17,63 @@ import { useSelector } from "react-redux";
 import { useSocket } from "../../../../../context/socket-context";
 import useGroup from "../../../../../hooks/socket/useGroup";
 import useMenu from "../../../../../hooks/popup/useMenu";
-import { useNavigate } from "react-router-dom";
-
-const id = "63a67ad7fc8fa6670f49a795&slide=63a67addfc8fa6670f49a79d";
+import { useNavigate, useParams } from "react-router-dom";
 
 const menuOptions = [
   {
-    link: `${PAGE_ROUTES.PRESENT_PLAYER}?id=${id}`,
+    link: `${PAGE_ROUTES.PRESENT_PLAYER}?id=`,
     text: "As member",
     icon: <ManageAccounts />
   },
   {
-    link: `${PAGE_ROUTES.PRESENT_CO_OWNER}?id=${id}`,
+    link: `${PAGE_ROUTES.PRESENT_CO_OWNER}?id=`,
     text: "As co-owner",
     icon: <Person />
   }
 ];
 
 const GroupHeader = ({ isOwner }) => {
+  const [joinOptions, setJoinOptions] = React.useState([
+    {
+      link: `${PAGE_ROUTES.PRESENT_PLAYER}?id=`,
+      text: "As member",
+      icon: <ManageAccounts />
+    }
+  ]);
+  const [joinAsOwner, setJoinAsOwner] = React.useState(null);
+  const { id: groupId } = useParams();
   const { groupSocketContext, setGroupSocketContext } = useSocket();
   const { open, handleClosePopup, handleOpenPopup } = usePopup();
   const group = useSelector((state) => state.group);
+  const auth = useSelector((state) => state.auth);
 
-  const { isPresenting } = useGroup(groupSocketContext, setGroupSocketContext);
+  const { isPresenting, presentationId } = useGroup(
+    groupSocketContext,
+    setGroupSocketContext
+  );
   const { anchorEl, handleCloseMenu, handleOpenMenu } = useMenu();
   const openMenu = Boolean(anchorEl);
   const navigate = useNavigate();
+
+  React.useEffect(() => {
+    console.log(isPresenting);
+    if (isPresenting && auth?.user?.data?.id && group?.members) {
+      group.members.forEach(({ _id, role }) => {
+        if (_id === auth.user.data.id) {
+          switch (role) {
+            case ROLE.co_owner:
+              setJoinOptions(menuOptions);
+              break;
+            case ROLE.owner:
+              setJoinAsOwner(true);
+              break;
+            default:
+              break;
+          }
+        }
+      });
+    }
+  }, [auth, isPresenting]);
 
   return (
     <Box>
@@ -55,8 +87,23 @@ const GroupHeader = ({ isOwner }) => {
         <Typography variant="h4">{group.name}</Typography>
         <Box sx={{ display: "flex", gap: 1 }}>
           {/* Notification */}
-          {isPresenting === true ? (
+          {isPresenting ? (
             <>
+              {joinAsOwner ? (
+                <>
+                  <BasicButton
+                    icon={<CoPresent />}
+                    color="success"
+                    onClick={() =>
+                      navigate(
+                        `${PAGE_ROUTES.PRESENT_OWNER}?id=${presentationId}&group=${groupId}`
+                      )
+                    }
+                  >
+                    Join presentation as owner
+                  </BasicButton>
+                </>
+              ) : null}
               <BasicButton
                 icon={<CoPresent />}
                 color="success"
@@ -70,8 +117,11 @@ const GroupHeader = ({ isOwner }) => {
                 open={openMenu}
                 onClose={handleCloseMenu}
               >
-                {menuOptions.map((item) => (
-                  <MenuItem key={item.link} onClick={() => navigate(item.link)}>
+                {joinOptions.map((item) => (
+                  <MenuItem
+                    key={item.link}
+                    onClick={() => navigate(item.link + presentationId)}
+                  >
                     <ListItemIcon>{item.icon}</ListItemIcon>
                     <ListItemText>{item.text}</ListItemText>
                   </MenuItem>

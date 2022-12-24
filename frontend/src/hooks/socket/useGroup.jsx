@@ -13,6 +13,7 @@ const getDomain = () => {
 
 const useGroup = (groupSocketContext, setGroupSocketContext) => {
   const [ws, setWs] = React.useState(null);
+  const [presentationId, setPresentationId] = React.useState(null);
   const { id: groupId } = useParams();
   const [isPresenting, setIsPresenting] = React.useState(false);
 
@@ -48,6 +49,7 @@ const useGroup = (groupSocketContext, setGroupSocketContext) => {
       groupSocketContext.on(WS_EVENT.GROUP_RECEIVE_PRESENTING_EVENT, (arg) => {
         console.log("Dang co present nay ba con", arg);
         setIsPresenting(true);
+        setPresentationId(arg.presentationId);
       });
 
       return () => {
@@ -56,7 +58,7 @@ const useGroup = (groupSocketContext, setGroupSocketContext) => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [groupSocketContext]);
-  return { isPresenting };
+  return { isPresenting, presentationId };
 };
 
 export default useGroup;

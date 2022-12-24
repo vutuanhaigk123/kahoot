@@ -329,6 +329,16 @@ export default {
     return res !== null;
   },
 
+  async isGroupCoOwner(userId, groupId) {
+    const res = await Group.findOne({
+      _id: groupId
+    })
+      .elemMatch("members", { _id: userId, role: ROLE.co_owner })
+      .select({ _id: 1 })
+      .exec();
+    return res !== null;
+  },
+
   async isGroupMember(userId, groupId) {
     const res = await UserGroups.findOne({
       _id: userId,

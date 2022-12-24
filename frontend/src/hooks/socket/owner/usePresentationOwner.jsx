@@ -63,7 +63,7 @@ const usePresentationOwner = (
     let socket = null;
 
     // Check id && slide valid
-    if (!id || (role === ROLE.owner && !slide)) {
+    if (!id /*|| (role === ROLE.owner && !slide)*/) {
       return () => {
         if (ws) socket.close();
       };
@@ -94,11 +94,13 @@ const usePresentationOwner = (
       // default: owner's package
       let initPackage = {
         cmd: WS_CMD.CREATE_ROOM_CMD,
-        room: id,
-        slide
+        room: id
       };
       if (group && group.trim().length > 0) {
         initPackage.group = group.trim();
+      }
+      if (role === ROLE.owner && slide) {
+        initPackage.slide = slide;
       }
 
       if (role === ROLE.co_owner) {
@@ -165,8 +167,8 @@ const usePresentationOwner = (
             break;
           case WS_CLOSE.REASON_SLIDE_HAS_NO_ANS:
             console.log("slide has no answer");
-          // eslint-disable-next-line no-fallthrough
-
+            setMsgClose("This presentation has no slide to present");
+            break;
           default:
             setMsgClose("Unknown Server Error");
             break;

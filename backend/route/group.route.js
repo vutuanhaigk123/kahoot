@@ -6,6 +6,7 @@ import AuthenMw from "../middleware/authen.mw.js";
 import AuthenModel from "../model/authen.model.js";
 import CookieModel from "../model/cookie.model.js";
 import EventModel from "../model/event.model.js";
+import matchModel from "../model/match.model.js";
 import SocketModel from "../model/socket.model.js";
 
 function getUidFromWs(socket) {
@@ -17,6 +18,14 @@ function getUidFromWs(socket) {
 }
 
 let socketIns = null;
+
+function sendIfHavePresenting(socket, presentationId) {
+  if (socket && matchModel.isMatchExist(presentationId)) {
+    socket.emit(EventModel.GROUP_RECEIVE_PRESENTING_EVENT, {
+      presentationId
+    });
+  }
+}
 
 export default async (ws) => {
   socketIns = ws;
@@ -37,6 +46,10 @@ export default async (ws) => {
       }
       group = groupId;
       socket.join(groupId);
+      sendIfHavePresenting(
+        socket,
+        matchModel.getPresentationIdByGroupId(groupId)
+      );
     });
 
     socket.on("error", (err) => {
@@ -52,10 +65,10 @@ export default async (ws) => {
   });
 };
 
-export const sendGroupNotiRealtime = (groupId) => {
+export const sendGroupNotiRealtime = (groupId, presentationId) => {
   if (socketIns) {
     socketIns
       .to(groupId)
-      .emit(EventModel.GROUP_RECEIVE_PRESENTING_EVENT, { data: "datatest" });
+      .emit(EventModel.GROUP_RECEIVE_PRESENTING_EVENT, { presentationId });
   }
 };

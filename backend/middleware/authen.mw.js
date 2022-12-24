@@ -98,7 +98,7 @@ export default {
   async isStopWhenInvalidQuery(cmd, slide, room) {
     if (
       !cmd ||
-      (!slide && cmd === EventModel.CREATE_ROOM) ||
+      // (!slide && cmd === EventModel.CREATE_ROOM) ||
       !room ||
       (cmd.toString() !== EventModel.JOIN_ROOM &&
         cmd.toString() !== EventModel.CREATE_ROOM &&
