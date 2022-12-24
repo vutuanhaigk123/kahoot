@@ -1,76 +1,77 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { Box } from "@mui/material";
+import { Stack } from "@mui/material";
 import React from "react";
+import { useQuery } from "react-query";
+import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
-import { io } from "socket.io-client";
-import { WS_EVENT, WS_PATH } from "../../../commons/constants";
+import { API, ROLE } from "../../../commons/constants";
 import BackgroundContainer from "../../../components/misc/BackgroundContainer";
-import { useSocket } from "../../../context/socket-context";
+import { handleGet } from "../../../utils/fetch";
+import NotFound from "../../NotFound";
 import MemberList from "./components/member-list-tab/MemberList";
+import { setGroup } from "../../../redux-toolkit/groupSlice";
+import GroupHeader from "./components/header/GroupHeader";
 
-const getDomain = () => {
-  let wsDomain = process.env.REACT_APP_BACKEND_DOMAIN;
-  if (window.location.hostname.includes("localhost")) {
-    wsDomain = process.env.REACT_APP_BACKEND_DOMAIN_DEV;
+const getUserRole = (uid, members) => {
+  for (const member of members) {
+    if (member._id === uid) {
+      return member.role;
+    }
+    continue;
   }
-  return wsDomain;
+};
+
+const isOwner = (userRole) => {
+  return userRole === ROLE.owner || userRole === ROLE.co_owner;
 };
 
 const GroupDetailPage = () => {
-  const { groupSocketContext, setGroupSocketContext } = useSocket();
-  const [ws, setWs] = React.useState(null);
+  const { user } = useSelector((state) => state.auth);
   const { id: groupId } = useParams();
 
-  // Handle init connection
+  // Fetch data
+  const { error, data, refetch } = useQuery("group_detail", () =>
+    handleGet(API.GROUP_DETAIL + `/${groupId}`)
+  );
+  const [userRole, setUserRole] = React.useState(-1);
+  const dispatch = useDispatch();
+
   React.useEffect(() => {
-    const wsDomain = getDomain();
-    let socket = null;
-    console.log("hit - group socket");
-
-    if (!groupSocketContext) {
-      socket = io(wsDomain + WS_PATH.GROUP, {
-        withCredentials: true
-      });
-
-      socket.on("connect", () => {
-        setGroupSocketContext(socket);
-      });
-    } else {
-      socket = groupSocketContext;
+    if (data?.status === 0) {
+      dispatch(setGroup(data.info));
     }
-    setWs(socket);
-    return () => {
-      socket.off("connect");
-    };
+  }, [data]);
+
+  React.useEffect(() => {
+    if (data) {
+      const role = getUserRole(user?.data?.id, data?.info?.members);
+      setUserRole(role);
+    }
   }, []);
 
-  // Handle events
-  React.useEffect(() => {
-    if (groupSocketContext) {
-      groupSocketContext.emit(WS_EVENT.INIT_CONNECTION_EVENT, { groupId });
+  if (error) return "An error has occurred: " + error.message;
 
-      groupSocketContext.on(WS_EVENT.GROUP_RECEIVE_PRESENTING_EVENT, (arg) => {
-        console.log("Dang co present nay ba con", arg);
-      });
+  if (data?.info === null) return <NotFound />;
 
-      return () => {
-        groupSocketContext.off(WS_EVENT.GROUP_RECEIVE_PRESENTING_EVENT);
-      };
-    }
-  }, [groupSocketContext]);
   return (
     <BackgroundContainer>
-      <Box
+      <Stack
         sx={{
           margin: "auto",
           width: "60%",
-          gap: 2,
-          display: "flex",
-          flexDirection: "column"
+          gap: 2
         }}
       >
-        <MemberList></MemberList>
-      </Box>
+        {/* Group header */}
+        <GroupHeader isOwner={isOwner} />
+
+        {/* Datagrid */}
+        <MemberList
+          useRole={userRole}
+          isOwner={isOwner}
+          refetch={refetch}
+        ></MemberList>
+      </Stack>
     </BackgroundContainer>
   );
 };

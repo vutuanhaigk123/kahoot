@@ -1,59 +1,16 @@
-import { Avatar, Box, Paper, Typography } from "@mui/material";
+import { Avatar, Paper, Typography } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import React from "react";
-import { useQuery } from "react-query";
 import { useParams } from "react-router-dom";
-import {
-  API,
-  NUM_TO_ROLE,
-  PAGE_ROUTES,
-  ROLE
-} from "../../../../../commons/constants";
-import usePopup from "../../../../../hooks/usePopup";
-import { handleGet } from "../../../../../utils/fetch";
-import PopupFormInvite from "../../../../../components/notification/PopUpFormInvite";
-import Loading from "../../../../../components/Loading";
+import { NUM_TO_ROLE, ROLE } from "../../../../../commons/constants";
 import { useSelector } from "react-redux";
-import NotFound from "../../../../NotFound";
 import UsersActions from "./UsersActions";
-import BasicButton from "../../../../../components/button/BasicButton";
-import { Group } from "@mui/icons-material";
 
-const getUserRole = (uid, members) => {
-  for (const member of members) {
-    if (member._id === uid) {
-      return member.role;
-    }
-    continue;
-  }
-};
-
-const isOwner = (userRole) => {
-  return userRole === ROLE.owner || userRole === ROLE.co_owner;
-};
-
-const MemberList = () => {
+const MemberList = ({ isOwner, refetch, userRole }) => {
   const { user } = useSelector((state) => state.auth);
-  const { open, handleClosePopup, handleOpenPopup } = usePopup();
   const { id: groupId } = useParams();
   const [rowId, setRowId] = React.useState(null);
-  const [userRole, setUserRole] = React.useState(-1);
-
-  // Fetch data
-  const { isLoading, error, data, refetch } = useQuery("group_detail", () =>
-    handleGet(API.GROUP_DETAIL + `/${groupId}`)
-  );
-
-  React.useEffect(() => {
-    if (data?.info && data?.info?.members) {
-      const role = getUserRole(user?.data?.id, data?.info?.members);
-      setUserRole(role);
-    }
-  }, [data?.info, data?.info?.members, user?.data?.id]);
-
-  if (error) return "An error has occurred: " + error.message;
-
-  if (data?.info === null) return <NotFound />;
+  const group = useSelector((state) => state.group);
 
   // Data grid column setup
   const columns = [
@@ -77,7 +34,7 @@ const MemberList = () => {
         { value: 2, label: "Member" },
         { value: -1, label: "Kick" }
       ],
-      editable: isOwner(userRole),
+      editable: isOwner,
       renderCell: (params) => (
         <Typography sx={{ cursor: "pointer", userSelect: "none" }}>
           {NUM_TO_ROLE[params.row.role]}
@@ -101,62 +58,36 @@ const MemberList = () => {
   ];
 
   return (
-    <>
-      {isLoading ? (
-        <Loading />
-      ) : (
-        <>
-          {/* Popup form */}
-          <PopupFormInvite
-            isOpen={open}
-            handleClose={handleClosePopup}
-            inviteLink={`${PAGE_ROUTES.BASE}${PAGE_ROUTES.JOIN}?id=${data.info.gId}&token=${data.info.inviteToken}`}
-            groupId={groupId}
-          ></PopupFormInvite>
-          {/* Group header */}
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              mb: 2
-            }}
-          >
-            <Typography variant="h4">{data?.info?.name}</Typography>
-            {isOwner(userRole) ? (
-              <BasicButton
-                sx={{ minWidth: "100px", boxShadow: 4 }}
-                icon={<Group />}
-                onClick={handleOpenPopup}
-              >
-                Invite
-              </BasicButton>
-            ) : null}
-          </Box>
-          {/* Group data grid */}
-          <Paper elevation={10}>
-            <DataGrid
-              autoHeight
-              pageSize={10}
-              rowsPerPageOptions={[10, 20]}
-              rows={data?.info?.members}
-              getRowId={(row) => row._id}
-              columns={columns}
-              disableSelectionOnClick
-              onCellEditCommit={(params) => setRowId(params.id)}
-              // experimentalFeatures={{ newEditingApi: true }}
-              isCellEditable={(params) => {
-                return (
-                  params.row.email !== user.data.email &&
-                  params.row.role !== ROLE.owner
-                );
-              }}
-              rowHeight={70}
-            />
-          </Paper>
-        </>
-      )}
-    </>
+    <Paper
+      elevation={10}
+      sx={{
+        "& .row--owner": {
+          fontWeight: "bold"
+        }
+      }}
+    >
+      <DataGrid
+        autoHeight
+        pageSize={10}
+        rowsPerPageOptions={[10, 20]}
+        rows={group.members || []}
+        getRowId={(row) => row._id}
+        columns={columns}
+        disableSelectionOnClick
+        onCellEditCommit={(params) => setRowId(params.id)}
+        // experimentalFeatures={{ newEditingApi: true }}
+        isCellEditable={(params) => {
+          return (
+            params.row.email !== user.data.email &&
+            params.row.role !== ROLE.owner
+          );
+        }}
+        rowHeight={70}
+        getRowClassName={(params) => {
+          return params.row.role === ROLE.owner ? "row--owner" : null;
+        }}
+      />
+    </Paper>
   );
 };
 

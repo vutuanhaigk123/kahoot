@@ -1,6 +1,6 @@
 import React from "react";
 
-const useUserPopup = () => {
+const useMenu = () => {
   const [anchorEl, setAnchorEl] = React.useState(null);
 
   const handleOpenMenu = (event) => {
@@ -14,4 +14,4 @@ const useUserPopup = () => {
   return { anchorEl, handleOpenMenu, handleCloseMenu };
 };
 
-export default useUserPopup;
+export default useMenu;

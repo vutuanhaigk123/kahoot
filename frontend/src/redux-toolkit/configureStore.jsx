@@ -11,6 +11,7 @@ import {
 } from "redux-persist";
 import storage from "redux-persist/lib/storage"; // defaults to localStorage for web
 import authSlice from "./authSlice";
+import groupSlice from "./groupSlice";
 import presentationSlice from "./presentationSlice";
 import socketPlayerSlice from "./socketPlayerSlice";
 
@@ -23,7 +24,8 @@ const persistConfig = {
 const reducer = combineReducers({
   auth: authSlice,
   presentation: presentationSlice,
-  socketPlayer: socketPlayerSlice
+  socketPlayer: socketPlayerSlice,
+  group: groupSlice
 });
 
 const persistedReducer = persistReducer(persistConfig, reducer);

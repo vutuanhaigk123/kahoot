@@ -10,7 +10,7 @@ import { handleGet } from "../../../utils/fetch";
 import { API } from "../../../commons/constants";
 import Loading from "./../../../components/Loading";
 import { useDispatch } from "react-redux";
-import { set } from "../../../redux-toolkit/presentationSlice";
+import { clear, set } from "../../../redux-toolkit/presentationSlice";
 import TitleArea from "./components/TitleArea";
 
 const PresentationEditPage = () => {
@@ -26,6 +26,7 @@ const PresentationEditPage = () => {
     if (data?.status === 0) {
       dispatch(set(data.info));
     }
+    return () => dispatch(clear());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
 

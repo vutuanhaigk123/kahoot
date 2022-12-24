@@ -21,7 +21,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../redux-toolkit/authSlice";
 import { API, PAGE_ROUTES } from "../commons/constants";
 import { AccountBox, ExitToApp } from "@mui/icons-material";
-import useUserPopup from "../hooks/popup/useUserPopup";
+import useMenu from "../hooks/popup/useMenu";
 
 const pages = [
   { link: PAGE_ROUTES.GROUP, text: "Group" },
@@ -42,7 +42,7 @@ const Header = () => {
     anchorEl: anchorElUser,
     handleCloseMenu: handleCloseUserMenu,
     handleOpenMenu: handleOpenUserMenu
-  } = useUserPopup();
+  } = useMenu();
 
   const handleAvatarClick = React.useCallback(
     () => navigate(PAGE_ROUTES.LOGIN),

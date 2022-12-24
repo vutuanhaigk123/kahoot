@@ -1,15 +1,15 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const presentaionSlice = createSlice({
-  name: "presentation",
+  name: "group",
   initialState: {},
   reducers: {
-    set: (state, { payload }) => ({ ...state, ...payload }),
-    clear: () => ({})
+    setGroup: (state, { payload }) => ({ ...state, ...payload }),
+    clearGroup: () => ({})
   }
 });
 
 // Action creators are generated for each case reducer function
-export const { set, clear } = presentaionSlice.actions;
+export const { setGroup, clearGroup } = presentaionSlice.actions;
 
 export default presentaionSlice.reducer;

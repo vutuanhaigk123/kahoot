@@ -35,7 +35,6 @@ const GroupPage = () => {
 
   // Get groups
   const {
-    isLoading: isLoadingCreated,
     error: errorCreated,
     data: createdGroup,
     refetch
@@ -43,12 +42,9 @@ const GroupPage = () => {
     handleGet(`${API.CREATED_GROUP}?page=${0}&limit=${100}`)
   );
 
-  const {
-    isLoading: isLoadingJoined,
-    error: errorJoined,
-    data: joinedGroup
-  } = useQuery("joined-groups", () =>
-    handleGet(`${API.JOINED_GROUP}?page=${0}&limit=${100}`)
+  const { error: errorJoined, data: joinedGroup } = useQuery(
+    "joined-groups",
+    () => handleGet(`${API.JOINED_GROUP}?page=${0}&limit=${100}`)
   );
 
   if (errorCreated) return "An error has occurred: " + errorCreated.message;

@@ -11,12 +11,12 @@ import {
   Typography
 } from "@mui/material";
 import { Delete, Groups, Menu as MenuIcon } from "@mui/icons-material";
-import useUserPopup from "./../../hooks/popup/useUserPopup";
+import useMenu from "../../hooks/popup/useMenu";
 import { iconButton } from "./../../commons/globalStyles";
 import { useNavigate } from "react-router-dom";
 
 const BasicCard = ({ data, navigateTo }) => {
-  const { anchorEl, handleCloseMenu, handleOpenMenu } = useUserPopup();
+  const { anchorEl, handleCloseMenu, handleOpenMenu } = useMenu();
   const navigate = useNavigate();
   const open = Boolean(anchorEl);
   const options = [

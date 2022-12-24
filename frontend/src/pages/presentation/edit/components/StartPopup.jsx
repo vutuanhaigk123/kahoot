@@ -13,9 +13,6 @@ import {
 } from "@mui/material";
 import React from "react";
 import Transition from "../../modal/components/Transition";
-import * as yup from "yup";
-import { useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
 import { useSelector } from "react-redux";
 import BasicButton from "../../../../components/button/BasicButton";
 import { useNavigate } from "react-router-dom";
@@ -23,7 +20,6 @@ import { API, PAGE_ROUTES } from "../../../../commons/constants";
 import { useQuery } from "react-query";
 import { handleGet } from "../../../../utils/fetch";
 import Empty from "./../../../group/components/Empty";
-import useToggle from "./../../../../hooks/useToggle";
 
 const PRESNETATION_TYPE = {
   PUBLIC: 1,
@@ -47,41 +43,30 @@ const StartPopup = ({ isOpen, handleClose, slideIndex }) => {
     () => handleGet(`${API.CREATED_GROUP}?page=${0}&limit=${100}`)
   );
 
-  // Form
-  const schema = yup.object({
-    questionType: yup.number().required("Required")
-    // group: yup.string().required("Required")
-  });
-  const {
-    handleSubmit,
-    control,
-    formState: { errors }
-  } = useForm({
-    resolver: yupResolver(schema)
-  });
-
   const presentation = useSelector((state) => state.presentation);
   const navigate = useNavigate();
   const [startType, setStartType] = React.useState(options[0].value);
   const handleChangeType = (event) => {
     setStartType(event.target.value);
   };
-
   const [group, setGroup] = React.useState(createdGroup?.info?.groups[0]._id);
+  React.useEffect(() => {
+    setGroup(createdGroup?.info?.groups[0]._id);
+  }, [createdGroup]);
   const handleChangeGroup = (event) => {
     setGroup(event.target.value);
   };
 
+  const [isStarting, setIsStarting] = React.useState(false);
   const handleStart = () => {
+    setIsStarting(true);
+    var navPath = `${PAGE_ROUTES.SLIDES_PRESENT}?id=${presentation._id}&slide=${presentation.slides[slideIndex]._id}`;
     if (startType === PRESNETATION_TYPE.GROUP) {
-      console.log("group present");
-    } else {
-      handleClose();
-      navigate(
-        PAGE_ROUTES.SLIDES_PRESENT +
-          `?id=${presentation._id}&slide=${presentation.slides[slideIndex]._id}`
-      );
+      navPath = `${navPath}&group=${group}`;
     }
+    navigate(navPath);
+    setIsStarting(false);
+    handleClose();
   };
 
   if (errorCreated) return "An error has occurred: " + errorCreated.message;
@@ -117,7 +102,11 @@ const StartPopup = ({ isOpen, handleClose, slideIndex }) => {
           createdGroup?.info?.groups.length > 0 ? (
             <FormControl fullWidth sx={{ mt: 1 }}>
               <FormLabel>Choose group to present</FormLabel>
-              <RadioGroup value={group} onChange={handleChangeGroup}>
+              <RadioGroup
+                defaultValue={createdGroup?.info?.groups[0]._id}
+                value={group}
+                onChange={handleChangeGroup}
+              >
                 {createdGroup?.info?.groups.map((item) => (
                   <FormControlLabel
                     key={item._id}
@@ -134,7 +123,6 @@ const StartPopup = ({ isOpen, handleClose, slideIndex }) => {
             </Empty>
           )
         ) : null}
-
         <BasicButton
           fullWidth
           sx={{ mt: 2 }}
@@ -142,6 +130,7 @@ const StartPopup = ({ isOpen, handleClose, slideIndex }) => {
             createdGroup?.data === null && startType === PRESNETATION_TYPE.GROUP
           }
           onClick={handleStart}
+          loading={isStarting}
         >
           Start
         </BasicButton>
