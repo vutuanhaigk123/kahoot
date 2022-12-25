@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import { CoPresent, Group, ManageAccounts, Person } from "@mui/icons-material";
 import {
   Box,
@@ -19,61 +18,50 @@ import useGroup from "../../../../../hooks/socket/useGroup";
 import useMenu from "../../../../../hooks/popup/useMenu";
 import { useNavigate, useParams } from "react-router-dom";
 
-const menuOptions = [
-  {
-    link: `${PAGE_ROUTES.PRESENT_PLAYER}?id=`,
-    text: "As member",
-    icon: <ManageAccounts />
-  },
-  {
-    link: `${PAGE_ROUTES.PRESENT_CO_OWNER}?id=`,
-    text: "As co-owner",
-    icon: <Person />
-  }
-];
-
-const GroupHeader = ({ isOwner }) => {
-  const [joinOptions, setJoinOptions] = React.useState([
-    {
-      link: `${PAGE_ROUTES.PRESENT_PLAYER}?id=`,
-      text: "As member",
-      icon: <ManageAccounts />
-    }
-  ]);
-  const [joinAsOwner, setJoinAsOwner] = React.useState(null);
+const GroupHeader = ({ userRole }) => {
   const { id: groupId } = useParams();
   const { groupSocketContext, setGroupSocketContext } = useSocket();
   const { open, handleClosePopup, handleOpenPopup } = usePopup();
   const group = useSelector((state) => state.group);
-  const auth = useSelector((state) => state.auth);
 
   const { isPresenting, presentationId } = useGroup(
     groupSocketContext,
     setGroupSocketContext
   );
+  const menuOptions = [
+    {
+      link: `${PAGE_ROUTES.PRESENT_PLAYER}?id=${presentationId}`,
+      text: "As member",
+      icon: <Person />
+    },
+    {
+      link: `${PAGE_ROUTES.PRESENT_CO_OWNER}?id=${presentationId}`,
+      text: "As co-owner",
+      icon: <ManageAccounts />
+    }
+  ];
   const { anchorEl, handleCloseMenu, handleOpenMenu } = useMenu();
   const openMenu = Boolean(anchorEl);
   const navigate = useNavigate();
 
-  React.useEffect(() => {
-    console.log(isPresenting);
-    if (isPresenting && auth?.user?.data?.id && group?.members) {
-      group.members.forEach(({ _id, role }) => {
-        if (_id === auth.user.data.id) {
-          switch (role) {
-            case ROLE.co_owner:
-              setJoinOptions(menuOptions);
-              break;
-            case ROLE.owner:
-              setJoinAsOwner(true);
-              break;
-            default:
-              break;
-          }
-        }
-      });
+  const handleJoin = (event) => {
+    switch (userRole) {
+      case ROLE.owner:
+        navigate(
+          `${PAGE_ROUTES.PRESENT_OWNER}?id=${presentationId}&group=${groupId}`
+        );
+        break;
+      case ROLE.member:
+        navigate(`${PAGE_ROUTES.PRESENT_PLAYER}?id=${presentationId}`);
+        break;
+      case ROLE.co_owner:
+        handleOpenMenu(event);
+        break;
+
+      default:
+        break;
     }
-  }, [auth, isPresenting]);
+  };
 
   return (
     <Box>
@@ -89,25 +77,10 @@ const GroupHeader = ({ isOwner }) => {
           {/* Notification */}
           {isPresenting ? (
             <>
-              {joinAsOwner ? (
-                <>
-                  <BasicButton
-                    icon={<CoPresent />}
-                    color="success"
-                    onClick={() =>
-                      navigate(
-                        `${PAGE_ROUTES.PRESENT_OWNER}?id=${presentationId}&group=${groupId}`
-                      )
-                    }
-                  >
-                    Join presentation as owner
-                  </BasicButton>
-                </>
-              ) : null}
               <BasicButton
                 icon={<CoPresent />}
                 color="success"
-                onClick={handleOpenMenu}
+                onClick={handleJoin}
               >
                 Join presentation
               </BasicButton>
@@ -117,11 +90,8 @@ const GroupHeader = ({ isOwner }) => {
                 open={openMenu}
                 onClose={handleCloseMenu}
               >
-                {joinOptions.map((item) => (
-                  <MenuItem
-                    key={item.link}
-                    onClick={() => navigate(item.link + presentationId)}
-                  >
+                {menuOptions.map((item) => (
+                  <MenuItem key={item.link} onClick={() => navigate(item.link)}>
                     <ListItemIcon>{item.icon}</ListItemIcon>
                     <ListItemText>{item.text}</ListItemText>
                   </MenuItem>
@@ -131,7 +101,7 @@ const GroupHeader = ({ isOwner }) => {
           ) : null}
 
           {/* Invite button */}
-          {isOwner ? (
+          {userRole === ROLE.owner || userRole === ROLE.co_owner ? (
             <BasicButton
               sx={{ minWidth: "100px", boxShadow: 4 }}
               icon={<Group />}

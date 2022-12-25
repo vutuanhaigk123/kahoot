@@ -6,11 +6,15 @@ import { NUM_TO_ROLE, ROLE } from "../../../../../commons/constants";
 import { useSelector } from "react-redux";
 import UsersActions from "./UsersActions";
 
-const MemberList = ({ isOwner, refetch, userRole }) => {
+const MemberList = ({ refetch, userRole }) => {
   const { user } = useSelector((state) => state.auth);
   const { id: groupId } = useParams();
   const [rowId, setRowId] = React.useState(null);
   const group = useSelector((state) => state.group);
+
+  const isYou = (id) => {
+    return id === user.data.id;
+  };
 
   // Data grid column setup
   const columns = [
@@ -34,9 +38,15 @@ const MemberList = ({ isOwner, refetch, userRole }) => {
         { value: 2, label: "Member" },
         { value: -1, label: "Kick" }
       ],
-      editable: isOwner,
+      editable: userRole === ROLE.co_owner || userRole === ROLE.owner,
       renderCell: (params) => (
-        <Typography sx={{ cursor: "pointer", userSelect: "none" }}>
+        <Typography
+          sx={{
+            cursor: "pointer",
+            userSelect: "none",
+            fontWeight: isYou(params.row._id) ? "bold" : null
+          }}
+        >
           {NUM_TO_ROLE[params.row.role]}
         </Typography>
       )
@@ -61,7 +71,7 @@ const MemberList = ({ isOwner, refetch, userRole }) => {
     <Paper
       elevation={10}
       sx={{
-        "& .row--owner": {
+        "& .row--you": {
           fontWeight: "bold"
         }
       }}
@@ -84,7 +94,15 @@ const MemberList = ({ isOwner, refetch, userRole }) => {
         }}
         rowHeight={70}
         getRowClassName={(params) => {
-          return params.row.role === ROLE.owner ? "row--owner" : null;
+          if (params.row._id === user.data.id) {
+            return "row--you";
+          }
+          switch (params.row.role) {
+            case ROLE.owner:
+              return "row--owner";
+            default:
+              return;
+          }
         }}
       />
     </Paper>

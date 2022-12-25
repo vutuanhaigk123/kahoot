@@ -4,7 +4,7 @@ import React from "react";
 import { useQuery } from "react-query";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
-import { API, ROLE } from "../../../commons/constants";
+import { API } from "../../../commons/constants";
 import BackgroundContainer from "../../../components/misc/BackgroundContainer";
 import { handleGet } from "../../../utils/fetch";
 import NotFound from "../../NotFound";
@@ -19,10 +19,6 @@ const getUserRole = (uid, members) => {
     }
     continue;
   }
-};
-
-const isOwner = (userRole) => {
-  return userRole === ROLE.owner || userRole === ROLE.co_owner;
 };
 
 const GroupDetailPage = () => {
@@ -47,7 +43,7 @@ const GroupDetailPage = () => {
       const role = getUserRole(user?.data?.id, data?.info?.members);
       setUserRole(role);
     }
-  }, []);
+  }, [data]);
 
   if (error) return "An error has occurred: " + error.message;
 
@@ -63,14 +59,10 @@ const GroupDetailPage = () => {
         }}
       >
         {/* Group header */}
-        <GroupHeader isOwner={isOwner} />
+        <GroupHeader userRole={userRole} />
 
         {/* Datagrid */}
-        <MemberList
-          useRole={userRole}
-          isOwner={isOwner}
-          refetch={refetch}
-        ></MemberList>
+        <MemberList userRole={userRole} refetch={refetch}></MemberList>
       </Stack>
     </BackgroundContainer>
   );
