@@ -4,7 +4,6 @@ import {
   Dialog,
   DialogContent,
   FormControl,
-  InputLabel,
   MenuItem,
   Select,
   Stack,
@@ -19,22 +18,21 @@ import { SORT_BY, SORT_BY_ARR, WS_EVENT } from "../../../../commons/constants";
 import { useSelector } from "react-redux";
 import { convertTS } from "./../../../../utils/convertTime";
 import { grey } from "@mui/material/colors";
-import { sort } from "fast-sort";
-
-const sortBy = (originalData, sortType) => {};
+import useSort from "../../../../hooks/useSort";
 
 const OwnerQuestionModal = ({ isOpen, handleClosePopup, toggleNotify }) => {
   const { user } = useSelector((state) => state?.auth);
   const { socketContext } = useSocket();
   const [originalQuesHis, setOriginalQuesHis] = useState([]);
-  const [quesHistory, setQuesHistory] = useState([]);
   const [currentQues, setCurrentQues] = React.useState(0);
 
-  const [sortBy, setSortBy] = useState(SORT_BY.TIME_ASKED_ASC);
   const handleChange = (event) => {
     console.log(event.target.value);
     setSortBy(event.target.value);
+    setCurrentQues(0);
   };
+
+  const { setSortBy, sortBy, sortedData } = useSort(originalQuesHis);
 
   React.useEffect(() => {
     if (socketContext) {
@@ -42,7 +40,6 @@ const OwnerQuestionModal = ({ isOpen, handleClosePopup, toggleNotify }) => {
         console.log("init connection event in question modal");
         console.log(arg);
         setOriginalQuesHis(arg.quesHistory);
-        setQuesHistory(arg.quesHistory);
       });
       return () => {
         socketContext.off(WS_EVENT.INIT_CONNECTION_EVENT);
@@ -55,20 +52,12 @@ const OwnerQuestionModal = ({ isOpen, handleClosePopup, toggleNotify }) => {
     if (socketContext) {
       socketContext.on(WS_EVENT.RECEIVE_QUESTION_EVENT, (arg) => {
         setOriginalQuesHis([...originalQuesHis, { ...arg }]);
-        setQuesHistory([...quesHistory, { ...arg }]);
         if (user.data.id !== arg.userId && !isOpen) {
           toggleNotify(true);
         }
       });
 
       socketContext.on(WS_EVENT.RECEIVE_MARK_QUES_ANSWERED_EVENT, (arg) => {
-        const quesHisTmp = [...quesHistory];
-        const quesAnswered = quesHisTmp.find((ques) => ques.id === arg);
-        console.log(quesAnswered);
-        if (quesAnswered) {
-          quesAnswered.isAnswered = true;
-          setQuesHistory(quesHisTmp);
-        }
         const orgQuesHisTmp = [...originalQuesHis];
         const orgQuesAnswered = orgQuesHisTmp.find((ques) => ques.id === arg);
         if (orgQuesAnswered) {
@@ -79,16 +68,10 @@ const OwnerQuestionModal = ({ isOpen, handleClosePopup, toggleNotify }) => {
 
       socketContext.on(WS_EVENT.RECEIVE_UPVOTE_QUESTION_EVENT, (arg) => {
         console.log("upvote", arg);
-        const quesHisTmp = [...quesHistory];
-        const ques = quesHisTmp.find((question) => question.id === arg.id);
-        if (ques) {
-          console.log(ques);
-          ques.upVotes += 1;
-          setQuesHistory(quesHisTmp);
-        }
-
         const orgQuesHisTmp = [...originalQuesHis];
-        const orgQues = orgQuesHisTmp.find((question) => question.id === arg);
+        const orgQues = orgQuesHisTmp.find((question) => {
+          return question.id === arg.id;
+        });
         if (orgQues) {
           orgQues.upVotes += 1;
           setOriginalQuesHis(orgQuesHisTmp);
@@ -102,24 +85,7 @@ const OwnerQuestionModal = ({ isOpen, handleClosePopup, toggleNotify }) => {
       };
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen, quesHistory, socketContext]);
-
-  // Handle sort
-  React.useEffect(() => {
-    switch (sortBy) {
-      case SORT_BY.ANSWERED:
-        break
-      case SORT_BY.UNANSWERED:
-      case SORT_BY.TIME_ASKED_ASC:
-      case SORT_BY.TIME_ASKED_DESC:
-      case SORT_BY.TOTAL_VOTE_ASC:
-      case SORT_BY.TOTAL_VOTE_DESC:
-        break;
-
-      default:
-        break;
-    }
-  }, [originalQuesHis, sortBy]);
+  }, [isOpen, socketContext]);
 
   return (
     <Dialog
@@ -149,20 +115,21 @@ const OwnerQuestionModal = ({ isOpen, handleClosePopup, toggleNotify }) => {
           ]}
           onClick={handleClosePopup}
         />
-        {quesHistory.length !== 0 ? (
+        {originalQuesHis.length !== 0 ? (
           <>
             {/* Sidebar */}
-            <Stack sx={{ width: "20%", gap: 2, p: 2 }}>
-              {/* Dropdonw */}
+            <Stack
+              sx={{
+                width: "20%",
+                gap: 2,
+                p: 2,
+                maxHeight: " 100%",
+                overflow: "scroll"
+              }}
+            >
+              {/* Sort dropdown */}
               <FormControl fullWidth>
-                <InputLabel id="demo-simple-select-label">Sort by</InputLabel>
-                <Select
-                  labelId="demo-simple-select-label"
-                  id="demo-simple-select"
-                  value={sortBy}
-                  label="Sort by"
-                  onChange={handleChange}
-                >
+                <Select value={sortBy} onChange={handleChange}>
                   {SORT_BY_ARR.map((sortType, key) => {
                     return (
                       <MenuItem key={key} value={sortType.value}>
@@ -172,9 +139,8 @@ const OwnerQuestionModal = ({ isOpen, handleClosePopup, toggleNotify }) => {
                   })}
                 </Select>
               </FormControl>
-
               {/* Question list */}
-              {quesHistory.map((item, index) => (
+              {sortedData.map((item, index) => (
                 <Box
                   key={index}
                   onClick={() => setCurrentQues(index)}
@@ -217,7 +183,11 @@ const OwnerQuestionModal = ({ isOpen, handleClosePopup, toggleNotify }) => {
                       </Typography>
                     </Box>
                     <Box
-                      sx={{ display: "flex", alignItems: "center", gap: "2px" }}
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "2px"
+                      }}
                     >
                       <ThumbUpOffAlt />
                       <Typography variant="subtitle1">
@@ -231,12 +201,21 @@ const OwnerQuestionModal = ({ isOpen, handleClosePopup, toggleNotify }) => {
                 </Box>
               ))}
             </Stack>
+
             {/* Question carousel */}
-            <Carousel
-              currentQues={currentQues}
-              setCurrentQues={setCurrentQues}
-              slides={quesHistory}
-            />
+            {sortedData.length !== 0 ? (
+              <Carousel
+                currentQues={currentQues}
+                setCurrentQues={setCurrentQues}
+                slides={sortedData}
+              />
+            ) : (
+              <Typography variant="h2" sx={{ m: "auto", textAlign: "center" }}>
+                {sortBy === SORT_BY.ANSWERED
+                  ? "There is no answered questions"
+                  : "There is no unanswered questions"}
+              </Typography>
+            )}
           </>
         ) : (
           <Typography variant="h2" sx={{ m: "auto" }}>

@@ -1,14 +1,22 @@
 import { CheckCircle, Help, ThumbUpOffAlt } from "@mui/icons-material";
-import { Box, Divider, Typography, Stack } from "@mui/material";
+import {
+  Box,
+  Divider,
+  Typography,
+  Stack,
+  FormControl,
+  Select,
+  MenuItem
+} from "@mui/material";
 import { grey } from "@mui/material/colors";
 import React from "react";
-import { WS_CMD } from "../../../../../commons/constants";
-import BasicButton from "../../../../../components/button/BasicButton";
+import { SORT_BY_ARR, WS_CMD } from "../../../../../commons/constants";
 import { useSocket } from "../../../../../context/socket-context";
+import useSort from "../../../../../hooks/useSort";
 import { convertTS } from "../../../../../utils/convertTime";
 import { iconButton, iconHover } from "./../../../../../commons/globalStyles";
 
-const QuestionList = ({ data, onClick }) => {
+const QuestionList = ({ data }) => {
   const { socketContext } = useSocket();
 
   const handleUpvote = (questionId) => {
@@ -17,11 +25,35 @@ const QuestionList = ({ data, onClick }) => {
     }
   };
 
+  const handleChange = (event) => {
+    console.log(event.target.value);
+    setSortBy(event.target.value);
+  };
+  const { setSortBy, sortBy, sortedData } = useSort(data);
+
   return (
-    <>
-      <Typography variant="h4">Question list</Typography>
-      {data.map((item, index) => (
-        <Box key={item.id}>
+    <Box sx={{ overflow: "scroll" }}>
+      {/* Sort dropdown */}
+      {data.length > 0 ? (
+        <FormControl
+          fullWidth
+          sx={{ mb: 2, position: "sticky", top: 0, background: "white" }}
+        >
+          <Select value={sortBy} onChange={handleChange}>
+            {SORT_BY_ARR.map((sortType, key) => {
+              return (
+                <MenuItem key={key} value={sortType.value}>
+                  {sortType.name}
+                </MenuItem>
+              );
+            })}
+          </Select>
+        </FormControl>
+      ) : null}
+
+      {/* Question list */}
+      {sortedData.map((item, index) => (
+        <Box key={item.id} sx={{ mb: 2 }}>
           <Box
             sx={{
               display: "flex",
@@ -63,11 +95,10 @@ const QuestionList = ({ data, onClick }) => {
               {item.upVotes && item.upVotes > 0 ? item.upVotes : ""}
             </Stack>
           </Box>
-          <Divider orientation="horizontal" flexItem sx={{ mt: 2 }} />
+          <Divider orientation="horizontal" flexItem />
         </Box>
       ))}
-      <BasicButton onClick={onClick}>Ask a new question</BasicButton>
-    </>
+    </Box>
   );
 };
 

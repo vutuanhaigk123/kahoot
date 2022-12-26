@@ -29,7 +29,7 @@ const Carousel = ({ slides, currentQues, setCurrentQues }) => {
       <KeyboardArrowUp
         onClick={prevSlide}
         fontSize="large"
-        sx={[{}, iconButton]}
+        sx={[{ mb: 1 }, iconButton]}
       />
       {slides.map((slide, index) => {
         if (index === currentQues)
@@ -38,7 +38,7 @@ const Carousel = ({ slides, currentQues, setCurrentQues }) => {
       <KeyboardArrowDown
         onClick={nextSlide}
         fontSize="large"
-        sx={[{}, iconButton]}
+        sx={[{ mt: 1 }, iconButton]}
       />
     </Stack>
   );

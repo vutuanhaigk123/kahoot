@@ -1,6 +1,7 @@
-import { CoPresent, Group, ManageAccounts, Person } from "@mui/icons-material";
+import { Group, Login, ManageAccounts, Person } from "@mui/icons-material";
 import {
   Box,
+  Divider,
   ListItemIcon,
   ListItemText,
   Menu,
@@ -31,12 +32,12 @@ const GroupHeader = ({ userRole }) => {
   const menuOptions = [
     {
       link: `${PAGE_ROUTES.PRESENT_PLAYER}?id=${presentationId}`,
-      text: "As member",
+      text: "Join as member",
       icon: <Person />
     },
     {
       link: `${PAGE_ROUTES.PRESENT_CO_OWNER}?id=${presentationId}`,
-      text: "As co-owner",
+      text: "Join as co-owner",
       icon: <ManageAccounts />
     }
   ];
@@ -77,13 +78,34 @@ const GroupHeader = ({ userRole }) => {
           {/* Notification */}
           {isPresenting ? (
             <>
-              <BasicButton
-                icon={<CoPresent />}
+              <Box
+                sx={{
+                  display: "flex",
+                  border: 1,
+                  borderColor: "transparent",
+                  borderRadius: 1,
+                  alignItems: "center",
+                  p: 1,
+                  bgcolor: "success.main",
+                  color: "white"
+                }}
                 color="success"
-                onClick={handleJoin}
               >
-                Join presentation
-              </BasicButton>
+                <Typography sx={{ userSelect: "none" }}>
+                  A presentation is happening
+                </Typography>
+                <Divider
+                  orientation="vertical"
+                  flexItem
+                  sx={{ ml: 1, mr: 1 }}
+                  color="white"
+                />
+                <Login
+                  color="white"
+                  sx={{ cursor: "pointer" }}
+                  onClick={handleJoin}
+                />
+              </Box>
               <Menu
                 id="basic-menu"
                 anchorEl={anchorEl}

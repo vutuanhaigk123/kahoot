@@ -1,5 +1,5 @@
 import { ArrowBack, Close } from "@mui/icons-material";
-import { Dialog, DialogContent, Stack } from "@mui/material";
+import { Dialog, DialogContent, Stack, Typography } from "@mui/material";
 import React from "react";
 import { iconButton, iconHover } from "../../../../commons/globalStyles";
 import BasicButton from "../../../../components/button/BasicButton";
@@ -56,21 +56,24 @@ const PlayerQuestionModal = ({ isOpen, handleClosePopup }) => {
           ]}
           onClick={handleClosePopup}
         />
-        {/* <Carousel slides={data} /> */}
         <Stack
           sx={{
             width: "100%",
             gap: 2,
             m: "auto",
             textAlign: "center",
-            mt: "10%"
+            mt: "10%",
+            maxHeight: "50vh"
           }}
         >
           {curPage === PAGE.LIST_PAGE ? (
-            <QuestionList
-              data={quesHistory}
-              onClick={() => setCurPage(PAGE.ASK_PAGE)}
-            />
+            <>
+              <Typography variant="h4">Question list</Typography>
+              <QuestionList data={quesHistory} />
+              <BasicButton onClick={() => setCurPage(PAGE.ASK_PAGE)}>
+                Ask a new question
+              </BasicButton>
+            </>
           ) : (
             <AskQuestion returnToListPage={() => setCurPage(PAGE.LIST_PAGE)} />
           )}
