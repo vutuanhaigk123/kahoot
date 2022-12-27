@@ -85,7 +85,7 @@ const OwnerQuestionModal = ({ isOpen, handleClosePopup, toggleNotify }) => {
       };
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen, socketContext]);
+  }, [sortedData, isOpen, socketContext]);
 
   return (
     <Dialog
