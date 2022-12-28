@@ -34,8 +34,15 @@ const PresentationPlayerPage = () => {
   // Socket context
   const { socketContext, setSocketContext } = useSocket();
 
-  const { isVoted, msgClose, question, ws, data, handleSubmitChoice } =
-    usePresentationPlayer(socketContext, setSocketContext, id, slide);
+  const {
+    isVoted,
+    msgClose,
+    question,
+    ws,
+    data,
+    handleSubmitChoice,
+    isEndPresent
+  } = usePresentationPlayer(socketContext, setSocketContext, id, slide);
 
   const { value: isNotify, toggleValue: toggleNotify } = useToggle(false);
 
@@ -69,7 +76,7 @@ const PresentationPlayerPage = () => {
                 justifyContent: "center"
               }}
             >
-              <PresentationChart data={data} height={"100%"} />
+              <PresentationChart data={data} width={"100%"} height={"100%"} />
             </Box>
           ) : (
             <>
@@ -111,7 +118,7 @@ const PresentationPlayerPage = () => {
           <BasicButton
             icon={<QuestionAnswer />}
             color="success"
-            sx={{ width: "20vw" }}
+            sx={{ width: "20vw", mt: 2 }}
             onClick={handleOpenQAPopup}
           >
             Open Q&A
@@ -150,14 +157,27 @@ const PresentationPlayerPage = () => {
           ></ChatBox>
         </Paper>
       ) : null}
-      <PopupMsg
-        isOpen={!ws || msgClose ? true : false}
-        hasOk={false}
-        status={SUBMIT_STATUS.ERROR}
-        handleClosePopup={() => console.log()}
-      >
-        {msgClose}
-      </PopupMsg>
+      <div className="modal-player">
+        {/* Connection modal */}
+        <PopupMsg
+          isOpen={!ws || msgClose ? true : false}
+          // hasOk={false}
+          status={SUBMIT_STATUS.ERROR}
+          handleClosePopup={() => console.log()}
+          navOnErr={true}
+        >
+          {msgClose}
+        </PopupMsg>
+        {/* End presentation modal */}
+        <PopupMsg
+          isOpen={isEndPresent}
+          status={SUBMIT_STATUS.ERROR}
+          handleClosePopup={() => console.log()}
+          navOnErr={true}
+        >
+          Presentation ended by the host
+        </PopupMsg>
+      </div>
     </BackgroundContainer>
   );
 };

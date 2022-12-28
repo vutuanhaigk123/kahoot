@@ -10,7 +10,13 @@ import React from "react";
 import Transition from "../../pages/presentation/modal/components/Transition";
 import BasicButton from "./../button/BasicButton";
 
-const ConfirmPopup = ({ isOpen, handleClose, handleDelete, isDeleting }) => {
+const ConfirmPopup = ({
+  isOpen,
+  handleClose,
+  handleConfirm,
+  isConfirming,
+  children
+}) => {
   return (
     <Dialog
       open={isOpen}
@@ -18,22 +24,26 @@ const ConfirmPopup = ({ isOpen, handleClose, handleDelete, isDeleting }) => {
       keepMounted
       onClose={handleClose}
     >
-      <DialogContent sx={{ p: 2 }}>
+      <DialogContent sx={{ pt: 2, pb: 0 }}>
         <Stack>
-          <Help sx={{ fontSize: "60px", alignSelf: "center" }}></Help>
-          <Typography>Are you sure you want to delete</Typography>
+          <Help sx={{ fontSize: "50px", alignSelf: "center" }}></Help>
+          <Typography>{children}</Typography>
         </Stack>
       </DialogContent>
-      <DialogActions sx={{ margin: "auto" }}>
+      <DialogActions sx={{ margin: "auto", gap: 1 }}>
         <BasicButton
           variant="contained"
           color="error"
-          onClick={handleDelete}
-          loading={isDeleting}
+          onClick={handleConfirm}
+          loading={isConfirming}
         >
           Yes
         </BasicButton>
-        <BasicButton variant="contained" onClick={handleClose}>
+        <BasicButton
+          variant="contained"
+          onClick={handleClose}
+          loading={isConfirming}
+        >
           No
         </BasicButton>
       </DialogActions>

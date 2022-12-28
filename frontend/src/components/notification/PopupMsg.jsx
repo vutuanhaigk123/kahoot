@@ -6,7 +6,7 @@ import Slide from "@mui/material/Slide";
 import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
 import CancelRoundedIcon from "@mui/icons-material/CancelRounded";
 import { Box, Typography } from "@mui/material";
-import { SUBMIT_STATUS } from "../../commons/constants";
+import { PAGE_ROUTES, SUBMIT_STATUS } from "../../commons/constants";
 import { useNavigate } from "react-router-dom";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
@@ -21,7 +21,9 @@ const PopupMsg = ({
   navigateTo,
   hasOk = true,
   hideOnSuccess = false,
-  sx
+  sx,
+  navOnErr = false,
+  navigateOnErr = PAGE_ROUTES.HOME
 }) => {
   const navigate = useNavigate();
 
@@ -31,6 +33,10 @@ const PopupMsg = ({
     // Navigate to a page on success
     if (status === SUBMIT_STATUS.SUCCESS && navigateTo) {
       navigate(navigateTo);
+    }
+
+    if (navOnErr === true && status === SUBMIT_STATUS.ERROR) {
+      navigate(navigateOnErr);
     }
   };
 

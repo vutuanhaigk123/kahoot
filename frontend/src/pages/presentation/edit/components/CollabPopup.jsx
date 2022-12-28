@@ -217,9 +217,11 @@ const CollabPopup = ({ isOpen, handleClose, refetch }) => {
         <ConfirmPopup
           isOpen={openConfirmMsg}
           handleClose={handleCloseConfirmMsg}
-          handleDelete={() => handleDelete(delId)}
-          isDeleting={isDeleting}
-        ></ConfirmPopup>
+          handleConfirm={() => handleDelete(delId)}
+          isConfirming={isDeleting}
+        >
+          Are you sure you want to delete
+        </ConfirmPopup>
       </div>
     </>
   );

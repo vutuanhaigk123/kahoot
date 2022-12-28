@@ -55,6 +55,7 @@ const usePresentationPlayer = (socketContext, setSocketContext, id, slide) => {
   const [question, setQuestion] = React.useState(null);
   const [isVoted, setIsVoted] = React.useState(false);
   const [msgClose, setMsgClose] = React.useState(null);
+  const [isEndPresent, setIsEndPresent] = React.useState(false);
 
   // Connect socket
   React.useEffect(() => {
@@ -230,7 +231,8 @@ const usePresentationPlayer = (socketContext, setSocketContext, id, slide) => {
     msgClose,
     handleSubmitChoice,
     handleSendComment,
-    handleSendQuestion
+    handleSendQuestion,
+    isEndPresent
   };
 };
 
