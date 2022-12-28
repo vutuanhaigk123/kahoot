@@ -10,6 +10,7 @@ import AuthenMw from "../middleware/authen.mw.js";
 import AuthenModel from "../model/authen.model.js";
 import GroupModel from "../model/group.model.js";
 import MailingModel from "../model/mailing.model.js";
+import MatchModel from "../model/match.model.js";
 import UserModel from "../model/user.model.js";
 import { isValidRole } from "../utils/database.js";
 
@@ -72,6 +73,47 @@ router.post(
           }
         ]
       }
+    });
+  }
+);
+
+router.post(
+  "/delete",
+  passport.authenticate("jwt", { session: false }),
+  AuthenMw.renewAccessToken,
+  async (req, res) => {
+    const { groupId } = req.body;
+    const ownerId = AuthenModel.getUidFromReq(req);
+    if (!ownerId) {
+      return res.json({
+        status: 400,
+        message: "Invalid access token"
+      });
+    }
+    if (!groupId || groupId.trim().length === 0) {
+      return res.json({
+        status: 400,
+        message: "Invalid fields"
+      });
+    }
+
+    const presentationId = MatchModel.getPresentationIdByGroupId(groupId);
+    if (presentationId) {
+      return res.json({
+        status: 300,
+        message: "There is a living presentation in group"
+      });
+    }
+
+    if (!(await GroupModel.isGroupOwner(ownerId, groupId))) {
+      return res.json({
+        status: 401,
+        message: "You do not have the group"
+      });
+    }
+    GroupModel.delGroup(groupId);
+    return res.json({
+      status: 0
     });
   }
 );

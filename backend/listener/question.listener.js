@@ -20,7 +20,7 @@ export default async (ws, socket, userId, name, avt, cmd, room, slide) => {
         userId,
         room,
         EventModel.RECEIVE_QUESTION_EVENT,
-        {...data, upVotes: 0},
+        { ...data, upVotes: 0 },
         ws
       );
     }

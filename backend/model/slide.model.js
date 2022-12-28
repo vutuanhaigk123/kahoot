@@ -5,6 +5,76 @@ import Slide from "../schemas/slidesSchema.js";
 import { getNewObjectId, SLIDE_TYPE } from "../utils/database.js";
 import PresentationModel from "./presentation.model.js";
 
+async function saveSlide(slide) {
+  try {
+    const ret = await slide.save();
+    return ret;
+  } catch (err) {
+    console.log(err.code);
+  }
+  return null;
+}
+
+async function createMultipleChoiceSlide({
+  id,
+  presentationId,
+  ownerId,
+  question,
+  answers
+}) {
+  const answersArr = [];
+  if (answers) {
+    answers.forEach((answer) => {
+      answersArr.push({
+        _id: getNewObjectId().toString(),
+        des: answer,
+        choiceUids: []
+      });
+    });
+  }
+
+  const slide = new Slide({
+    _id: id.toString(),
+    presentationId,
+    type: SLIDE_TYPE.multiple_choice,
+    question,
+    content: null,
+    answers: answersArr
+  });
+
+  const result = await saveSlide(slide);
+  if (result) {
+    PresentationModel.addSlide(ownerId, presentationId, id);
+    return result;
+  }
+  return null;
+}
+
+async function createHeadingOrParagraphSlide({
+  id,
+  presentationId,
+  ownerId,
+  question,
+  type,
+  content
+}) {
+  const slide = new Slide({
+    _id: id.toString(),
+    presentationId,
+    type,
+    question,
+    content,
+    answers: null
+  });
+  const result = await saveSlide(slide);
+  console.log(result);
+  if (result) {
+    PresentationModel.addSlide(ownerId, presentationId, id);
+    return result;
+  }
+  return null;
+}
+
 export default {
   async findById(id, presentationId) {
     const ret = await Slide.findOne({ _id: id, presentationId }).exec();
@@ -14,6 +84,8 @@ export default {
   isTypeValid(type) {
     switch (type.toString()) {
       case SLIDE_TYPE.multiple_choice.toString():
+      case SLIDE_TYPE.heading.toString():
+      case SLIDE_TYPE.paragraph.toString():
         return true;
       default:
         return false;
@@ -35,13 +107,8 @@ export default {
   },
 
   async save(slide) {
-    try {
-      const ret = await slide.save();
-      return ret;
-    } catch (err) {
-      console.log(err.code);
-    }
-    return null;
+    const res = await saveSlide(slide);
+    return res;
   },
 
   async getSlides(slides) {
@@ -53,34 +120,43 @@ export default {
     return result;
   },
 
-  async create(ownerId, presentationId, type, question, answers) {
+  async create(ownerId, presentationId, type, question, answers, content) {
     const id = getNewObjectId();
 
-    const answersArr = [];
-    if (answers) {
-      answers.forEach((answer) => {
-        answersArr.push({
-          _id: getNewObjectId().toString(),
-          des: answer,
-          choiceUids: []
+    let res = null;
+    switch (type.toString()) {
+      case SLIDE_TYPE.multiple_choice.toString():
+        res = await createMultipleChoiceSlide({
+          id,
+          presentationId,
+          ownerId,
+          type,
+          question,
+          answers
         });
-      });
+        break;
+      case SLIDE_TYPE.heading.toString():
+      case SLIDE_TYPE.paragraph.toString():
+        console.log("hitttt");
+        {
+          let contentTmp = content;
+          if (!content) {
+            contentTmp = null;
+          }
+          res = await createHeadingOrParagraphSlide({
+            id,
+            presentationId,
+            ownerId,
+            question,
+            type,
+            content: contentTmp
+          });
+        }
+        break;
+      default:
+        break;
     }
-
-    const slide = new Slide({
-      _id: id.toString(),
-      presentationId,
-      type,
-      question,
-      answers: answersArr
-    });
-
-    const result = await this.save(slide);
-    if (result) {
-      PresentationModel.addSlide(ownerId, presentationId, id);
-      return result;
-    }
-    return null;
+    return res;
   },
 
   async delete(ownerId, slideId, presentationId) {
@@ -107,12 +183,26 @@ export default {
       choiceUids: []
     };
     const result = await Slide.updateOne(
-      { _id: slideId, presentationId },
+      { _id: slideId, presentationId, type: SLIDE_TYPE.multiple_choice },
       { $push: { answers: ans } }
     );
     if (result && result.modifiedCount === 1) {
       return ans;
     }
     return null;
+  },
+
+  async updateSubHeadingOrParagraph(slideId, presentationId, content) {
+    const result = await Slide.updateOne(
+      {
+        _id: slideId,
+        presentationId
+      },
+      { content }
+    );
+    if (result && result.modifiedCount === 1) {
+      return true;
+    }
+    return false;
   }
 };

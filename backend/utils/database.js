@@ -24,7 +24,9 @@ export const ROLE = {
 };
 
 export const SLIDE_TYPE = {
-  multiple_choice: 0
+  multiple_choice: 0,
+  heading: 1,
+  paragraph: 2
 };
 
 export function isValidRole(role) {

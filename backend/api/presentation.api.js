@@ -10,6 +10,7 @@ import AuthenModel from "../model/authen.model.js";
 import PresentationModel from "../model/presentation.model.js";
 import SlideModel from "../model/slide.model.js";
 import UserModel from "../model/user.model.js";
+import { SLIDE_TYPE } from "../utils/database.js";
 
 const router = express.Router();
 
@@ -284,20 +285,33 @@ router.get(
     const slides = await SlideModel.getSlides(presentation.slides);
     const slidesRes = [];
     slides.forEach((slide) => {
-      const answersRes = [];
-      slide.answers.forEach((answer) => {
-        answersRes.push({
-          _id: answer._id,
-          des: answer.des,
-          total: answer.choiceUids.length
+      if (slide.type.toString() === SLIDE_TYPE.multiple_choice.toString()) {
+        const answersRes = [];
+        slide.answers.forEach((answer) => {
+          answersRes.push({
+            _id: answer._id,
+            des: answer.des,
+            total: answer.choiceUids.length
+          });
         });
-      });
-      slidesRes.push({
-        _id: slide._id,
-        question: slide.question,
-        type: slide.type,
-        answers: answersRes
-      });
+        slidesRes.push({
+          _id: slide._id,
+          question: slide.question,
+          type: slide.type,
+          answers: answersRes
+        });
+      } else {
+        slidesRes.push({
+          _id: slide._id,
+          question: slide.question,
+          type: slide.type
+        });
+        if (slide.type.toString() === SLIDE_TYPE.heading.toString()) {
+          slidesRes.heading = slide.content;
+        } else {
+          slidesRes.paragraph = slide.content;
+        }
+      }
     });
 
     const collaborators = [];

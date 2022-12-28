@@ -9,6 +9,7 @@ import AuthenMw from "../middleware/authen.mw.js";
 import AuthenModel from "../model/authen.model.js";
 import PresentationModel from "../model/presentation.model.js";
 import SlideModel from "../model/slide.model.js";
+import { SLIDE_TYPE } from "../utils/database.js";
 
 const router = express.Router();
 
@@ -88,7 +89,7 @@ router.post(
   passport.authenticate("jwt", { session: false }),
   AuthenMw.renewAccessToken,
   async (req, res) => {
-    const { presentationId, question, type, answers } = req.body;
+    const { presentationId, question, type, answers, content } = req.body;
     const ownerId = AuthenModel.getUidFromReq(req);
     if (!ownerId) {
       return res.json({
@@ -128,23 +129,26 @@ router.post(
     }
 
     let answersJSArr = null;
-    try {
-      if (answers) {
-        answersJSArr = JSON.parse(answers.toString());
+    if (type === SLIDE_TYPE.multiple_choice) {
+      try {
+        if (answers) {
+          answersJSArr = JSON.parse(answers.toString());
+        }
+      } catch (err) {
+        return res.json({
+          status: 400,
+          message: "Invalid data"
+        });
       }
-    } catch (err) {
-      return res.json({
-        status: 400,
-        message: "Invalid data"
-      });
     }
-
+    // type === SLIDE_TYPE.heading || SLIDE_TYPE.paragraph
     const result = await SlideModel.create(
       presentation.ownerId,
       presentationId,
       type,
       question,
-      answersJSArr
+      answersJSArr,
+      content
     );
     return res.json({
       status: 0,
@@ -204,6 +208,46 @@ router.post(
 );
 
 router.post(
+  "/content/update",
+  passport.authenticate("jwt", { session: false }),
+  AuthenMw.renewAccessToken,
+  async (req, res) => {
+    const { presentationId, slideId, content } = req.body;
+    const ownerId = AuthenModel.getUidFromReq(req);
+    if (!content || content.toString().trim().length === 0) {
+      return res.json({
+        status: 400,
+        message: "Invalid data"
+      });
+    }
+    const valid = await isReqValid(ownerId, presentationId, slideId);
+    if (valid.error) {
+      return res.json(valid.error);
+    }
+
+    const { slide } = valid;
+    if (slide.type.toString() !== SLIDE_TYPE.multiple_choice.toString()) {
+      const result = await SlideModel.updateSubHeadingOrParagraph(
+        slideId,
+        presentationId,
+        content
+      );
+      if (result) {
+        return res.json({
+          status: 0,
+          info: result
+        });
+      }
+    }
+
+    return res.json({
+      status: 500,
+      message: "Internal Server Error"
+    });
+  }
+);
+
+router.post(
   "/answer/create",
   passport.authenticate("jwt", { session: false }),
   AuthenMw.renewAccessToken,
@@ -221,13 +265,21 @@ router.post(
       return res.json(valid.error);
     }
 
-    const result = await SlideModel.addAnswer(slideId, presentationId, answer);
-    if (result) {
-      return res.json({
-        status: 0,
-        info: result
-      });
+    const { slide } = valid;
+    if (slide.type.toString() === SLIDE_TYPE.multiple_choice.toString()) {
+      const result = await SlideModel.addAnswer(
+        slideId,
+        presentationId,
+        answer
+      );
+      if (result) {
+        return res.json({
+          status: 0,
+          info: result
+        });
+      }
     }
+
     return res.json({
       status: 500,
       message: "Internal Server Error"
@@ -259,7 +311,11 @@ router.post(
     }
 
     const { slide } = valid;
-    if (slide.answers && slide.answers.length > 0) {
+    if (
+      slide.type.toString() === SLIDE_TYPE.multiple_choice.toString() &&
+      slide.answers &&
+      slide.answers.length > 0
+    ) {
       const index = slide.answers.findIndex(
         (answerTmp) => answerTmp._id === answerId
       );
@@ -299,7 +355,11 @@ router.post(
     }
 
     const { slide } = valid;
-    if (slide.answers && slide.answers.length > 0) {
+    if (
+      slide.type.toString() === SLIDE_TYPE.multiple_choice.toString() &&
+      slide.answers &&
+      slide.answers.length > 0
+    ) {
       const index = slide.answers.findIndex(
         (answerTmp) => answerTmp._id === answerId
       );

@@ -356,5 +356,10 @@ export default {
     }
     res = await this.isGroupMember(userId, groupId);
     return res;
+  },
+
+  async delGroup(groupId) {
+    const res = await Group.deleteOne({ _id: groupId });
+    return res;
   }
 };

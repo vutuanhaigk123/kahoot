@@ -7,6 +7,7 @@ const Slides = new Schema(
     presentationId: String,
     question: String,
     type: Number,
+    content: String,
     answers: [
       {
         _id: String,
