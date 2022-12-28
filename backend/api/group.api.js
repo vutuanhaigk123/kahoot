@@ -111,7 +111,7 @@ router.post(
         message: "You do not have the group"
       });
     }
-    GroupModel.delGroup(groupId);
+    GroupModel.delGroup(groupId, ownerId);
     return res.json({
       status: 0
     });

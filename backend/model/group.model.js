@@ -358,8 +358,38 @@ export default {
     return res;
   },
 
-  async delGroup(groupId) {
-    const res = await Group.deleteOne({ _id: groupId });
-    return res;
+  async delGroup(groupId, ownerId) {
+    const group = await this.findByIdAndUid(groupId, ownerId);
+    if (group) {
+      const memberAndCoOwnerList = [];
+      group.members.forEach(({ _id }) => {
+        if (_id !== ownerId) {
+          memberAndCoOwnerList.push(_id);
+        }
+      });
+      const deletedUserGroupsMember = await UserGroups.updateMany(
+        {
+          _id: { $in: memberAndCoOwnerList }
+        },
+        { $pull: { joined_groups: groupId } }
+      ).exec();
+      const deletedUserGroupsOwner = await UserGroups.updateOne(
+        {
+          _id: ownerId
+        },
+        { $pull: { created_groups: groupId } }
+      ).exec();
+      const deletedGroup = await Group.deleteOne({ _id: groupId }).exec();
+      return (
+        deletedUserGroupsMember &&
+        deletedUserGroupsMember.deletedCount !== 0 &&
+        deletedGroup &&
+        deletedGroup.deletedCount !== 0 &&
+        deletedUserGroupsOwner &&
+        deletedUserGroupsOwner.deletedCount !== 0
+      );
+    }
+
+    return false;
   }
 };
