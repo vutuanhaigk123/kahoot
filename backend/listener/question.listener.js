@@ -20,7 +20,7 @@ export default async (ws, socket, userId, name, avt, cmd, room, slide) => {
         userId,
         room,
         EventModel.RECEIVE_QUESTION_EVENT,
-        data,
+        {...data, upVotes: 0},
         ws
       );
     }
@@ -39,7 +39,7 @@ export default async (ws, socket, userId, name, avt, cmd, room, slide) => {
           userId,
           room,
           EventModel.RECEIVE_UPVOTE_QUESTION_EVENT,
-          { id: arg.toString().trim(), isYou: true }
+          { id: arg.toString().trim(), isYou: false }
         );
         SocketModel.sendEvent(
           userId,

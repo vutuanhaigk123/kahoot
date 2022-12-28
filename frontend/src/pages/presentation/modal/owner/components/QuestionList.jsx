@@ -12,11 +12,10 @@ import { grey } from "@mui/material/colors";
 import React from "react";
 import { SORT_BY_ARR, WS_CMD } from "../../../../../commons/constants";
 import { useSocket } from "../../../../../context/socket-context";
-import useSort from "../../../../../hooks/useSort";
 import { convertTS } from "../../../../../utils/convertTime";
 import { iconButton, iconHover } from "./../../../../../commons/globalStyles";
 
-const QuestionList = ({ data }) => {
+const QuestionList = ({ sortedData, orgData, setSortBy, sortBy }) => {
   const { socketContext } = useSocket();
 
   const handleUpvote = (questionId) => {
@@ -29,12 +28,11 @@ const QuestionList = ({ data }) => {
     console.log(event.target.value);
     setSortBy(event.target.value);
   };
-  const { setSortBy, sortBy, sortedData } = useSort(data);
 
   return (
     <Box sx={{ overflow: "scroll" }}>
       {/* Sort dropdown */}
-      {data.length > 0 ? (
+      {orgData.length > 0 ? (
         <FormControl
           fullWidth
           sx={{ mb: 2, position: "sticky", top: 0, background: "white" }}
@@ -92,7 +90,7 @@ const QuestionList = ({ data }) => {
                   if (!item.isVoted) handleUpvote(item.id);
                 }}
               />
-              {item.upVotes && item.upVotes > 0 ? item.upVotes : ""}
+              {item.upVotes}
             </Stack>
           </Box>
           <Divider orientation="horizontal" flexItem />

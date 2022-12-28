@@ -38,8 +38,6 @@ const PresentationPlayerPage = () => {
     usePresentationPlayer(socketContext, setSocketContext, id, slide);
 
   const { value: isNotify, toggleValue: toggleNotify } = useToggle(false);
-  const { value: isNotifyQues, toggleValue: toggleNotifyQues } =
-    useToggle(false);
 
   return (
     <BackgroundContainer>
@@ -110,24 +108,14 @@ const PresentationPlayerPage = () => {
             </>
           )}
           {/* Q&A button */}
-          <Badge
-            color="primary"
-            variant="dot"
-            invisible={!isNotifyQues}
-            sx={{ mt: 2 }}
+          <BasicButton
+            icon={<QuestionAnswer />}
+            color="success"
+            sx={{ width: "20vw" }}
+            onClick={handleOpenQAPopup}
           >
-            <BasicButton
-              icon={<QuestionAnswer />}
-              color="success"
-              sx={{ width: "20vw" }}
-              onClick={() => {
-                handleOpenQAPopup();
-                toggleNotifyQues(false);
-              }}
-            >
-              Open Q&A
-            </BasicButton>
-          </Badge>
+            Open Q&A
+          </BasicButton>
           {/* Chat button */}
           <Badge
             color="primary"

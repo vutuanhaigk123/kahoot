@@ -13,7 +13,8 @@ const PAGE = { LIST_PAGE: 0, ASK_PAGE: 1 };
 
 const PlayerQuestionModal = ({ isOpen, handleClosePopup }) => {
   const { socketContext } = useSocket();
-  const { quesHistory } = useQuesHistory(socketContext);
+  const { sortedData, setSortBy, sortBy, quesHistory } =
+    useQuesHistory(socketContext);
   const [curPage, setCurPage] = React.useState(PAGE.LIST_PAGE);
 
   return (
@@ -69,7 +70,12 @@ const PlayerQuestionModal = ({ isOpen, handleClosePopup }) => {
           {curPage === PAGE.LIST_PAGE ? (
             <>
               <Typography variant="h4">Question list</Typography>
-              <QuestionList data={quesHistory} />
+              <QuestionList
+                orgData={quesHistory}
+                sortedData={sortedData}
+                setSortBy={setSortBy}
+                sortBy={sortBy}
+              />
               <BasicButton onClick={() => setCurPage(PAGE.ASK_PAGE)}>
                 Ask a new question
               </BasicButton>
