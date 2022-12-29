@@ -24,7 +24,8 @@ const PresentationOwnerPage = () => {
     msgClose,
     question,
     handleNextSlide,
-    handlePrevSlide
+    handlePrevSlide,
+    curQuesType
   } = usePresentationOwner(socketContext, setSocketContext, id, slide, group);
 
   return (
@@ -39,6 +40,7 @@ const PresentationOwnerPage = () => {
       msgClose={msgClose}
       question={question}
       ws={ws}
+      curQuesType={curQuesType}
     />
   );
 };

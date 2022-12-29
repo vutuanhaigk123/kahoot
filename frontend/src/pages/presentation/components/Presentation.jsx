@@ -3,7 +3,11 @@ import React from "react";
 import BackgroundContainer from "../../../components/misc/BackgroundContainer";
 import PopupMsg from "../../../components/notification/PopupMsg";
 import { CopyToClipboard } from "react-copy-to-clipboard";
-import { PAGE_ROUTES, SUBMIT_STATUS } from "../../../commons/constants";
+import {
+  PAGE_ROUTES,
+  questionType,
+  SUBMIT_STATUS
+} from "../../../commons/constants";
 import BasicButton from "../../../components/button/BasicButton";
 import {
   ArrowBack,
@@ -13,14 +17,14 @@ import {
   ContentCopy,
   QuestionAnswer
 } from "@mui/icons-material";
-import PresentationChart from "../../../components/chart/PresentationChart";
 import { iconButton, iconHover } from "../../../commons/globalStyles";
 import OwnerQuestionModal from "../modal/owner/OwnerQuestionModal";
 import usePopup from "../../../hooks/usePopup";
 import useToggle from "../../../hooks/useToggle";
 import ChatBox from "../modal/chat/ChatBox";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import ConfirmPopup from "../../../components/notification/ConfirmPopup";
+import PresentationType from "./PresentationType";
 
 const Presentation = ({
   isConnected,
@@ -32,7 +36,8 @@ const Presentation = ({
   isEnd,
   question,
   handlePrevSlide,
-  handleNextSlide
+  handleNextSlide,
+  curQuesType
 }) => {
   const [isCopy, setIsCopy] = React.useState(false);
 
@@ -73,6 +78,9 @@ const Presentation = ({
     setIsEnding(false);
   };
 
+  const [searchParam] = useSearchParams();
+  const groupId = searchParam.get("group");
+
   return (
     <BackgroundContainer>
       {isConnected && id ? (
@@ -98,30 +106,38 @@ const Presentation = ({
               p: 2
             }}
           >
-            <Typography variant="h4" sx={{ mb: 2 }}>
-              {question}
-            </Typography>
-            <CopyToClipboard
-              text={`${PAGE_ROUTES.BASE}${PAGE_ROUTES.SLIDES_JOIN}?id=${id}`}
-            >
-              <BasicButton
-                icon={isCopy ? <ContentCopy /> : <Link />}
-                onClick={() => {
-                  setIsCopy(true);
-                  setTimeout(() => {
-                    setIsCopy(false);
-                  }, 2000);
-                }}
-                color={isCopy ? "success" : "primary"}
-                sx={{ mb: 2 }}
+            {/* Hide question if not multiple choice */}
+            {curQuesType === questionType.MULTIPLE_CHOICE ? (
+              <Typography variant="h4" sx={{ mb: 2 }}>
+                {question}
+              </Typography>
+            ) : null}
+
+            {/* Hide invite button if present in group */}
+            {groupId ? null : (
+              <CopyToClipboard
+                text={`${PAGE_ROUTES.BASE}${PAGE_ROUTES.SLIDES_JOIN}?id=${id}`}
               >
-                {isCopy ? "Link coppied" : "Get invite link"}
-              </BasicButton>
-            </CopyToClipboard>
-            {/* Chart */}
+                <BasicButton
+                  icon={isCopy ? <ContentCopy /> : <Link />}
+                  onClick={() => {
+                    setIsCopy(true);
+                    setTimeout(() => {
+                      setIsCopy(false);
+                    }, 2000);
+                  }}
+                  color={isCopy ? "success" : "primary"}
+                  sx={{ mb: 2 }}
+                >
+                  {isCopy ? "Link coppied" : "Get invite link"}
+                </BasicButton>
+              </CopyToClipboard>
+            )}
+
+            {/* Presentation */}
             <Box
               sx={{
-                height: "80%",
+                height: "100%",
                 width: "100%",
                 position: "relative",
                 textAlign: "center",
@@ -129,8 +145,13 @@ const Presentation = ({
                 justifyContent: "center"
               }}
             >
-              {/* Presentation */}
-              <PresentationChart data={data} height="100%" width="90%" />
+              {/* Chart */}
+              <PresentationType
+                curQuesType={curQuesType}
+                data={data}
+                question={question}
+              />
+
               {/* Navigation */}
               {!isFirst ? (
                 <ArrowLeft

@@ -1,6 +1,7 @@
 import React from "react";
 import { io } from "socket.io-client";
 import {
+  questionType,
   ROLE,
   WS_CLOSE,
   WS_CMD,
@@ -56,6 +57,27 @@ const usePresentationOwner = (
   const [isConnected, setIsConnected] = React.useState(true);
   const [isEnd, setIsEnd] = React.useState(false);
   const [isFirst, setIsFirst] = React.useState(false);
+  const [curQuesType, setCurQuesType] = React.useState(
+    questionType.MULTIPLE_CHOICE
+  );
+
+  const handleSetData = (arg) => {
+    switch (arg.curQues.type) {
+      case questionType.MULTIPLE_CHOICE:
+        setData(arg.curQues.answers);
+        break;
+      case questionType.HEADING:
+        setData(arg.curQues.heading);
+        break;
+      case questionType.PARAGRAPH:
+        setData(arg.curQues.paragraph);
+        break;
+
+      default:
+        break;
+    }
+    setCurQuesType(arg.curQues.type);
+  };
 
   // Connect socket
   React.useEffect(() => {
@@ -115,7 +137,7 @@ const usePresentationOwner = (
       socketContext.on(WS_EVENT.INIT_CONNECTION_EVENT, (arg) => {
         setIsConnected(true);
         setQuestion(arg.curQues.question);
-        setData(arg.curQues.answers);
+        handleSetData(arg);
         setIsFirst(arg.isFirst);
         setIsEnd(arg.isEnd);
         console.log("==========================================");
@@ -126,7 +148,7 @@ const usePresentationOwner = (
         console.log("==================Next slide========================");
         console.log(arg);
         setQuestion(arg.curQues.question);
-        setData(arg.curQues.answers);
+        handleSetData(arg);
         setIsFirst(false);
         if (arg.isEnd === true) {
           setIsEnd(true);
@@ -137,7 +159,7 @@ const usePresentationOwner = (
         console.log("====================Prev Slide======================");
         console.log(arg);
         setQuestion(arg.curQues.question);
-        setData(arg.curQues.answers);
+        handleSetData(arg);
         setIsEnd(false);
         if (arg.isFirst === true) {
           setIsFirst(true);
@@ -224,7 +246,8 @@ const usePresentationOwner = (
     question,
     handleNextSlide,
     handlePrevSlide,
-    handleSendComment
+    handleSendComment,
+    curQuesType
   };
 };
 

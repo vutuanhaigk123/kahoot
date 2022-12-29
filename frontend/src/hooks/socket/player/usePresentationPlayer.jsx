@@ -3,6 +3,7 @@ import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { io } from "socket.io-client";
 import {
+  questionType,
   WS_CLOSE,
   WS_CMD,
   WS_EVENT,
@@ -56,6 +57,28 @@ const usePresentationPlayer = (socketContext, setSocketContext, id, slide) => {
   const [isVoted, setIsVoted] = React.useState(false);
   const [msgClose, setMsgClose] = React.useState(null);
   const [isEndPresent, setIsEndPresent] = React.useState(false);
+  const [curQuesType, setCurQuesType] = React.useState(
+    questionType.MULTIPLE_CHOICE
+  );
+
+  const handleSetData = (arg) => {
+    switch (arg.curQues.type) {
+      case questionType.MULTIPLE_CHOICE:
+        setData(arg.curQues.answers);
+        break;
+      case questionType.HEADING:
+        setData(arg.curQues.heading);
+        break;
+      case questionType.PARAGRAPH:
+        setData(arg.curQues.paragraph);
+        break;
+
+      default:
+        break;
+    }
+    setQuestion(arg.curQues.question);
+    setCurQuesType(arg.curQues.type);
+  };
 
   // Connect socket
   React.useEffect(() => {
@@ -100,29 +123,13 @@ const usePresentationPlayer = (socketContext, setSocketContext, id, slide) => {
       socketContext.on(WS_EVENT.INIT_CONNECTION_EVENT, (arg) => {
         if (arg.isVoted) {
           setIsVoted(true);
-          setData(arg.curQues.answers);
-        } else {
-          setQuestion(arg.curQues);
         }
+        handleSetData(arg);
 
         dispatch(setSocket(arg));
         console.log("==========================================");
         console.log(arg);
       });
-
-      // socketContext.on(WS_EVENT.RECEIVE_CMT_EVENT, (arg) => {
-      //   console.log(
-      //     "=====================Another member has commented====================="
-      //   );
-      //   console.log(arg);
-      // });
-
-      // socketContext.on(WS_EVENT.RECEIVE_QUESTION_EVENT, (arg) => {
-      //   console.log(
-      //     "=====================Another member has made a question====================="
-      //   );
-      //   console.log(arg);
-      // });
 
       socketContext.on(WS_CLOSE.CLOSE_REASON, (arg) => {
         console.log(
@@ -194,23 +201,23 @@ const usePresentationPlayer = (socketContext, setSocketContext, id, slide) => {
       });
 
       socketContext.on(WS_EVENT.RECEIVE_NEXT_SLIDE_EVENT, (arg) => {
+        console.log("===Next slide===");
         if (arg.isVoted) {
           setIsVoted(true);
-          setData(arg.curQues.answers);
         } else {
-          setQuestion(arg.curQues);
           setIsVoted(false);
         }
+        handleSetData(arg);
       });
 
       socketContext.on(WS_EVENT.RECEIVE_PREV_SLIDE_EVENT, (arg) => {
+        console.log("===Prev slide===");
         if (arg.isVoted) {
           setIsVoted(true);
-          setData(arg.curQues.answers);
         } else {
-          setQuestion(arg.curQues);
           setIsVoted(false);
         }
+        handleSetData(arg);
       });
 
       return () => {
@@ -232,7 +239,8 @@ const usePresentationPlayer = (socketContext, setSocketContext, id, slide) => {
     handleSubmitChoice,
     handleSendComment,
     handleSendQuestion,
-    isEndPresent
+    isEndPresent,
+    curQuesType
   };
 };
 
