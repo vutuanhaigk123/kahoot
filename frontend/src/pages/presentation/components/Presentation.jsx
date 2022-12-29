@@ -22,7 +22,7 @@ import OwnerQuestionModal from "../modal/owner/OwnerQuestionModal";
 import usePopup from "../../../hooks/usePopup";
 import useToggle from "../../../hooks/useToggle";
 import ChatBox from "../modal/chat/ChatBox";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import ConfirmPopup from "../../../components/notification/ConfirmPopup";
 import PresentationType from "./PresentationType";
 
@@ -78,9 +78,6 @@ const Presentation = ({
     setIsEnding(false);
   };
 
-  const [searchParam] = useSearchParams();
-  const groupId = searchParam.get("group");
-
   return (
     <BackgroundContainer>
       {isConnected && id ? (
@@ -113,26 +110,24 @@ const Presentation = ({
               </Typography>
             ) : null}
 
-            {/* Hide invite button if present in group */}
-            {groupId ? null : (
-              <CopyToClipboard
-                text={`${PAGE_ROUTES.BASE}${PAGE_ROUTES.SLIDES_JOIN}?id=${id}`}
+            {/* Copy link button */}
+            <CopyToClipboard
+              text={`${PAGE_ROUTES.BASE}${PAGE_ROUTES.SLIDES_JOIN}?id=${id}`}
+            >
+              <BasicButton
+                icon={isCopy ? <ContentCopy /> : <Link />}
+                onClick={() => {
+                  setIsCopy(true);
+                  setTimeout(() => {
+                    setIsCopy(false);
+                  }, 2000);
+                }}
+                color={isCopy ? "success" : "primary"}
+                sx={{ mb: 2 }}
               >
-                <BasicButton
-                  icon={isCopy ? <ContentCopy /> : <Link />}
-                  onClick={() => {
-                    setIsCopy(true);
-                    setTimeout(() => {
-                      setIsCopy(false);
-                    }, 2000);
-                  }}
-                  color={isCopy ? "success" : "primary"}
-                  sx={{ mb: 2 }}
-                >
-                  {isCopy ? "Link coppied" : "Get invite link"}
-                </BasicButton>
-              </CopyToClipboard>
-            )}
+                {isCopy ? "Link coppied" : "Get invite link"}
+              </BasicButton>
+            </CopyToClipboard>
 
             {/* Presentation */}
             <Box
