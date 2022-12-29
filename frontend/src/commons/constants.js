@@ -67,7 +67,8 @@ export const API = {
   PRESENTATION_DELETE_COLLAB: "/api/presentation/del-colab",
   FORGOT_PASSWORD: "/api/user/forgot-password",
   VALIDATE_RESET_PASSWORD: "/api/user/validate-reset-password",
-  RESET_PASSWORD: "/api/user/reset-password"
+  RESET_PASSWORD: "/api/user/reset-password",
+  DELETE_GROUP: "/api/group/delete"
 };
 
 export const WS_PATH = {

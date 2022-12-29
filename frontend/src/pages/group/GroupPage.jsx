@@ -37,7 +37,8 @@ const GroupPage = () => {
   const {
     error: errorCreated,
     data: createdGroup,
-    refetch
+    refetch,
+    isRefetching
   } = useQuery("created-groups", () =>
     handleGet(`${API.CREATED_GROUP}?page=${0}&limit=${100}`)
   );
@@ -73,6 +74,7 @@ const GroupPage = () => {
             data={createdGroup}
             formType={FormType.CREATE}
             refetch={refetch}
+            isRefetching={isRefetching}
           ></Panel>
           <Panel
             value={"2"}
@@ -85,8 +87,9 @@ const GroupPage = () => {
   );
 };
 
-const Panel = ({ value, data, formType, refetch }) => {
+const Panel = ({ value, data, formType, refetch, isRefetching }) => {
   const { open, handleClosePopup, handleOpenPopup } = usePopup();
+
   return (
     <TabPanel
       value={value}
@@ -127,6 +130,9 @@ const Panel = ({ value, data, formType, refetch }) => {
                   <BasicCard
                     data={item}
                     navigateTo={PAGE_ROUTES.GROUP + `/${item._id}`}
+                    isRefetching={isRefetching}
+                    refetch={refetch}
+                    canDelete={formType === FormType.CREATE}
                   ></BasicCard>
                 </Grid>
               ))}

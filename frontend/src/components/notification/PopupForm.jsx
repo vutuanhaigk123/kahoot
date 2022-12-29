@@ -40,7 +40,8 @@ const PopupForm = ({
   const {
     handleSubmit,
     control,
-    formState: { errors }
+    formState: { errors },
+    reset
   } = useForm({
     resolver: yupResolver(schema)
   });
@@ -65,6 +66,10 @@ const PopupForm = ({
       handleClose();
       // Open popup message
       handleOpenMsg();
+
+      // Reset form on success
+      if (resp.status === 0) reset();
+
       // Refetch groups data
       if (refetch) {
         refetch();
