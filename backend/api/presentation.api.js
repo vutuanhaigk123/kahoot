@@ -301,15 +301,16 @@ router.get(
           answers: answersRes
         });
       } else {
-        slidesRes.push({
+        const slideTmp = {
           _id: slide._id,
           question: slide.question,
           type: slide.type
-        });
+        };
+        slidesRes.push(slideTmp);
         if (slide.type.toString() === SLIDE_TYPE.heading.toString()) {
-          slidesRes.heading = slide.content;
+          slideTmp.heading = slide.content;
         } else {
-          slidesRes.paragraph = slide.content;
+          slideTmp.paragraph = slide.content;
         }
       }
     });
