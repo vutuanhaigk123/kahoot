@@ -94,7 +94,9 @@ export default {
 
   async getSlidesByPresentationId(presentationId) {
     const ret = await Slide.find({ presentationId })
-      .select("_id question type answers._id answers.des answers.choiceUids")
+      .select(
+        "_id question type answers._id answers.des answers.choiceUids content"
+      )
       .exec();
     return ret;
   },

@@ -6,7 +6,7 @@
 /* eslint-disable import/extensions */
 /* eslint-disable no-console */
 import HashMap from "hashmap";
-import { ROLE } from "../utils/database.js";
+import { ROLE, SLIDE_TYPE } from "../utils/database.js";
 import CommentModel from "./comment.model.js";
 import EventModel from "./event.model.js";
 import groupModel from "./group.model.js";
@@ -160,12 +160,23 @@ function initMatch(
         total: ans.choiceUids.length
       });
     });
-    questionsTmp.push({
+    const ques = {
       id: eachQuestion._id,
       question: eachQuestion.question,
-      type: eachQuestion.type,
-      answers: ansListOfQues
-    });
+      type: eachQuestion.type
+    };
+    if (
+      eachQuestion.type.toString() === SLIDE_TYPE.multiple_choice.toString()
+    ) {
+      ques.answers = ansListOfQues;
+    } else if (eachQuestion.type.toString() === SLIDE_TYPE.heading.toString()) {
+      ques.answers = [];
+      ques.heading = eachQuestion.content;
+    } else {
+      ques.answers = [];
+      ques.paragraph = eachQuestion.content;
+    }
+    questionsTmp.push(ques);
   });
   if (groupId) {
     groupMap.set(groupId, roomId);
