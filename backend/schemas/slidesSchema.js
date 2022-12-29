@@ -12,7 +12,12 @@ const Slides = new Schema(
       {
         _id: String,
         des: String,
-        choiceUids: [String]
+        choiceUids: [
+          {
+            uid: String,
+            ts: Number
+          }
+        ]
       }
     ]
   },

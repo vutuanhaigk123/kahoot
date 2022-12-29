@@ -12,13 +12,23 @@ const removePresentationListener = (socket) => {
   socket.removeAllListeners(EventModel.PREV_SLIDE);
 };
 
-export default async (ws, socket, userId, cmd, room, slide) => {
+export default async (
+  ws,
+  socket,
+  userId,
+  name,
+  avt,
+  email,
+  cmd,
+  room,
+  slide
+) => {
   removePresentationListener(socket);
 
   socket.on(EventModel.SUBMIT_CHOICE, (arg) => {
     if (SocketModel.isAuthorized(userId, room)) {
       console.log(arg);
-      MatchModel.makeChoice(userId, room, arg, ws);
+      MatchModel.makeChoice(userId, name, email, room, arg, ws);
     }
   });
 

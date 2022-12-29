@@ -88,9 +88,9 @@ export default {
     return null;
   },
 
-  async getNameAndAvt(userId) {
+  async getNameAndAvtAndEmail(userId) {
     const ret = await User.findOne({ _id: userId })
-      .select("_id name avt")
+      .select("_id name avt email")
       .exec();
     return ret;
   },

@@ -112,7 +112,8 @@ async function sendDataToOwner(socket, userId, room, slide, group) {
       data,
       joinedUser,
       isEnd,
-      isFirst
+      isFirst,
+      userShortInfoList
     } = result;
 
     if (curQues) {
@@ -122,6 +123,7 @@ async function sendDataToOwner(socket, userId, room, slide, group) {
         isEnd,
         chatHistory,
         quesHistory,
+        userShortInfoList,
         isFirst
         // data
       });
@@ -180,7 +182,8 @@ async function sendDataToCoOwner(socket, userId, room, slide) {
       data,
       joinedUser,
       isEnd,
-      isFirst
+      isFirst,
+      userShortInfoList
     } = result;
     if (curQues) {
       SocketModel.sendEvent(userId, EventModel.INIT_CONNECTION, {
@@ -189,7 +192,8 @@ async function sendDataToCoOwner(socket, userId, room, slide) {
         isEnd,
         chatHistory,
         quesHistory,
-        isFirst
+        isFirst,
+        userShortInfoList
         // data
       });
       socket.join(room);
@@ -269,9 +273,21 @@ export default async (ws) => {
 
         await sendInitData(socket, room, cmdId, slideId, group);
 
-        const { name, avt } = await userModel.getNameAndAvt(userId);
+        const { name, avt, email } = await userModel.getNameAndAvtAndEmail(
+          userId
+        );
 
-        presentationListerner(ws, socket, userId, cmdId, roomId, slideId);
+        presentationListerner(
+          ws,
+          socket,
+          userId,
+          name,
+          avt,
+          email,
+          cmdId,
+          roomId,
+          slideId
+        );
         questionListener(ws, socket, userId, name, avt, cmdId, roomId, slideId);
         commentListener(ws, socket, userId, name, avt, cmdId, roomId, slideId);
       }

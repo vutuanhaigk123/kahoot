@@ -1,3 +1,4 @@
+/* eslint-disable no-lonely-if */
 /* eslint-disable no-unused-vars */
 /* eslint-disable import/no-cycle */
 /* eslint-disable no-underscore-dangle */
@@ -7,12 +8,14 @@
 /* eslint-disable no-console */
 import HashMap from "hashmap";
 import { ROLE, SLIDE_TYPE } from "../utils/database.js";
+import { getCurTimestampUTC } from "../utils/time.js";
 import CommentModel from "./comment.model.js";
 import EventModel from "./event.model.js";
 import groupModel from "./group.model.js";
 import QuestionModel from "./question.model.js";
 import SlideModel from "./slide.model.js";
 import SocketModel from "./socket.model.js";
+import UserModel from "./user.model.js";
 
 const groupMap = new HashMap();
 // groupId -> presentationId
@@ -62,13 +65,20 @@ const matches = new HashMap();
         answers: [{
           id: answer id,
           des: "This is an answer",
-          total: 0
+          total: 0,
+          type: Number,
+          choiceUserInfo: [{id: uid, ts: Number}]
         }],
         true_ans: answer id
       }],
       answers: [{
         id: question id,
-        data: HashMap<uid, answer id>
+        data: HashMap<uid, {choiceId: answer id, ts: Number, name: String, email: String}>
+      }],
+      submittedChoiceUserShortInfoList: [{
+        id: uid,
+        name: String,
+        email: String
       }]
       
     }
@@ -154,10 +164,15 @@ function initMatch(
   questions.forEach((eachQuestion) => {
     const ansListOfQues = [];
     eachQuestion.answers.forEach((ans) => {
+      const choiceUserInfo = [];
+      ans.choiceUids.forEach((element) => {
+        choiceUserInfo.push({ id: element.uid, ts: element.ts });
+      });
       ansListOfQues.push({
         id: ans._id,
         des: ans.des,
-        total: ans.choiceUids.length
+        total: ans.choiceUids.length,
+        choiceUserInfo
       });
     });
     const ques = {
@@ -193,7 +208,8 @@ function initMatch(
     comments,
     userQuestions,
     questions: questionsTmp,
-    answers
+    answers,
+    submittedChoiceUserShortInfoList: []
   };
 }
 
@@ -254,6 +270,37 @@ async function isGroupCoOwner(userId, matchInfo) {
   return true;
 }
 
+async function getShortUserInfoSubmittedChoice(questions) {
+  if (questions.length === 0) {
+    return null;
+  }
+  const choiceUidList = [];
+  questions.forEach((eachQuestion) => {
+    const ansListOfQues = [];
+    eachQuestion.answers.forEach((ans) => {
+      ans.choiceUids.forEach(({ uid, ts }) => {
+        if (uid && !choiceUidList.includes(uid)) {
+          choiceUidList.push(uid);
+        }
+      });
+    });
+  });
+  if (choiceUidList.length > 0) {
+    const result = await UserModel.multiGetShortInfoByIds(choiceUidList);
+    const resultArr = [];
+    choiceUidList.forEach((uid) => {
+      const userShortInfo = result.get(uid);
+      resultArr.push({
+        id: uid,
+        name: userShortInfo.name,
+        email: userShortInfo.email
+      });
+    });
+    return resultArr;
+  }
+  return null;
+}
+
 export default {
   STATE_LOBBY: STATE_LOBBY_CODE,
   STATE_LEADERBOARD: STATE_LEADERBOARD_CODE,
@@ -284,6 +331,7 @@ export default {
     ) {
       return null;
     }
+    let userShortInfoList = [];
     if (!matchInfo) {
       switch (role) {
         // if userId has present permission and not init match:
@@ -294,6 +342,9 @@ export default {
               return null;
             }
             matchInfo = initMatch(roomId, userId, questions, slideId, group);
+            userShortInfoList = await getShortUserInfoSubmittedChoice(
+              questions
+            );
             matches.set(roomId, matchInfo);
 
             console.log("init new match");
@@ -369,6 +420,7 @@ export default {
         matchInfo.members,
         matchInfo.coOwners
       );
+      userShortInfoList = await getShortUserInfoSubmittedChoice(questions);
       matches.set(roomId, matchInfo);
       console.log("delete timeout");
     }
@@ -392,7 +444,8 @@ export default {
     //     data = [data[0], data[1], data[2]];
     //   }
     // }
-    const curQues = getQuestion(matchInfo.questions, matchInfo.curQues);
+    const curQuesRes = getQuestion(matchInfo.questions, matchInfo.curQues);
+    const curQues = { ...curQuesRes };
 
     if (curQues && curQues.true_ans) {
       delete curQues.true_ans;
@@ -401,6 +454,14 @@ export default {
     const questionIndex = hasQuestion(matchInfo.questions, matchInfo.curQues);
     const isEnd = questionIndex >= matchInfo.questions.length - 1;
     const isFirst = questionIndex === 0;
+
+    if (role === ROLE.member) {
+      delete curQues.choiceUserInfo;
+      curQues.answers.forEach((ans) => {
+        // eslint-disable-next-line no-param-reassign
+        delete ans.choiceUserInfo;
+      });
+    }
 
     const result = {
       curState: matchInfo.curState,
@@ -424,6 +485,12 @@ export default {
         const ans = matchInfo.answers[index];
         result.isVoted = ans.data.get(userId) !== null;
       }
+    } else if (role !== ROLE.member) {
+      // co-ower or owner
+      if (userShortInfoList && userShortInfoList.length !== 0) {
+        matchInfo.submittedChoiceUserShortInfoList = userShortInfoList;
+      }
+      result.userShortInfoList = matchInfo.submittedChoiceUserShortInfoList;
     }
 
     return result;
@@ -468,7 +535,7 @@ export default {
     }
   },
 
-  makeChoice(userId, roomId, choiceId, ws) {
+  makeChoice(userId, name, email, roomId, choiceId, ws) {
     const matchInfo = matches.get(roomId);
     if (matchInfo /* && matchInfo.curState === STATE_LOBBY_CODE */) {
       const questionId = matchInfo.curQues;
@@ -488,7 +555,12 @@ export default {
       if (!ans) {
         ans = matchInfo.answers[index];
       }
-
+      if (
+        matchInfo.questions[questionIndex].type.toString() !==
+        SLIDE_TYPE.multiple_choice.toString()
+      ) {
+        return;
+      }
       const choiceIndex = isAnswerValid(
         matchInfo.questions[questionIndex].answers,
         choiceId
@@ -501,9 +573,10 @@ export default {
       if (isAnswered && !isTesting) {
         return console.log("Da answered roi");
       }
-      ans.data.set(userId, choiceId);
+      const ts = getCurTimestampUTC();
+      ans.data.set(userId, { choiceId, ts, name, email });
       matchInfo.questions[questionIndex].answers[choiceIndex].total += 1;
-      SlideModel.addChoiceUid(questionId, roomId, choiceId, userId);
+      SlideModel.addChoiceUid(questionId, roomId, choiceId, userId, ts);
 
       const curQues = getQuestion(matchInfo.questions, matchInfo.curQues);
 
@@ -514,7 +587,10 @@ export default {
       });
       SocketModel.sendBroadcastRoom(userId, roomId, EventModel.RECEIVE_CHOICE, {
         id: userId,
-        choiceId
+        choiceId,
+        name,
+        email,
+        ts
       });
     }
   },

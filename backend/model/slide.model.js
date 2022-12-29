@@ -101,10 +101,10 @@ export default {
     return ret;
   },
 
-  async addChoiceUid(slideId, presentationId, answerId, choiceUid) {
+  async addChoiceUid(slideId, presentationId, answerId, choiceUid, ts) {
     await Slide.updateOne(
       { _id: slideId, presentationId, "answers._id": answerId },
-      { $push: { "answers.$.choiceUids": choiceUid } }
+      { $push: { "answers.$.choiceUids": { uid: choiceUid, ts } } }
     );
   },
 
