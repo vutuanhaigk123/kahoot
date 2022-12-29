@@ -39,7 +39,7 @@ const GroupDetailPage = () => {
   }, [data]);
 
   React.useEffect(() => {
-    if (data) {
+    if (data?.info) {
       const role = getUserRole(user?.data?.id, data?.info?.members);
       setUserRole(role);
     }

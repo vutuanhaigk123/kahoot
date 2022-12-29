@@ -19,6 +19,7 @@ import { RemoveCircle } from "@mui/icons-material";
 import { handlePost } from "./../../utils/fetch";
 import usePopup from "./../../hooks/usePopup";
 import PopupMsg from "./PopupMsg";
+import Transition from "./../../pages/presentation/modal/components/Transition";
 
 const formType = { inviteLink: 1, inviteEmail: 2 };
 
@@ -29,7 +30,11 @@ const PopupFormInvite = ({ isOpen, handleClose, inviteLink, groupId }) => {
     setType(formType.inviteLink);
   };
   return (
-    <Dialog open={isOpen} onClose={handleCLosePopUp}>
+    <Dialog
+      open={isOpen}
+      onClose={handleCLosePopUp}
+      TransitionComponent={Transition}
+    >
       {/* Close form when recieved resp */}
       {type === formType.inviteLink ? (
         <InviteLinkForm
@@ -254,7 +259,9 @@ const InviteEmailForm = ({ handleClose, groupId }) => {
         </Grid>
       </form>
       {/* Action */}
-      <DialogActions sx={{ p: 0 }}>
+      <DialogActions
+        sx={{ p: 0, textAlign: "center", justifyContent: "center" }}
+      >
         <BasicButton variant="contained" onClick={handleClose}>
           Close
         </BasicButton>

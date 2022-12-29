@@ -26,6 +26,7 @@ const EditableTextBox = ({
   title,
   otherField,
   fieldName,
+  contentName = fieldName,
   api,
   defaultValue,
   placeholder,
@@ -66,16 +67,16 @@ const EditableTextBox = ({
 
     handleStatus(resp); // update popup msg status
     handleOpenPopup(); // Open popup
-    setIsLoading(false);
     handleToggle(); // Re-disable textbox
     refetch(); // Refetch data
+    setIsLoading(false);
   };
 
   React.useEffect(() => {
     if (presentation._id && presentation.slides.length > 0) {
-      reset({ question: presentation.slides[slideIndex][fieldName] });
+      reset({ question: presentation.slides[slideIndex][contentName] || "" });
     }
-  }, [fieldName, presentation, reset, slideIndex]);
+  }, [contentName, presentation, reset, slideIndex]);
 
   return (
     <>

@@ -17,22 +17,10 @@ const ParagraphSlide = ({ slideIndex }) => {
           textAlign: "center"
         }}
       >
-        {/* {presentation.slides[slideIndex].question} */}
-        Đây là câu hỏi rất dài ok dsadsadsadsad asd
+        {presentation.slides[slideIndex].question}
       </Typography>
       <Typography variant="h6" sx={{ textAlign: "start" }}>
-        {/* {presentation.slides[slideIndex].question} */}
-        Lorem, ipsum dolor sit amet consectetur adipisicing elit. Voluptatum
-        inventore quis est delectus voluptatibus fuga similique, maiores eos
-        eveniet alias aliquid eius dolorem recusandae suscipit at cumque minus!
-        Magni, beatae? Lorem, ipsum dolor sit amet consectetur adipisicing elit.
-        Voluptatum inventore quis est delectus voluptatibus fuga similique,
-        maiores eos eveniet alias aliquid eius dolorem recusandae suscipit at
-        cumque minus! Magni, beatae? Lorem, ipsum dolor sit amet consectetur
-        adipisicing elit. Voluptatum inventore quis est delectus voluptatibus
-        fuga similique, maiores eos eveniet alias aliquid eius dolorem
-        recusandae suscipit at cumque minus! Magni, beatae? Lorem, ipsum dolor
-        sit amet consectetur adipisicing elit. Voluptatum inventore quis est
+        {presentation.slides[slideIndex].paragraph}
       </Typography>
     </>
   );

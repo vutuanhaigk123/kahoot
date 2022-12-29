@@ -68,7 +68,8 @@ export const API = {
   FORGOT_PASSWORD: "/api/user/forgot-password",
   VALIDATE_RESET_PASSWORD: "/api/user/validate-reset-password",
   RESET_PASSWORD: "/api/user/reset-password",
-  DELETE_GROUP: "/api/group/delete"
+  DELETE_GROUP: "/api/group/delete",
+  UPDATE_SLIDE_CONTENT: "/api/slide/content/update"
 };
 
 export const WS_PATH = {

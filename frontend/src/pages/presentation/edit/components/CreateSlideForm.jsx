@@ -64,23 +64,7 @@ const CreateSlideForm = ({ isOpen, handleClose, refetch }) => {
 
     // Handle submit
     console.log(data);
-    var resp = null;
-    switch (data.type) {
-      case questionType.MULTIPLE_CHOICE:
-        resp = await handlePost(API.CREATE_SLIDE, data);
-
-        break;
-      case questionType.HEADING:
-        // resp = await handlePost(API.CREATE_SLIDE, data);
-        break;
-      case questionType.PARAGRAPH:
-        // resp = await handlePost(API.CREATE_SLIDE, data);
-        break;
-
-      default:
-        console.log("Incorrect question type");
-        break;
-    }
+    const resp = await handlePost(API.CREATE_SLIDE, data);
 
     //  Handle resp status
     if (resp) {

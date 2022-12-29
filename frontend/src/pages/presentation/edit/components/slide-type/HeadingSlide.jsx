@@ -18,8 +18,7 @@ const HeadingSlide = ({ slideIndex }) => {
           wordWrap: "break-all"
         }}
       >
-        {/* {presentation.slides[slideIndex].question} */}
-        Đây là heading rất dài ok dsadsadsadsdsad asd dasdsa dsa
+        {presentation.slides[slideIndex].question}
       </Typography>
       <Typography
         variant="h4"
@@ -30,8 +29,7 @@ const HeadingSlide = ({ slideIndex }) => {
           textAlign: "center"
         }}
       >
-        {/* {presentation.slides[slideIndex].question} */}
-        asdsads
+        {presentation.slides[slideIndex].heading}
       </Typography>
     </>
   );

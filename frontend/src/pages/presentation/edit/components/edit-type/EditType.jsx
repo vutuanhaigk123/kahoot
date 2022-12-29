@@ -40,11 +40,11 @@ const EditType = ({ slideIndex, refetch }) => {
               refetch={refetch}
               slideIndex={slideIndex}
               title="Heading"
-              // api={API.UPDATE_SLIDE}
-              // defaultValue={
-              //   presentation._id ? presentation.slides[slideIndex].question : ""
-              // }
-              fieldName="heading"
+              api={API.UPDATE_SLIDE}
+              defaultValue={
+                presentation._id ? presentation.slides[slideIndex].question : ""
+              }
+              fieldName="question"
               otherField={{
                 presentationId: presentation._id,
                 slideId: presentation.slides[slideIndex]._id
@@ -56,12 +56,13 @@ const EditType = ({ slideIndex, refetch }) => {
               refetch={refetch}
               slideIndex={slideIndex}
               title="Sub heading"
-              fieldName="subHeading"
+              fieldName="content"
+              contentName="heading"
               otherField={{
                 presentationId: presentation._id,
                 slideId: presentation.slides[slideIndex]._id
               }}
-              // api={}
+              api={API.UPDATE_SLIDE_CONTENT}
               placeholder="Enter your sub heading"
             />
           </>
@@ -74,11 +75,11 @@ const EditType = ({ slideIndex, refetch }) => {
               refetch={refetch}
               slideIndex={slideIndex}
               title="Heading"
-              // api={API.UPDATE_SLIDE}
-              // defaultValue={
-              //   presentation._id ? presentation.slides[slideIndex].question : ""
-              // }
-              fieldName="heading"
+              api={API.UPDATE_SLIDE}
+              defaultValue={
+                presentation._id ? presentation.slides[slideIndex].question : ""
+              }
+              fieldName="question"
               otherField={{
                 presentationId: presentation._id,
                 slideId: presentation.slides[slideIndex]._id
@@ -90,8 +91,9 @@ const EditType = ({ slideIndex, refetch }) => {
               refetch={refetch}
               slideIndex={slideIndex}
               title="Paragraph"
-              // api={}
-              fieldName="paragraph"
+              api={API.UPDATE_SLIDE_CONTENT}
+              fieldName="content"
+              contentName="paragraph"
               otherField={{
                 presentationId: presentation._id,
                 slideId: presentation.slides[slideIndex]._id

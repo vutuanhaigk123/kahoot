@@ -106,6 +106,12 @@ const ResetPassPage = lazy(() =>
     new Promise((resolve) => setTimeout(resolve, DELAY_TIME))
   ]).then(([module]) => module)
 );
+const NotFound = lazy(() =>
+  Promise.all([
+    import("./pages/NotFound"),
+    new Promise((resolve) => setTimeout(resolve, DELAY_TIME))
+  ]).then(([module]) => module)
+);
 
 function App() {
   const { user } = useSelector((state) => state.auth);
@@ -233,7 +239,7 @@ function App() {
           </Route>
           {/*================================= stop when NOT logon ====================================*/}
 
-          <Route path="*" element={<div>404 page</div>} />
+          <Route path="*" element={<NotFound></NotFound>} />
         </Route>
       </Routes>
     </Suspense>
