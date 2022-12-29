@@ -75,7 +75,7 @@ const matches = new HashMap();
         id: question id,
         data: HashMap<uid, {choiceId: answer id, ts: Number, name: String, email: String}>
       }],
-      submittedChoiceUserShortInfoList: [{
+      userShortInfoList: [{
         id: uid,
         name: String,
         email: String
@@ -209,7 +209,7 @@ function initMatch(
     userQuestions,
     questions: questionsTmp,
     answers,
-    submittedChoiceUserShortInfoList: []
+    userShortInfoList: []
   };
 }
 
@@ -301,6 +301,40 @@ async function getShortUserInfoSubmittedChoice(questions) {
   return null;
 }
 
+async function getOldComments(presentationId) {
+  const comments = await CommentModel.findById(presentationId);
+  if (comments) {
+    const result = [];
+    comments.contents.forEach(({ _id, userId, text, ts, name }) => {
+      result.push({ id: _id, userId, text, ts, name });
+    });
+    return result;
+  }
+  return [];
+}
+
+async function getOldQuestions(presentationId) {
+  const questions = await QuestionModel.findById(presentationId);
+  if (questions) {
+    const result = [];
+    questions.contents.forEach(
+      ({ _id, userId, content, ts, isAnswered, upVotes, name }) => {
+        result.push({
+          id: _id,
+          userId,
+          content,
+          ts,
+          isAnswered,
+          upVotes,
+          name
+        });
+      }
+    );
+    return result;
+  }
+  return [];
+}
+
 export default {
   STATE_LOBBY: STATE_LOBBY_CODE,
   STATE_LEADERBOARD: STATE_LEADERBOARD_CODE,
@@ -341,7 +375,19 @@ export default {
             if (!questions) {
               return null;
             }
-            matchInfo = initMatch(roomId, userId, questions, slideId, group);
+
+            const oldComments = await getOldComments(roomId);
+            const oldQuestions = await getOldQuestions(roomId);
+
+            matchInfo = initMatch(
+              roomId,
+              userId,
+              questions,
+              slideId,
+              group,
+              oldComments,
+              oldQuestions
+            );
             userShortInfoList = await getShortUserInfoSubmittedChoice(
               questions
             );
@@ -420,7 +466,7 @@ export default {
         matchInfo.members,
         matchInfo.coOwners
       );
-      userShortInfoList = await getShortUserInfoSubmittedChoice(questions);
+      // userShortInfoList = await getShortUserInfoSubmittedChoice(questions);
       matches.set(roomId, matchInfo);
       console.log("delete timeout");
     }
@@ -488,9 +534,9 @@ export default {
     } else if (role !== ROLE.member) {
       // co-ower or owner
       if (userShortInfoList && userShortInfoList.length !== 0) {
-        matchInfo.submittedChoiceUserShortInfoList = userShortInfoList;
+        matchInfo.userShortInfoList = userShortInfoList;
       }
-      result.userShortInfoList = matchInfo.submittedChoiceUserShortInfoList;
+      result.userShortInfoList = matchInfo.userShortInfoList;
     }
 
     return result;

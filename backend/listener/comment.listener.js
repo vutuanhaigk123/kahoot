@@ -14,6 +14,9 @@ export default async (ws, socket, userId, name, avt, cmd, room, slide) => {
 
   if (SocketModel.isAuthorized(userId, room)) {
     socket.on(EventModel.SEND_CMT, (arg) => {
+      if (!arg) {
+        return;
+      }
       console.log(arg);
       const data = MatchModel.doComment(userId, name, room, arg.toString());
       SocketModel.sendBroadcastRoom(

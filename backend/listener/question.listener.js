@@ -14,6 +14,9 @@ export default async (ws, socket, userId, name, avt, cmd, room, slide) => {
 
   socket.on(EventModel.SEND_QUESTION, (arg) => {
     if (SocketModel.isAuthorized(userId, room)) {
+      if (!arg) {
+        return;
+      }
       console.log(arg);
       const data = MatchModel.doAsk(userId, name, room, arg.toString().trim());
       SocketModel.sendBroadcastRoom(
@@ -28,6 +31,9 @@ export default async (ws, socket, userId, name, avt, cmd, room, slide) => {
 
   socket.on(EventModel.UPVOTE_QUESTION, (arg) => {
     if (SocketModel.isAuthorized(userId, room)) {
+      if (!arg) {
+        return;
+      }
       console.log(arg);
       const result = MatchModel.doUpVoteQues(
         userId,
@@ -55,6 +61,9 @@ export default async (ws, socket, userId, name, avt, cmd, room, slide) => {
 
   socket.on(EventModel.MARK_QUESTION_ANSWERED, (arg) => {
     if (SocketModel.isAuthorized(userId, room)) {
+      if (!arg) {
+        return;
+      }
       const result = MatchModel.markQuesAnswered(
         userId,
         name,

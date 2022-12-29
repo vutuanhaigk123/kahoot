@@ -1,8 +1,59 @@
 /* eslint-disable import/extensions */
+import Question from "../schemas/questionsSchema.js";
 import { getNewObjectId } from "../utils/database.js";
 import { getCurTimestampUTC } from "../utils/time.js";
 
 export default {
+  async findById(id) {
+    const result = await Question.findById({ _id: id }).exec();
+    return result;
+  },
+
+  async storeQuestion(presentationId, question) {
+    const ques = {
+      _id: question.id,
+      userId: question.userId,
+      content: question.content,
+      ts: question.ts,
+      isAnswered: question.isAnswered,
+      upVotes: question.upVotes,
+      name: question.name
+    };
+    let presentationQuestions = await this.findById(presentationId);
+    if (presentationQuestions) {
+      presentationQuestions.contents.push(ques);
+    } else {
+      presentationQuestions = new Question({
+        _id: presentationId,
+        contents: [ques]
+      });
+    }
+    const result = await presentationQuestions.save();
+    return result;
+  },
+
+  async storeMarkAsAnswered(presentationId, questionId) {
+    const result = await Question.updateOne(
+      {
+        _id: presentationId,
+        "contents._id": questionId
+      },
+      { $set: { "contents.$.isAnswered": true } }
+    ).exec();
+    return result;
+  },
+
+  async storeUpVoteQues(presentationId, questionId, uidUpVote) {
+    const result = await Question.updateOne(
+      {
+        _id: presentationId,
+        "contents._id": questionId
+      },
+      { $push: { "contents.$.upVotes": uidUpVote } }
+    ).exec();
+    return result;
+  },
+
   doAsk(userId, name, content, matchInfo) {
     if (matchInfo && matchInfo.userQuestions) {
       const data = {
@@ -15,6 +66,7 @@ export default {
         name
       };
       matchInfo.userQuestions.push(data);
+      this.storeQuestion(matchInfo.roomId, data);
       return data;
     }
     return null;
@@ -33,6 +85,7 @@ export default {
       );
       if (quesInfo) {
         quesInfo.isAnswered = true;
+        this.storeMarkAsAnswered(matchInfo.roomId, quesId);
         return true;
       }
     }
@@ -46,6 +99,7 @@ export default {
       );
       if (quesInfo && !quesInfo.upVotes.includes(userId)) {
         quesInfo.upVotes.push(userId);
+        this.storeUpVoteQues(matchInfo.roomId, quesId, userId);
         return true;
       }
     }
