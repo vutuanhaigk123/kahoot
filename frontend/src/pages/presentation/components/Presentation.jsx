@@ -156,7 +156,7 @@ const Presentation = ({
                     {
                       position: "absolute",
                       left: 0,
-                      top: "40%"
+                      top: "45%"
                     },
                     iconButton
                   ]}
@@ -167,7 +167,7 @@ const Presentation = ({
                   onClick={() => handleNextSlide(ws)}
                   fontSize="large"
                   sx={[
-                    { position: "absolute", top: "40%", right: 0 },
+                    { position: "absolute", top: "45%", right: 0 },
                     iconButton
                   ]}
                 />

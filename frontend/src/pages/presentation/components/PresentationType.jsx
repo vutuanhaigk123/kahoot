@@ -4,14 +4,17 @@ import { questionType } from "../../../commons/constants";
 import PresentationChart from "../../../components/chart/PresentationChart";
 
 const PresentationType = ({ curQuesType, data, question }) => {
-  console.log(
-    "🚀 ~ file: PresentationType.jsx:7 ~ PresentationType ~ data",
-    curQuesType,
-    data
-  );
   switch (curQuesType) {
     case questionType.MULTIPLE_CHOICE:
-      return <PresentationChart data={data} height="100%" width="90%" />;
+      if (data.length > 0) {
+        return <PresentationChart data={data} height="100%" width="90%" />;
+      } else {
+        return (
+          <Typography variant="h2" sx={{ m: "auto" }}>
+            There is no answers yet
+          </Typography>
+        );
+      }
     case questionType.HEADING:
       return (
         <Box sx={{ m: "auto" }}>

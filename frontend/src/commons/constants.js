@@ -126,12 +126,12 @@ export const SORT_BY = {
 };
 
 export const SORT_BY_ARR = [
-  { name: "Sort by time asked asc", value: SORT_BY.TIME_ASKED_ASC },
-  { name: "Sort by time asked desc", value: SORT_BY.TIME_ASKED_DESC },
-  { name: "Sort by total vote asc", value: SORT_BY.TOTAL_VOTE_ASC },
-  { name: "Sort by total vote desc", value: SORT_BY.TOTAL_VOTE_DESC },
-  { name: "Sort by answered", value: SORT_BY.ANSWERED },
-  { name: "Sort by unanswered", value: SORT_BY.UNANSWERED }
+  { name: "Time asked (Ascending)", value: SORT_BY.TIME_ASKED_ASC },
+  { name: "Time asked (Descending)", value: SORT_BY.TIME_ASKED_DESC },
+  { name: "Total vote (Ascending)", value: SORT_BY.TOTAL_VOTE_ASC },
+  { name: "Total vote (Descending)", value: SORT_BY.TOTAL_VOTE_DESC },
+  { name: "Answered (Filter)", value: SORT_BY.ANSWERED },
+  { name: "Unanswered (Filter)", value: SORT_BY.UNANSWERED }
 ];
 
 // Group role

@@ -60,6 +60,7 @@ const usePresentationOwner = (
   const [curQuesType, setCurQuesType] = React.useState(
     questionType.MULTIPLE_CHOICE
   );
+  const [userShortInfoList, setUserShortInfoList] = React.useState([]);
 
   const handleSetData = (arg) => {
     switch (arg.curQues.type) {
@@ -77,6 +78,7 @@ const usePresentationOwner = (
         break;
     }
     setCurQuesType(arg.curQues.type);
+    setQuestion(arg.curQues.question);
   };
 
   // Connect socket
@@ -136,8 +138,8 @@ const usePresentationOwner = (
 
       socketContext.on(WS_EVENT.INIT_CONNECTION_EVENT, (arg) => {
         setIsConnected(true);
-        setQuestion(arg.curQues.question);
         handleSetData(arg);
+        setUserShortInfoList(arg.userShortInfoList);
         setIsFirst(arg.isFirst);
         setIsEnd(arg.isEnd);
         console.log("==========================================");
@@ -147,7 +149,6 @@ const usePresentationOwner = (
       socketContext.on(WS_EVENT.RECEIVE_NEXT_SLIDE_EVENT, (arg) => {
         console.log("==================Next slide========================");
         console.log(arg);
-        setQuestion(arg.curQues.question);
         handleSetData(arg);
         setIsFirst(false);
         if (arg.isEnd === true) {
@@ -158,7 +159,6 @@ const usePresentationOwner = (
       socketContext.on(WS_EVENT.RECEIVE_PREV_SLIDE_EVENT, (arg) => {
         console.log("====================Prev Slide======================");
         console.log(arg);
-        setQuestion(arg.curQues.question);
         handleSetData(arg);
         setIsEnd(false);
         if (arg.isFirst === true) {
@@ -247,7 +247,9 @@ const usePresentationOwner = (
     handleNextSlide,
     handlePrevSlide,
     handleSendComment,
-    curQuesType
+    curQuesType,
+    userShortInfoList,
+    setUserShortInfoList
   };
 };
 

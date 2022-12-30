@@ -25,7 +25,9 @@ const PresentationOwnerPage = () => {
     question,
     handleNextSlide,
     handlePrevSlide,
-    curQuesType
+    curQuesType,
+    userShortInfoList,
+    setUserShortInfoList
   } = usePresentationOwner(socketContext, setSocketContext, id, slide, group);
 
   return (
@@ -41,6 +43,8 @@ const PresentationOwnerPage = () => {
       question={question}
       ws={ws}
       curQuesType={curQuesType}
+      userShortInfoList={userShortInfoList}
+      setUserShortInfoList={setUserShortInfoList}
     />
   );
 };

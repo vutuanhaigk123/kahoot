@@ -98,6 +98,11 @@ const PresentationPlayerPage = () => {
             <>
               {curQuesType === questionType.MULTIPLE_CHOICE ? (
                 <>
+                  {data.length === 0 ? (
+                    <Typography variant="h6">
+                      There is no answers yet
+                    </Typography>
+                  ) : null}
                   {/* Options container */}
                   <Box
                     sx={{
