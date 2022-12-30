@@ -21,12 +21,11 @@ import useStatus from "../../hooks/useStatus";
 import usePopup from "../../hooks/usePopup";
 import PopupMsg from "../notification/PopupMsg";
 
-const BasicCard = ({ data, navigateTo, refetch, isRefetching, canDelete }) => {
+const BasicCard = ({ data, navigateTo, canDelete, refetch }) => {
   const { anchorEl, handleCloseMenu, handleOpenMenu } = useMenu();
   const navigate = useNavigate();
   const open = Boolean(anchorEl);
 
-  const [isHandling, setIsHandling] = React.useState(false);
   const handleClickMenu = (option) => {
     // Navigate if have link
     if (option.link) {
@@ -49,6 +48,7 @@ const BasicCard = ({ data, navigateTo, refetch, isRefetching, canDelete }) => {
     handleOpenPopup: handleOpenDeleteMsg,
     handleClosePopup: handleCloseDeleteMsg
   } = usePopup();
+  const [isHandling, setIsHandling] = React.useState(false);
   const handleDeleteGroup = async (groupId) => {
     setIsHandling(true);
     // Handle data
@@ -57,12 +57,9 @@ const BasicCard = ({ data, navigateTo, refetch, isRefetching, canDelete }) => {
 
     handleStatus(resp); // update popup msg status
     handleOpenDeleteMsg(); // Open popup
-    refetch(); // Refetch data
+    refetch();
+    setIsHandling(false);
   };
-
-  React.useEffect(() => {
-    if (isRefetching === false) setIsHandling(false);
-  }, [isRefetching]);
 
   const options = [
     { link: navigateTo, text: "View", icon: <Groups /> },
@@ -75,24 +72,26 @@ const BasicCard = ({ data, navigateTo, refetch, isRefetching, canDelete }) => {
         variant="outlined"
         sx={{ borderRadius: "5px", boxShadow: 3, position: "relative" }}
       >
-        {isHandling === true ? (
-          <CircularProgress
-            size={30}
-            sx={{ position: "absolute", top: 5, right: 5 }}
-          />
-        ) : canDelete ? (
-          <IconButton
-            sx={{ position: "absolute", top: 0, right: 0 }}
-            onClick={handleOpenMenu}
-          >
-            <MenuIcon
-              fontSize="small"
-              sx={[
-                iconButton,
-                { bgcolor: "secondary.main", color: "primary.contrastText" }
-              ]}
+        {canDelete ? (
+          isHandling ? (
+            <CircularProgress
+              size={30}
+              sx={{ position: "absolute", top: 5, right: 5 }}
             />
-          </IconButton>
+          ) : (
+            <IconButton
+              sx={{ position: "absolute", top: 0, right: 0 }}
+              onClick={handleOpenMenu}
+            >
+              <MenuIcon
+                fontSize="small"
+                sx={[
+                  iconButton,
+                  { bgcolor: "secondary.main", color: "primary.contrastText" }
+                ]}
+              />
+            </IconButton>
+          )
         ) : null}
         <Menu anchorEl={anchorEl} open={open} onClose={handleCloseMenu}>
           {options.map((option) => (
