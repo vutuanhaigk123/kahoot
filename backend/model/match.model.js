@@ -158,7 +158,8 @@ function initMatch(
   userQuestions = [],
   answers = [],
   members = [],
-  coOwners = []
+  coOwners = [],
+  userShortInfoList = []
 ) {
   const questionsTmp = [];
   questions.forEach((eachQuestion) => {
@@ -209,7 +210,7 @@ function initMatch(
     userQuestions,
     questions: questionsTmp,
     answers,
-    userShortInfoList: []
+    userShortInfoList
   };
 }
 
@@ -268,6 +269,18 @@ async function isGroupCoOwner(userId, matchInfo) {
     }
   }
   return true;
+}
+
+function updateUserShortInfo(matchInfo, userId, name, email) {
+  if (!matchInfo) {
+    return;
+  }
+  const index = matchInfo.userShortInfoList.findIndex(
+    (userShortInfo) => userShortInfo.id === userId
+  );
+  if (index === -1) {
+    matchInfo.userShortInfoList.push({ id: userId, name, email });
+  }
 }
 
 async function getShortUserInfoSubmittedChoice(questions) {
@@ -464,7 +477,8 @@ export default {
         matchInfo.userQuestions,
         matchInfo.answers,
         matchInfo.members,
-        matchInfo.coOwners
+        matchInfo.coOwners,
+        matchInfo.userShortInfoList
       );
       // userShortInfoList = await getShortUserInfoSubmittedChoice(questions);
       matches.set(roomId, matchInfo);
@@ -638,6 +652,8 @@ export default {
         email,
         ts
       });
+
+      updateUserShortInfo(matchInfo, userId, name, email);
     }
   },
 
