@@ -348,6 +348,24 @@ async function getOldQuestions(presentationId) {
   return [];
 }
 
+function updateJoinedMemberList(matchInfo, role, userId) {
+  let index = -1;
+  if (role === ROLE.member) {
+    // co-owner already joinned as co-owner but change to join as player
+    index = matchInfo.coOwners.findIndex((coOwner) => coOwner.id === userId);
+  } else if (role === ROLE.co_owner) {
+    // co-owner already joinned as player but change to join as co-owner
+    index = matchInfo.members.findIndex((member) => member.id === userId);
+  }
+  if (index !== -1) {
+    if (role === ROLE.member) {
+      matchInfo.coOwners.splice(index, 1);
+    } else {
+      matchInfo.members.splice(index, 1);
+    }
+  }
+}
+
 export default {
   STATE_LOBBY: STATE_LOBBY_CODE,
   STATE_LEADERBOARD: STATE_LEADERBOARD_CODE,
@@ -444,6 +462,7 @@ export default {
       };
       matchInfo.coOwners.push(newCoOwner);
     }
+    updateJoinedMemberList(matchInfo, role, userId);
     // join self hosted presentation:
     if (userId === matchInfo.owner && role !== ROLE.owner) {
       SocketModel.sendEvent(
