@@ -246,12 +246,28 @@ const usePresentationOwner = (
         const choiceId = arg.choiceId.toString();
         const index = toIndex(data, choiceId);
         if (index !== -1) {
+          // Handle shortUserInfo
+          if (
+            userShortInfoList.find((item) => item.id === arg.id) === undefined
+          ) {
+            setUserShortInfoList((prv) => [
+              ...prv,
+              { id: arg.id, name: arg.name, email: arg.email }
+            ]);
+          }
+          // Handle data (answers)
+          if (data[index].choiceUserInfo) {
+            data[index].choiceUserInfo.push({ id: arg.id, ts: arg.ts });
+          } else {
+            data[index].choiceUserInfo = [{ id: arg.id, ts: arg.ts }];
+          }
           data[index].total += 1;
           return setData([...data]);
         }
       });
       return () => ws.off(WS_EVENT.RECEIVE_CHOICE_EVENT);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ws, data]);
 
   return {
@@ -266,8 +282,7 @@ const usePresentationOwner = (
     handlePrevSlide,
     handleSendComment,
     curQuesType,
-    userShortInfoList,
-    setUserShortInfoList
+    userShortInfoList
   };
 };
 

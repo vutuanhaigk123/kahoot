@@ -3,11 +3,25 @@ import React from "react";
 import { questionType } from "../../../commons/constants";
 import PresentationChart from "../../../components/chart/PresentationChart";
 
-const PresentationType = ({ curQuesType, data, question }) => {
+const PresentationType = ({
+  curQuesType,
+  data,
+  question,
+  userShortInfoList,
+  canViewModal
+}) => {
   switch (curQuesType) {
     case questionType.MULTIPLE_CHOICE:
       if (data.length > 0) {
-        return <PresentationChart data={data} height="100%" width="90%" />;
+        return (
+          <PresentationChart
+            userShortInfoList={userShortInfoList}
+            data={data}
+            height="100%"
+            width="90%"
+            canViewModal={canViewModal}
+          />
+        );
       } else {
         return (
           <Typography variant="h2" sx={{ m: "auto" }}>

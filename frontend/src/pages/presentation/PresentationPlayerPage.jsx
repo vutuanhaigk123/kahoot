@@ -92,6 +92,7 @@ const PresentationPlayerPage = () => {
                 curQuesType={curQuesType}
                 data={data}
                 question={question}
+                canViewModal={false}
               />
             </Box>
           ) : (

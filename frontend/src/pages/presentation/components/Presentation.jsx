@@ -37,7 +37,8 @@ const Presentation = ({
   question,
   handlePrevSlide,
   handleNextSlide,
-  curQuesType
+  curQuesType,
+  userShortInfoList
 }) => {
   const [isCopy, setIsCopy] = React.useState(false);
 
@@ -145,6 +146,8 @@ const Presentation = ({
                 curQuesType={curQuesType}
                 data={data}
                 question={question}
+                userShortInfoList={userShortInfoList}
+                canViewModal={true}
               />
 
               {/* Navigation */}

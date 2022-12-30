@@ -8,27 +8,73 @@ import {
   Tooltip,
   ResponsiveContainer
 } from "recharts";
+import usePopup from "../../hooks/usePopup";
 import CustomTooltip from "./CustomTooltip";
+import PresentationHistoryModal from "./PresentationHistoryModal";
 
-const userInfo = [
-  { name: "User 1", time: "14:00" },
-  { name: "User 2", time: "15:00" }
-];
+const PresentationChart = ({
+  data,
+  height = 500,
+  width = "80%",
+  userShortInfoList = [],
+  canViewModal = false
+}) => {
+  const {
+    open: openUserInfo,
+    handleOpenPopup: handleOpenUserInfo,
+    handleClosePopup: handleCloseUserInfo
+  } = usePopup();
 
-const PresentationChart = ({ data, height = 500, width = "80%" }) => {
+  const getUserInfo = (userId) => {
+    return userShortInfoList.find((user) => user.id === userId);
+  };
+
+  const [transFormData, setTransformData] = React.useState([]);
+  const [currentAnsw, setcurrentAnsw] = React.useState(null);
+  const processData = (data) => {
+    const tData = data.map((obj) => {
+      return { ...obj, ...getUserInfo(obj.id) };
+    });
+    setTransformData(tData);
+  };
+
+  const handleOpenPopup = (data) => {
+    if (canViewModal) {
+      processData(data.choiceUserInfo);
+      setcurrentAnsw(data.des);
+      handleOpenUserInfo();
+    }
+  };
+
   if (data.length === 0) return null;
-  // data[0].userInfo = userInfo;
   return (
-    <ResponsiveContainer width={width} height={height}>
-      <BarChart data={data} margin={{ top: 0, right: 30, left: 0, bottom: 0 }}>
-        <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="des" />
-        <YAxis width={40} />
-        <Tooltip content={<CustomTooltip />} />
+    <>
+      <ResponsiveContainer width={width} height={height}>
+        <BarChart
+          data={data}
+          margin={{ top: 0, right: 30, left: 0, bottom: 0 }}
+        >
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis dataKey="des" />
+          <YAxis width={40} />
+          <Tooltip content={<CustomTooltip canViewModal={canViewModal} />} />
 
-        <Bar dataKey="total" fill="#0062e0" />
-      </BarChart>
-    </ResponsiveContainer>
+          <Bar
+            onClick={(data) => handleOpenPopup(data)}
+            dataKey="total"
+            fill="#0062e0"
+          />
+        </BarChart>
+      </ResponsiveContainer>
+      <div className="modal-user-info">
+        <PresentationHistoryModal
+          data={transFormData}
+          currentAnsw={currentAnsw}
+          isOpen={openUserInfo}
+          handleClose={handleCloseUserInfo}
+        />
+      </div>
+    </>
   );
 };
 
