@@ -355,6 +355,14 @@ export default {
     return groupMap.get(groupId);
   },
 
+  getOwnerIdByRoomId(roomId) {
+    const matchInfo = matches.get(roomId);
+    if (matchInfo) {
+      return matchInfo.owner;
+    }
+    return null;
+  },
+
   getLeaderboard(members) {
     members.sort(compareScore);
     return [...members];
@@ -500,7 +508,7 @@ export default {
     //   }
     // }
     const curQuesRes = getQuestion(matchInfo.questions, matchInfo.curQues);
-    const curQues = { ...curQuesRes };
+    const curQues = JSON.parse(JSON.stringify(curQuesRes));
 
     if (curQues && curQues.true_ans) {
       delete curQues.true_ans;
@@ -631,6 +639,10 @@ export default {
       const ts = getCurTimestampUTC();
       ans.data.set(userId, { choiceId, ts, name, email });
       matchInfo.questions[questionIndex].answers[choiceIndex].total += 1;
+
+      matchInfo.questions[questionIndex].answers[
+        choiceIndex
+      ].choiceUserInfo.push({ id: userId, ts });
       SlideModel.addChoiceUid(questionId, roomId, choiceId, userId, ts);
 
       const curQues = getQuestion(matchInfo.questions, matchInfo.curQues);
@@ -763,5 +775,30 @@ export default {
 
   doUpVoteQues(userId, roomId, quesId) {
     return QuestionModel.doUpVoteQues(userId, quesId, matches.get(roomId));
+  },
+
+  closeRoom(userId, socket, ws) {
+    const roomId = SocketModel.getPresentationByUserId(userId);
+    if (!roomId) {
+      return;
+    }
+    const matchInfo = matches.get(roomId);
+    if (matchInfo && matchInfo.owner === userId) {
+      socket.emit(
+        EventModel.CLOSE_PREV_PRESENTATION,
+        EventModel.REASON_CLOSE_PREV_PRESENTATION
+      );
+      ws.to(roomId).emit(
+        EventModel.CLOSE_REASON,
+        EventModel.REASON_CLOSE_PREV_PRESENTATION
+      );
+      matchInfo.coOwners.forEach((coOwner) => {
+        SocketModel.removeSocketConn(coOwner.id);
+      });
+      matchInfo.members.forEach((member) => {
+        SocketModel.removeSocketConn(member.id);
+      });
+      this.timeoutDeleteMatch(userId, roomId, 0);
+    }
   }
 };

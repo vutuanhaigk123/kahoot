@@ -20,6 +20,10 @@ export default {
     return userConns.get(userId);
   },
 
+  getPresentationByUserId(userId) {
+    return userPresentations.get(userId);
+  },
+
   isAuthorized(userId, room) {
     const oldRoom = userPresentations.get(userId);
     return oldRoom === room;

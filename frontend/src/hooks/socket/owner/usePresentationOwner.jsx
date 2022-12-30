@@ -136,6 +136,21 @@ const usePresentationOwner = (
 
       socketContext.emit(WS_EVENT.INIT_CONNECTION_EVENT, initPackage);
 
+      socketContext.on(WS_CMD.CLOSE_PREV_PRESENTATION, () => {
+        console.log("Da co 1 presentation o trong group nay roi");
+        setMsgClose(
+          "Phải hiện popup hỏi có tắt cái presentation cũ trong group này ko, có nút yes/no "
+        );
+        // Nhấn Yes phải làm 3 thứ:
+        // 1/ socketContext.emit(WS_CMD.CLOSE_PREV_PRESENTATION, WS_DATA.ALLOW_CLOSE_PREV_PRESENTATION)
+        // 2/ chờ nhận event từ server: socketContext.on(WS_CMD.CLOSE_PREV_PRESENTATION), nhận đc event này thì mới làm bước 3,
+        // nếu ko nhận thì ko đc sang bước 3
+        // 3/ gửi lại socketContext.emit(WS_EVENT.INIT_CONNECTION_EVENT, initPackage);
+        // Nhấn No: socketContext.emit(WS_CMD.CLOSE_PREV_PRESENTATION, WS_DATA.DENIED_CLOSE_PREV_PRESENTATION),
+        // bước này t trả về cho m presentationId cũ ở trong group, để m điều hướng user về trang present đó
+        // nhận event ở socketContext.emit(WS_EVENT.RECEIVE_PREV_PRESENTATION, ({presentationId}) => {})
+      });
+
       socketContext.on(WS_EVENT.INIT_CONNECTION_EVENT, (arg) => {
         setIsConnected(true);
         handleSetData(arg);
@@ -190,6 +205,9 @@ const usePresentationOwner = (
           case WS_CLOSE.REASON_SLIDE_HAS_NO_ANS:
             console.log("slide has no answer");
             setMsgClose("This presentation has no slide to present");
+            break;
+          case WS_CLOSE.REASON_CLOSE_PREV_PRESENTATION:
+            console.log("M tự xử lý đi Duy");
             break;
           default:
             setMsgClose("Unknown Server Error");

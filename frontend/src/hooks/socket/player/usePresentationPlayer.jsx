@@ -149,6 +149,10 @@ const usePresentationPlayer = (socketContext, setSocketContext, id, slide) => {
           case WS_CLOSE.REASON_HAS_NEW_CONNECTION:
             setMsgClose("You has already joined room in another tab");
             break;
+          case WS_CLOSE.REASON_CLOSE_PREV_PRESENTATION:
+            console.log("M tự xử lý đi Duy");
+            console.log("close kết nối r");
+            break;
           case WS_CLOSE.REASON_SLIDE_HAS_NO_ANS:
             console.log("slide has no answer");
           // eslint-disable-next-line no-fallthrough

@@ -12,6 +12,28 @@ const removePresentationListener = (socket) => {
   socket.removeAllListeners(EventModel.PREV_SLIDE);
 };
 
+export const closePrevPresentationListener = (ws, socket, userId) => {
+  socket.on(EventModel.CLOSE_PREV_PRESENTATION, (arg) => {
+    if (
+      !arg ||
+      (arg.toString() !== EventModel.ALLOW_CLOSE_PREV_PRESENTATION &&
+        arg.toString() !== EventModel.DENIED_CLOSE_PREV_PRESENTATION)
+    ) {
+      return;
+    }
+    if (arg.toString() !== EventModel.ALLOW_CLOSE_PREV_PRESENTATION) {
+      console.log("allow close presentation");
+      MatchModel.closeRoom(userId, socket, ws);
+    } else {
+      console.log("denied close presentation");
+      const presentationId = SocketModel.getPresentationByUserId(userId);
+      if (presentationId) {
+        socket.emit(EventModel.RECEIVE_PREV_PRESENTATION, { presentationId });
+      }
+    }
+  });
+};
+
 export default async (
   ws,
   socket,

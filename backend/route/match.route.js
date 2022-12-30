@@ -12,7 +12,9 @@ import PresentationModel from "../model/presentation.model.js";
 import MatchModel from "../model/match.model.js";
 import AuthenMw from "../middleware/authen.mw.js";
 import slideModel from "../model/slide.model.js";
-import presentationListerner from "../listener/presentation.listerner.js";
+import presentationListerner, {
+  closePrevPresentationListener
+} from "../listener/presentation.listerner.js";
 import questionListener from "../listener/question.listener.js";
 import commentListener from "../listener/comment.listener.js";
 import userModel from "../model/user.model.js";
@@ -235,6 +237,21 @@ async function isNotGroupOwner(userId, cmd, group, socket) {
   return false;
 }
 
+async function isAlreadyExistAnotherRoom(userId, cmdId, newRoom, group) {
+  const prevRoom = MatchModel.getPresentationIdByGroupId(group);
+  if (
+    typeof prevRoom !== "undefined" &&
+    cmdId === EventModel.CREATE_ROOM &&
+    prevRoom &&
+    prevRoom !== newRoom &&
+    MatchModel.isMatchExist(prevRoom) &&
+    MatchModel.getOwnerIdByRoomId(prevRoom) === userId
+  ) {
+    return true;
+  }
+  return false;
+}
+
 export default async (ws) => {
   // middleware: stop when not logged in
   ws.use((socket, next) => {
@@ -264,6 +281,13 @@ export default async (ws) => {
         roomId = room;
         cmdId = cmd;
         slideId = slide;
+
+        closePrevPresentationListener(ws, socket, userId);
+        if (await isAlreadyExistAnotherRoom(userId, cmdId, roomId, group)) {
+          console.log("AlreadyExistAnotherLivingPresentationInGroup");
+          socket.emit(EventModel.CLOSE_PREV_PRESENTATION);
+          return;
+        }
 
         if (!initConnection(socket, room, cmd)) {
           socket.disconnect(true);
