@@ -18,7 +18,7 @@ import useStatus from "../../hooks/useStatus";
 const PopupForm = ({
   isOpen,
   handleClose,
-  refetch = () => console.log(),
+  refetch,
   header,
   label,
   api,
@@ -46,9 +46,7 @@ const PopupForm = ({
     resolver: yupResolver(schema)
   });
   const { status, handleStatus } = useStatus();
-  const [isHandling, setIsHandling] = React.useState(false);
   const onSubmit = async (data) => {
-    setIsHandling(true);
     // Handle data
     const submitData = {
       ...otherField,
@@ -64,20 +62,21 @@ const PopupForm = ({
     if (resp) {
       handleStatus(resp, successMsg);
 
+      // Close current popup form
+      handleClose();
       // Open popup message
       handleOpenMsg();
 
       // Reset form on success
       if (resp.status === 0) reset();
 
-      // Refetch data if needed
-      refetch();
+      // Refetch groups data
+      if (refetch) {
+        refetch();
+      }
     } else {
       console.log(data);
     }
-    setIsHandling(false);
-    // Close current popup form
-    handleClose();
   };
 
   return (
@@ -96,12 +95,8 @@ const PopupForm = ({
               control={control}
             />
             <DialogActions sx={{ justifyContent: "center" }}>
-              <BasicButton onClick={handleClose} loading={isHandling}>
-                Cancel
-              </BasicButton>
-              <BasicButton type="submit" loading={isHandling}>
-                {buttonLabel}
-              </BasicButton>
+              <BasicButton onClick={handleClose}>Cancel</BasicButton>
+              <BasicButton type="submit">{buttonLabel}</BasicButton>
             </DialogActions>
           </form>
         </DialogContent>

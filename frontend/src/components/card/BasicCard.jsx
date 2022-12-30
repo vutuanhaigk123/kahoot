@@ -21,11 +21,12 @@ import useStatus from "../../hooks/useStatus";
 import usePopup from "../../hooks/usePopup";
 import PopupMsg from "../notification/PopupMsg";
 
-const BasicCard = ({ data, navigateTo, canDelete, refetch }) => {
+const BasicCard = ({ data, navigateTo, refetch, isRefetching, canDelete }) => {
   const { anchorEl, handleCloseMenu, handleOpenMenu } = useMenu();
   const navigate = useNavigate();
   const open = Boolean(anchorEl);
 
+  const [isHandling, setIsHandling] = React.useState(false);
   const handleClickMenu = (option) => {
     // Navigate if have link
     if (option.link) {
@@ -48,7 +49,6 @@ const BasicCard = ({ data, navigateTo, canDelete, refetch }) => {
     handleOpenPopup: handleOpenDeleteMsg,
     handleClosePopup: handleCloseDeleteMsg
   } = usePopup();
-  const [isHandling, setIsHandling] = React.useState(false);
   const handleDeleteGroup = async (groupId) => {
     setIsHandling(true);
     // Handle data
@@ -57,9 +57,12 @@ const BasicCard = ({ data, navigateTo, canDelete, refetch }) => {
 
     handleStatus(resp); // update popup msg status
     handleOpenDeleteMsg(); // Open popup
-    refetch();
-    setIsHandling(false);
+    refetch(); // Refetch data
   };
+
+  React.useEffect(() => {
+    if (isRefetching === false) setIsHandling(false);
+  }, [isRefetching]);
 
   const options = [
     { link: navigateTo, text: "View", icon: <Groups /> },
@@ -72,26 +75,24 @@ const BasicCard = ({ data, navigateTo, canDelete, refetch }) => {
         variant="outlined"
         sx={{ borderRadius: "5px", boxShadow: 3, position: "relative" }}
       >
-        {canDelete ? (
-          isHandling ? (
-            <CircularProgress
-              size={30}
-              sx={{ position: "absolute", top: 5, right: 5 }}
+        {isHandling === true ? (
+          <CircularProgress
+            size={30}
+            sx={{ position: "absolute", top: 5, right: 5 }}
+          />
+        ) : canDelete ? (
+          <IconButton
+            sx={{ position: "absolute", top: 0, right: 0 }}
+            onClick={handleOpenMenu}
+          >
+            <MenuIcon
+              fontSize="small"
+              sx={[
+                iconButton,
+                { bgcolor: "secondary.main", color: "primary.contrastText" }
+              ]}
             />
-          ) : (
-            <IconButton
-              sx={{ position: "absolute", top: 0, right: 0 }}
-              onClick={handleOpenMenu}
-            >
-              <MenuIcon
-                fontSize="small"
-                sx={[
-                  iconButton,
-                  { bgcolor: "secondary.main", color: "primary.contrastText" }
-                ]}
-              />
-            </IconButton>
-          )
+          </IconButton>
         ) : null}
         <Menu anchorEl={anchorEl} open={open} onClose={handleCloseMenu}>
           {options.map((option) => (
