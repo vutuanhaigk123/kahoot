@@ -25,7 +25,8 @@ const PopupForm = ({
   fieldName = "name",
   otherField = {},
   successMsg = "Created successfully",
-  buttonLabel = "Create"
+  buttonLabel = "Create",
+  setReturnData = null
 }) => {
   const {
     open: openMsg,
@@ -69,6 +70,11 @@ const PopupForm = ({
 
       // Reset form on success
       if (resp.status === 0) reset();
+
+      if (setReturnData) {
+        setReturnData(resp);
+        return;
+      }
 
       // Refetch groups data
       if (refetch) {

@@ -37,9 +37,6 @@ export default async (
 
   socket.on(EventModel.NEXT_SLIDE, (arg) => {
     if (SocketModel.isAuthorized(userId, room)) {
-      if (!arg) {
-        return;
-      }
       console.log("next slide");
       MatchModel.nextSlide(userId, room, ws);
     }
@@ -47,9 +44,6 @@ export default async (
 
   socket.on(EventModel.PREV_SLIDE, (arg) => {
     if (SocketModel.isAuthorized(userId, room)) {
-      if (!arg) {
-        return;
-      }
       console.log("prev slide");
       MatchModel.prevSlide(userId, room, ws);
     }

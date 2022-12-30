@@ -21,7 +21,14 @@ import useStatus from "../../hooks/useStatus";
 import usePopup from "../../hooks/usePopup";
 import PopupMsg from "../notification/PopupMsg";
 
-const BasicCard = ({ data, navigateTo, refetch, isRefetching, canDelete }) => {
+const BasicCard = ({
+  data,
+  navigateTo,
+  refetch,
+  isRefetching,
+  canDelete,
+  setRespData = null
+}) => {
   const { anchorEl, handleCloseMenu, handleOpenMenu } = useMenu();
   const navigate = useNavigate();
   const open = Boolean(anchorEl);
@@ -57,6 +64,12 @@ const BasicCard = ({ data, navigateTo, refetch, isRefetching, canDelete }) => {
 
     handleStatus(resp); // update popup msg status
     handleOpenDeleteMsg(); // Open popup
+
+    if (setRespData && resp && resp.status === 0) {
+      setRespData(groupId);
+      setIsHandling(false);
+      return;
+    }
     refetch(); // Refetch data
   };
 
