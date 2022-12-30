@@ -12,10 +12,10 @@ import { getCurTimestampUTC } from "../utils/time.js";
 import CommentModel from "./comment.model.js";
 import EventModel from "./event.model.js";
 import groupModel from "./group.model.js";
+import PresentationModel from "./presentation.model.js";
 import QuestionModel from "./question.model.js";
 import SlideModel from "./slide.model.js";
 import SocketModel from "./socket.model.js";
-import UserModel from "./user.model.js";
 
 const groupMap = new HashMap();
 // groupId -> presentationId
@@ -284,34 +284,10 @@ function updateUserShortInfo(matchInfo, userId, name, email) {
 }
 
 async function getShortUserInfoSubmittedChoice(questions) {
-  if (questions.length === 0) {
-    return null;
-  }
-  const choiceUidList = [];
-  questions.forEach((eachQuestion) => {
-    const ansListOfQues = [];
-    eachQuestion.answers.forEach((ans) => {
-      ans.choiceUids.forEach(({ uid, ts }) => {
-        if (uid && !choiceUidList.includes(uid)) {
-          choiceUidList.push(uid);
-        }
-      });
-    });
-  });
-  if (choiceUidList.length > 0) {
-    const result = await UserModel.multiGetShortInfoByIds(choiceUidList);
-    const resultArr = [];
-    choiceUidList.forEach((uid) => {
-      const userShortInfo = result.get(uid);
-      resultArr.push({
-        id: uid,
-        name: userShortInfo.name,
-        email: userShortInfo.email
-      });
-    });
-    return resultArr;
-  }
-  return null;
+  const result = await PresentationModel.getShortUserInfoSubmittedChoice(
+    questions
+  );
+  return result;
 }
 
 async function getOldComments(presentationId) {

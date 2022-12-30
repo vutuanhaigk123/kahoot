@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-plusplus */
 /* eslint-disable import/no-cycle */
@@ -132,5 +133,37 @@ export default {
       { $pull: { slides: slideId } }
     );
     return result;
+  },
+
+  async getShortUserInfoSubmittedChoice(questions) {
+    if (questions.length === 0) {
+      return null;
+    }
+    const choiceUidList = [];
+    questions.forEach((eachQuestion) => {
+      if (eachQuestion.answers) {
+        eachQuestion.answers.forEach((ans) => {
+          ans.choiceUids.forEach(({ uid, ts }) => {
+            if (uid && !choiceUidList.includes(uid)) {
+              choiceUidList.push(uid);
+            }
+          });
+        });
+      }
+    });
+    if (choiceUidList.length > 0) {
+      const result = await userModel.multiGetShortInfoByIds(choiceUidList);
+      const resultArr = [];
+      choiceUidList.forEach((uid) => {
+        const userShortInfo = result.get(uid);
+        resultArr.push({
+          id: uid,
+          name: userShortInfo.name,
+          email: userShortInfo.email
+        });
+      });
+      return resultArr;
+    }
+    return null;
   }
 };

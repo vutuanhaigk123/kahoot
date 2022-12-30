@@ -7,6 +7,7 @@ import express from "express";
 import passport from "passport";
 import AuthenMw from "../middleware/authen.mw.js";
 import AuthenModel from "../model/authen.model.js";
+import matchModel from "../model/match.model.js";
 import PresentationModel from "../model/presentation.model.js";
 import SlideModel from "../model/slide.model.js";
 import UserModel from "../model/user.model.js";
@@ -205,6 +206,13 @@ router.post(
       });
     }
 
+    if (matchModel.isMatchExist(presentationId)) {
+      return res.json({
+        status: 400,
+        message: "You can not delete a living presentation"
+      });
+    }
+
     PresentationModel.delete(ownerId, presentationId, presentation.slides);
 
     return res.json({
@@ -288,11 +296,15 @@ router.get(
       if (slide.type.toString() === SLIDE_TYPE.multiple_choice.toString()) {
         const answersRes = [];
         slide.answers.forEach((answer) => {
-          answersRes.push({
+          const ansTmp = {
             _id: answer._id,
             des: answer.des,
             total: answer.choiceUids.length
-          });
+          };
+          answersRes.push(ansTmp);
+          if (presentation.ownerId === ownerId) {
+            ansTmp.choiceUserInfo = answer.choiceUids;
+          }
         });
         slidesRes.push({
           _id: slide._id,
@@ -338,6 +350,11 @@ router.get(
     };
     if (presentation.ownerId === ownerId) {
       info.collaborators = collaborators;
+      const userShortInfoList =
+        await PresentationModel.getShortUserInfoSubmittedChoice(slides);
+      if (userShortInfoList) {
+        info.userShortInfoList = userShortInfoList;
+      }
     }
     return res.json({
       status: 0,
