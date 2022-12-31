@@ -33,7 +33,7 @@ const PresentationChart = ({
   const [currentAnsw, setcurrentAnsw] = React.useState(null);
   const processData = (data) => {
     const tData = data.map((obj) => {
-      return { ...obj, ...getUserInfo(obj.id) };
+      return { ...obj, ...getUserInfo(obj.id ? obj.id : obj.uid) };
     });
     setTransformData(tData);
   };

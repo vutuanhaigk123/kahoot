@@ -6,7 +6,9 @@ import { CopyToClipboard } from "react-copy-to-clipboard";
 import {
   PAGE_ROUTES,
   questionType,
-  SUBMIT_STATUS
+  SUBMIT_STATUS,
+  WS_CMD,
+  WS_DATA
 } from "../../../commons/constants";
 import BasicButton from "../../../components/button/BasicButton";
 import {
@@ -25,6 +27,7 @@ import ChatBox from "../modal/chat/ChatBox";
 import { useNavigate } from "react-router-dom";
 import ConfirmPopup from "../../../components/notification/ConfirmPopup";
 import PresentationType from "./PresentationType";
+import { useSocket } from "../../../context/socket-context";
 
 const Presentation = ({
   isConnected,
@@ -66,11 +69,16 @@ const Presentation = ({
 
   const navigate = useNavigate();
   const [isEnding, setIsEnding] = React.useState(false);
+  const { socketContext, setSocketContext } = useSocket();
   const handleEndPresentation = () => {
     setIsEnding(true);
 
     // To-do close connection
-    // Here
+    socketContext.emit(
+      WS_CMD.CLOSE_PREV_PRESENTATION,
+      WS_DATA.ALLOW_CLOSE_PREV_PRESENTATION
+    );
+    setSocketContext(null);
 
     handleCloseConfirmMsg();
     setTimeout(() => {

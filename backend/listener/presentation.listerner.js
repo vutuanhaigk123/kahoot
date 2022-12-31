@@ -21,7 +21,7 @@ export const closePrevPresentationListener = (ws, socket, userId) => {
     ) {
       return;
     }
-    if (arg.toString() !== EventModel.ALLOW_CLOSE_PREV_PRESENTATION) {
+    if (arg.toString() === EventModel.ALLOW_CLOSE_PREV_PRESENTATION) {
       console.log("allow close presentation");
       MatchModel.closeRoom(userId, socket, ws);
     } else {

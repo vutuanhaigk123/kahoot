@@ -7,12 +7,14 @@ const MultipleChoiceSlides = ({ slideIndex }) => {
   const presentation = useSelector((state) => state.presentation);
   return (
     <>
-      <Typography variant="h4">
+      <Typography variant="h4" sx={{ mb: 2 }}>
         {presentation.slides[slideIndex].question}
       </Typography>
       <PresentationChart
         data={presentation.slides[slideIndex].answers}
         height="80%"
+        canViewModal={presentation.userShortInfoList ? true : false}
+        userShortInfoList={presentation.userShortInfoList}
       />
     </>
   );
