@@ -53,17 +53,16 @@ const PresentationChart = ({
         <BarChart
           data={data}
           margin={{ top: 0, right: 30, left: 0, bottom: 0 }}
+          onClick={({ activePayload }) =>
+            handleOpenPopup(activePayload[0].payload)
+          }
         >
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="des" />
           <YAxis width={40} />
           <Tooltip content={<CustomTooltip canViewModal={canViewModal} />} />
 
-          <Bar
-            onClick={(data) => handleOpenPopup(data)}
-            dataKey="total"
-            fill="#0062e0"
-          />
+          <Bar dataKey="total" fill="#0062e0" />
         </BarChart>
       </ResponsiveContainer>
       <div className="modal-user-info">
