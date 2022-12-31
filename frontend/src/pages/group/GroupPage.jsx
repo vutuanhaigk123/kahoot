@@ -2,7 +2,7 @@
 import React from "react";
 import BackgroundContainer from "../../components/misc/BackgroundContainer";
 import BasicButton from "../../components/button/BasicButton";
-import { Box, Grid, Paper, Tab } from "@mui/material";
+import { Box, CircularProgress, Grid, Paper, Tab } from "@mui/material";
 import { AddCircle } from "@mui/icons-material";
 import BasicCard from "../../components/card/BasicCard";
 import PopupForm from "../../components/notification/PopupForm";
@@ -30,7 +30,8 @@ const GroupPage = () => {
     error: errorCreated,
     data,
     refetch,
-    isRefetching
+    isRefetching,
+    isLoading
   } = useQuery("created-groups", () =>
     handleGet(`${API.CREATED_GROUP}?page=${0}&limit=${100}`)
   );
@@ -114,6 +115,7 @@ const GroupPage = () => {
             isRefetching={isRefetching}
             setReturnData={setRespCreateGroup}
             setReturnDelData={setRespDeleteGroup}
+            isLoading={isLoading}
           ></Panel>
           <Panel
             value={"2"}
@@ -121,6 +123,7 @@ const GroupPage = () => {
             formType={FormType.JOIN}
             setReturnData={null}
             setReturnDelData={null}
+            isLoading={isLoading}
           ></Panel>
         </TabContext>
       </Box>
@@ -135,7 +138,8 @@ const Panel = ({
   refetch,
   isRefetching,
   setReturnData,
-  setReturnDelData
+  setReturnDelData,
+  isLoading
 }) => {
   const { open, handleClosePopup, handleOpenPopup } = usePopup();
 
@@ -174,7 +178,12 @@ const Panel = ({
           elevation={5}
         >
           {data?.info ? (
-            <Grid container spacing={2}>
+            <Grid
+              container
+              spacing={2}
+              maxHeight={"60vh"}
+              sx={{ overflowY: "scroll", pl: "20px" }}
+            >
               {data.info.groups.map((item) => (
                 <Grid item key={item._id} xs={6}>
                   <BasicCard
@@ -188,6 +197,8 @@ const Panel = ({
                 </Grid>
               ))}
             </Grid>
+          ) : isLoading ? (
+            <CircularProgress />
           ) : (
             <Empty>
               {formType === FormType.CREATE

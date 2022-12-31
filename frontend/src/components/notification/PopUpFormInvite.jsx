@@ -6,7 +6,6 @@ import {
   Typography,
   DialogActions,
   TextField,
-  Grid,
   Box,
   DialogContent
 } from "@mui/material";
@@ -15,11 +14,12 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
 import { API, SUBMIT_STATUS } from "../../commons/constants";
-import { RemoveCircle } from "@mui/icons-material";
+import { Close, RemoveCircle } from "@mui/icons-material";
 import { handlePost } from "./../../utils/fetch";
 import usePopup from "./../../hooks/usePopup";
 import PopupMsg from "./PopupMsg";
 import Transition from "./../../pages/presentation/modal/components/Transition";
+import { iconButton, iconHover } from "../../commons/globalStyles";
 
 const formType = { inviteLink: 1, inviteEmail: 2 };
 
@@ -34,7 +34,17 @@ const PopupFormInvite = ({ isOpen, handleClose, inviteLink, groupId }) => {
       open={isOpen}
       onClose={handleCLosePopUp}
       TransitionComponent={Transition}
+      maxWidth="sm"
+      fullWidth
     >
+      <Close
+        sx={[
+          { position: "absolute", top: 5, right: 5 },
+          iconButton,
+          iconHover("error.main")
+        ]}
+        onClick={handleClose}
+      />
       {/* Close form when recieved resp */}
       {type === formType.inviteLink ? (
         <InviteLinkForm
@@ -52,52 +62,42 @@ const PopupFormInvite = ({ isOpen, handleClose, inviteLink, groupId }) => {
   );
 };
 
-const InviteLinkForm = ({ inviteLink, handleClose, setType }) => {
+const InviteLinkForm = ({ inviteLink, setType }) => {
   return (
-    <DialogContent sx={{ textAlign: "center", p: 3 }}>
-      <Grid container spacing={1}>
-        <Grid item>
-          <TextField
-            label="Invitation link"
+    <DialogContent sx={{ textAlign: "center", p: 6, pb: 3 }}>
+      <Box sx={{ display: "flex" }}>
+        <TextField
+          label="Invitation link"
+          sx={{
+            "& .MuiInputBase-input": {
+              overflow: "hidden",
+              textOverflow: "ellipsis"
+            },
+            "& .MuiInputLabel-root": {
+              fontWeight: "bolder"
+            }
+          }}
+          inputProps={{ readOnly: true }}
+          value={inviteLink}
+          fullWidth
+        ></TextField>
+        <CopyToClipboard text={inviteLink}>
+          <Button
+            variant="contained"
             sx={{
-              "& .MuiInputBase-input": {
-                overflow: "hidden",
-                textOverflow: "ellipsis"
-              },
-              "& .MuiInputLabel-root": {
-                fontWeight: "bolder"
+              "&:hover": {
+                bgcolor: "primary.light", // theme.palette.primary.main
+                color: "secondary.contrastText"
               }
             }}
-            inputProps={{ readOnly: true }}
-            value={inviteLink}
-          ></TextField>
-        </Grid>
-        <Grid item alignItems="stretch" sx={{ display: "flex" }}>
-          <CopyToClipboard text={inviteLink}>
-            <Button
-              variant="contained"
-              sx={{
-                "&:hover": {
-                  bgcolor: "primary.light", // theme.palette.primary.main
-                  color: "secondary.contrastText"
-                }
-              }}
-            >
-              Copy
-            </Button>
-          </CopyToClipboard>
-        </Grid>
-      </Grid>
-      <Button onClick={setType(formType.inviteEmail)}>Invite with email</Button>
-      <DialogActions sx={{ p: 0 }}>
-        <BasicButton
-          sx={{ margin: "auto" }}
-          variant="contained"
-          onClick={handleClose}
-        >
-          Close
-        </BasicButton>
-      </DialogActions>
+          >
+            Copy
+          </Button>
+        </CopyToClipboard>
+      </Box>
+      <Button sx={{ p: 0 }} onClick={setType(formType.inviteEmail)}>
+        Invite with email
+      </Button>
     </DialogContent>
   );
 };
@@ -171,7 +171,7 @@ const InviteEmailForm = ({ handleClose, groupId }) => {
   };
 
   return (
-    <DialogContent sx={{ textAlign: "center" }}>
+    <DialogContent sx={{ textAlign: "center", mt: 4 }}>
       <PopupMsg
         status={status.type}
         isOpen={openMsgPopup}
@@ -184,8 +184,7 @@ const InviteEmailForm = ({ handleClose, groupId }) => {
         sx={{
           border: 1,
           borderColor: "grey.400",
-          maxHeight: "200px",
-          maxWidth: "400px",
+          maxHeight: "40vh",
           mb: 2,
           flexWrap: "wrap",
           overflowY: "scroll",
@@ -227,49 +226,40 @@ const InviteEmailForm = ({ handleClose, groupId }) => {
         )}
       </Box>
       {/* Email added textfield */}
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <Grid container spacing={1}>
-          <Grid item xs={10} sm={9}>
-            <TextField
-              {...register("email")}
-              label="Enter the emails here"
-              type="email"
-              helperText={errors.email ? errors.email.message : " "}
-              onChange={(e) => setIsDisable(!e.target.value)}
-              size="small"
-              sx={{
-                width: "100%",
-                "& .MuiInputLabel-asterisk, & .MuiFormHelperText-root": {
-                  color: "red"
-                }
-              }}
-            ></TextField>
-          </Grid>
-          <Grid item xs={true} md={true}>
-            <Button
-              variant="contained"
-              type="submit"
-              disabled={isDisable}
-              sx={{
-                "&:hover": {
-                  bgcolor: "primary.light", // theme.palette.primary.main
-                  color: "secondary.contrastText"
-                },
-                height: "40px"
-              }}
-            >
-              Add
-            </Button>
-          </Grid>
-        </Grid>
+      <form onSubmit={handleSubmit(onSubmit)} style={{ display: "flex" }}>
+        <TextField
+          {...register("email")}
+          label="Enter the emails here"
+          type="email"
+          helperText={errors.email ? errors.email.message : ""}
+          onChange={(e) => setIsDisable(!e.target.value)}
+          size="small"
+          sx={{
+            width: "100%",
+            "& .MuiInputLabel-asterisk, & .MuiFormHelperText-root": {
+              color: "red"
+            }
+          }}
+        ></TextField>
+        <Button
+          variant="contained"
+          type="submit"
+          disabled={isDisable}
+          sx={{
+            "&:hover": {
+              bgcolor: "primary.light", // theme.palette.primary.main
+              color: "secondary.contrastText"
+            },
+            height: "40px"
+          }}
+        >
+          Add
+        </Button>
       </form>
       {/* Action */}
       <DialogActions
-        sx={{ p: 0, textAlign: "center", justifyContent: "center" }}
+        sx={{ p: 0, textAlign: "center", justifyContent: "center", mt: 2 }}
       >
-        <BasicButton variant="contained" onClick={handleClose}>
-          Close
-        </BasicButton>
         <BasicButton
           disabled={emails.length === 0}
           variant="contained"

@@ -44,7 +44,9 @@ const SideBar = ({ refetch, setSlideIndex, slideIndex }) => {
       elevation={10}
       sx={{
         height: "60vh",
-        p: 2,
+        pt: 2,
+        pb: 2,
+        pl: "15px",
         overflowY: "scroll",
         textAlign: "center"
       }}

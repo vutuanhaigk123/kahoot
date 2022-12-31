@@ -132,7 +132,12 @@ const BasicCard = ({
           />
 
           <CardContent>
-            <Typography gutterBottom variant="h5" component="div">
+            <Typography
+              gutterBottom
+              variant="h5"
+              component="div"
+              sx={{ overflowX: "hidden", textOverflow: "ellipsis" }}
+            >
               {data.name}
             </Typography>
           </CardContent>
