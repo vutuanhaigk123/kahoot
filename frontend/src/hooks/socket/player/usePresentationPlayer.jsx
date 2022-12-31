@@ -56,7 +56,6 @@ const usePresentationPlayer = (socketContext, setSocketContext, id, slide) => {
   const [question, setQuestion] = React.useState(null);
   const [isVoted, setIsVoted] = React.useState(false);
   const [msgClose, setMsgClose] = React.useState(null);
-  const [isEndPresent, setIsEndPresent] = React.useState(false);
   const [curQuesType, setCurQuesType] = React.useState(
     questionType.MULTIPLE_CHOICE
   );
@@ -150,8 +149,7 @@ const usePresentationPlayer = (socketContext, setSocketContext, id, slide) => {
             setMsgClose("You has already joined room in another tab");
             break;
           case WS_CLOSE.REASON_CLOSE_PREV_PRESENTATION:
-            console.log("M tự xử lý đi Duy");
-            console.log("close kết nối r");
+            setMsgClose("Presentation end");
             break;
           case WS_CLOSE.REASON_SLIDE_HAS_NO_ANS:
             console.log("slide has no answer");
@@ -243,7 +241,6 @@ const usePresentationPlayer = (socketContext, setSocketContext, id, slide) => {
     handleSubmitChoice,
     handleSendComment,
     handleSendQuestion,
-    isEndPresent,
     curQuesType
   };
 };

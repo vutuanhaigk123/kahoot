@@ -3,7 +3,7 @@ import React from "react";
 import { useSelector } from "react-redux";
 
 import usePopup from "./../../../../hooks/usePopup";
-import { API } from "../../../../commons/constants";
+import { API, WS_CMD, WS_DATA } from "../../../../commons/constants";
 import { Box } from "@mui/system";
 import { Edit, Groups, PlayCircleFilledWhite } from "@mui/icons-material";
 import PopupForm from "../../../../components/notification/PopupForm";
@@ -11,6 +11,8 @@ import BasicButton from "./../../../../components/button/BasicButton";
 import CollabPopup from "./CollabPopup";
 import { iconHover } from "../../../../commons/globalStyles";
 import StartPopup from "./StartPopup";
+import ConfirmPopup from "./../../../../components/notification/ConfirmPopup";
+import { useSocket } from "../../../../context/socket-context";
 
 const iconButton = {
   bgcolor: "black",
@@ -44,6 +46,39 @@ const TitleArea = ({ refetch, slideIndex }) => {
     handleClosePopup: handleCloseStartPopup,
     handleOpenPopup: handleOpenStartPopup
   } = usePopup();
+  const {
+    open: openConfirm,
+    handleClosePopup: handleCloseConfirmPopup,
+    handleOpenPopup: handleOpenConfirmPopup
+  } = usePopup();
+  const { socketContext, setSocketContext } = useSocket();
+
+  const handleClosePrvPresentation = () => {
+    socketContext.emit(
+      WS_CMD.CLOSE_PREV_PRESENTATION,
+      WS_DATA.ALLOW_CLOSE_PREV_PRESENTATION
+    );
+    setSocketContext(null);
+    handleCloseConfirmPopup();
+    handleOpenStartPopup();
+  };
+
+  const handleRedirect = () => {
+    socketContext.emit(
+      WS_CMD.CLOSE_PREV_PRESENTATION,
+      WS_DATA.DENIED_CLOSE_PREV_PRESENTATION
+    );
+    handleCloseConfirmPopup();
+  };
+
+  const handleStart = () => {
+    // Handle previous running presentation
+    if (socketContext) {
+      handleOpenConfirmPopup();
+    } else {
+      handleOpenStartPopup();
+    }
+  };
 
   return (
     <>
@@ -89,7 +124,7 @@ const TitleArea = ({ refetch, slideIndex }) => {
                   color="secondary"
                   variant="contained"
                   icon={<PlayCircleFilledWhite />}
-                  onClick={() => handleOpenStartPopup()}
+                  onClick={handleStart}
                 >
                   Start
                 </BasicButton>
@@ -124,6 +159,13 @@ const TitleArea = ({ refetch, slideIndex }) => {
           handleClose={handleCloseStartPopup}
           slideIndex={slideIndex}
         />
+        <ConfirmPopup
+          isOpen={openConfirm}
+          handleClose={handleRedirect}
+          handleConfirm={handleClosePrvPresentation}
+        >
+          Do you want to close previous presentation
+        </ConfirmPopup>
       </div>
     </>
   );

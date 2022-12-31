@@ -41,7 +41,6 @@ const PresentationPlayerPage = () => {
     ws,
     data,
     handleSubmitChoice,
-    isEndPresent,
     curQuesType
   } = usePresentationPlayer(socketContext, setSocketContext, id, slide);
 
@@ -196,15 +195,6 @@ const PresentationPlayerPage = () => {
           navOnErr={true}
         >
           {msgClose}
-        </PopupMsg>
-        {/* End presentation modal */}
-        <PopupMsg
-          isOpen={isEndPresent}
-          status={SUBMIT_STATUS.ERROR}
-          handleClosePopup={() => console.log()}
-          navOnErr={true}
-        >
-          Presentation ended by the host
         </PopupMsg>
       </div>
     </BackgroundContainer>

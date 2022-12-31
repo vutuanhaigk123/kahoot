@@ -1,5 +1,7 @@
 import React from "react";
 import { io } from "socket.io-client";
+import { PAGE_ROUTES } from "../../../commons/constants";
+import { useNavigate } from "react-router-dom";
 import {
   questionType,
   ROLE,
@@ -80,6 +82,7 @@ const usePresentationOwner = (
     setCurQuesType(arg.curQues.type);
     setQuestion(arg.curQues.question);
   };
+  const navigate = useNavigate();
 
   // Connect socket
   React.useEffect(() => {
@@ -137,10 +140,12 @@ const usePresentationOwner = (
       socketContext.emit(WS_EVENT.INIT_CONNECTION_EVENT, initPackage);
 
       socketContext.on(WS_CMD.CLOSE_PREV_PRESENTATION, () => {
-        console.log("Da co 1 presentation o trong group nay roi");
+        console.log("Presentation ended");
         setMsgClose(
           "Phải hiện popup hỏi có tắt cái presentation cũ trong group này ko, có nút yes/no "
         );
+        socketContext.emit(WS_EVENT.INIT_CONNECTION_EVENT, initPackage);
+        setIsConnected(false);
         // Nhấn Yes phải làm 3 thứ:
         // 1/ socketContext.emit(WS_CMD.CLOSE_PREV_PRESENTATION, WS_DATA.ALLOW_CLOSE_PREV_PRESENTATION)
         // 2/ chờ nhận event từ server: socketContext.on(WS_CMD.CLOSE_PREV_PRESENTATION), nhận đc event này thì mới làm bước 3,
@@ -149,6 +154,17 @@ const usePresentationOwner = (
         // Nhấn No: socketContext.emit(WS_CMD.CLOSE_PREV_PRESENTATION, WS_DATA.DENIED_CLOSE_PREV_PRESENTATION),
         // bước này t trả về cho m presentationId cũ ở trong group, để m điều hướng user về trang present đó
         // nhận event ở socketContext.emit(WS_EVENT.RECEIVE_PREV_PRESENTATION, ({presentationId}) => {})
+      });
+
+      socketContext.on(WS_EVENT.RECEIVE_PREV_PRESENTATION, (arg) => {
+        console.log("===Keep presentation===");
+        console.log(arg.presentationId);
+        // Redirect to prev presentation
+        var navPath = `${PAGE_ROUTES.SLIDES_PRESENT}?id=${arg.presentationId}`;
+        if (group) {
+          navPath = `${navPath}&group=${group}`;
+        }
+        navigate(navPath);
       });
 
       socketContext.on(WS_EVENT.INIT_CONNECTION_EVENT, (arg) => {
