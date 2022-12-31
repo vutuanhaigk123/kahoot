@@ -24,7 +24,14 @@ const PresentationHistoryModal = ({
       TransitionComponent={Transition}
       maxWidth="sm"
     >
-      <DialogContent>
+      <DialogContent
+        sx={{
+          paddingLeft: "20px",
+          paddingTop: "10px",
+          paddingBottom: "0px",
+          paddingRight: "0px"
+        }}
+      >
         {/* Ansers title */}
         <Typography
           variant="h6"
@@ -46,7 +53,10 @@ const PresentationHistoryModal = ({
               maxWidth="100%"
               rowGap={2}
               maxHeight="60vh"
-              sx={{ overflow: "scroll" }}
+              sx={{
+                overflow: "scroll",
+                paddingRight: "15px"
+              }}
             >
               {data.map((item, index) => (
                 <div key={index}>
