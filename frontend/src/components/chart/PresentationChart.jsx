@@ -56,6 +56,7 @@ const PresentationChart = ({
           onClick={({ activePayload }) =>
             handleOpenPopup(activePayload[0].payload)
           }
+          cursor={canViewModal ? "pointer" : null}
         >
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="des" />

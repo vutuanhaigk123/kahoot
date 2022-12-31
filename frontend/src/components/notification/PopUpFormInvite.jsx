@@ -113,10 +113,15 @@ const InviteEmailForm = ({ handleClose, groupId }) => {
   } = usePopup();
 
   const handleSendMail = async () => {
-    const resp = await handlePost(API.GROUP_INVITE_EMAIL, {
+    const submitData = {
       emailList: JSON.stringify(emails),
       groupId: groupId
-    });
+    };
+    console.log(
+      "🚀 ~ file: PopUpFormInvite.jsx:120 ~ handleSendMail ~ submitData",
+      submitData
+    );
+    const resp = await handlePost(API.GROUP_INVITE_EMAIL, submitData);
 
     // Handle login failed
     if (resp?.status !== 0) {

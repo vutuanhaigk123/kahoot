@@ -140,7 +140,7 @@ const GroupHeader = ({ userRole }) => {
           isOpen={open}
           handleClose={handleClosePopup}
           inviteLink={`${PAGE_ROUTES.BASE}${PAGE_ROUTES.JOIN}?id=${group?.gId}&token=${group?.inviteToken}`}
-          groupId={group?.info?.gId}
+          groupId={group?.gId}
         ></PopupFormInvite>
       </div>
     </Box>

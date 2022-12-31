@@ -45,7 +45,9 @@ const PresentationHistoryModal = ({
           {currentAnsw}
         </Typography>
         {data.length === 0 ? (
-          <Typography variant="h6">There is no answers yet</Typography>
+          <Typography variant="h6" sx={{ pr: "15px", mb: 2 }}>
+            There is no answers yet
+          </Typography>
         ) : (
           <>
             {/* User info */}
