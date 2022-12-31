@@ -1,8 +1,11 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React from "react";
 import { useSearchParams } from "react-router-dom";
+import { WS_CMD, WS_DATA } from "../../commons/constants";
+import ConfirmPopup from "../../components/notification/ConfirmPopup";
 import { useSocket } from "../../context/socket-context";
 import usePresentationOwner from "../../hooks/socket/owner/usePresentationOwner";
+import usePopup from "../../hooks/usePopup";
 import Presentation from "./components/Presentation";
 
 const PresentationOwnerPage = () => {
@@ -13,6 +16,12 @@ const PresentationOwnerPage = () => {
 
   // Socket context
   const { socketContext, setSocketContext } = useSocket();
+
+  const {
+    open: openConfirm,
+    handleClosePopup: handleCloseConfirmPopup,
+    handleOpenPopup: handleOpenConfirmPopup
+  } = usePopup();
 
   // Handle socket
   const {
@@ -26,24 +35,50 @@ const PresentationOwnerPage = () => {
     handleNextSlide,
     handlePrevSlide,
     curQuesType,
-    userShortInfoList
+    userShortInfoList,
+    hasPrevPresentation
   } = usePresentationOwner(socketContext, setSocketContext, id, slide, group);
 
+  React.useEffect(() => {
+    if (hasPrevPresentation) {
+      handleOpenConfirmPopup();
+    } else {
+      handleCloseConfirmPopup();
+    }
+  }, [hasPrevPresentation]);
+
   return (
-    <Presentation
-      data={data}
-      id={id}
-      handleNextSlide={handleNextSlide}
-      handlePrevSlide={handlePrevSlide}
-      isConnected={isConnected}
-      isEnd={isEnd}
-      isFirst={isFirst}
-      msgClose={msgClose}
-      question={question}
-      ws={ws}
-      curQuesType={curQuesType}
-      userShortInfoList={userShortInfoList}
-    />
+    <>
+      <Presentation
+        data={data}
+        id={id}
+        handleNextSlide={handleNextSlide}
+        handlePrevSlide={handlePrevSlide}
+        isConnected={isConnected}
+        isEnd={isEnd}
+        isFirst={isFirst}
+        msgClose={msgClose}
+        question={question}
+        ws={ws}
+        curQuesType={curQuesType}
+        userShortInfoList={userShortInfoList}
+      />
+      <ConfirmPopup
+        isOpen={openConfirm}
+        handleClose={() => {
+          console.log("handle navigate to prev presentation");
+        }}
+        handleConfirm={() => {
+          console.log("handle close prev presentation");
+          socketContext.emit(
+            WS_CMD.CLOSE_PREV_PRESENTATION,
+            WS_DATA.ALLOW_CLOSE_PREV_PRESENTATION
+          );
+        }}
+      >
+        Do you want to close previous presentation
+      </ConfirmPopup>
+    </>
   );
 };
 export default PresentationOwnerPage;

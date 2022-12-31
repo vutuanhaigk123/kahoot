@@ -72,6 +72,15 @@ export default {
     }
   },
 
+  removeSocketConnIfNotStored(userId, socket) {
+    const storedSocket = userConns.get(userId);
+    if (storedSocket !== socket) {
+      socket.disconnect(true);
+    } else if (storedSocket) {
+      this.removeSocketConn(userId);
+    }
+  },
+
   sendEvent(userId, event, data) {
     if (userConns.get(userId)) {
       userConns.get(userId).emit(event, data);

@@ -63,6 +63,7 @@ const usePresentationOwner = (
     questionType.MULTIPLE_CHOICE
   );
   const [userShortInfoList, setUserShortInfoList] = React.useState([]);
+  const [hasPrevPresentation, setHasPrevPresentation] = React.useState(false);
 
   const handleSetData = (arg) => {
     switch (arg.curQues.type) {
@@ -139,23 +140,6 @@ const usePresentationOwner = (
 
       socketContext.emit(WS_EVENT.INIT_CONNECTION_EVENT, initPackage);
 
-      socketContext.on(WS_CMD.CLOSE_PREV_PRESENTATION, () => {
-        console.log("Presentation ended");
-        setMsgClose(
-          "Phải hiện popup hỏi có tắt cái presentation cũ trong group này ko, có nút yes/no "
-        );
-        socketContext.emit(WS_EVENT.INIT_CONNECTION_EVENT, initPackage);
-        setIsConnected(false);
-        // Nhấn Yes phải làm 3 thứ:
-        // 1/ socketContext.emit(WS_CMD.CLOSE_PREV_PRESENTATION, WS_DATA.ALLOW_CLOSE_PREV_PRESENTATION)
-        // 2/ chờ nhận event từ server: socketContext.on(WS_CMD.CLOSE_PREV_PRESENTATION), nhận đc event này thì mới làm bước 3,
-        // nếu ko nhận thì ko đc sang bước 3
-        // 3/ gửi lại socketContext.emit(WS_EVENT.INIT_CONNECTION_EVENT, initPackage);
-        // Nhấn No: socketContext.emit(WS_CMD.CLOSE_PREV_PRESENTATION, WS_DATA.DENIED_CLOSE_PREV_PRESENTATION),
-        // bước này t trả về cho m presentationId cũ ở trong group, để m điều hướng user về trang present đó
-        // nhận event ở socketContext.emit(WS_EVENT.RECEIVE_PREV_PRESENTATION, ({presentationId}) => {})
-      });
-
       socketContext.on(WS_EVENT.RECEIVE_PREV_PRESENTATION, (arg) => {
         console.log("===Keep presentation===");
         console.log(arg.presentationId);
@@ -224,8 +208,10 @@ const usePresentationOwner = (
             break;
           case WS_CLOSE.REASON_CLOSE_PREV_PRESENTATION:
             console.log("M tự xử lý đi Duy");
+            setMsgClose("This presentation was closed by host");
             break;
           default:
+            console.log("unknownnnnnnnnnnnnnnnnnnnnnnnnnnn reason");
             setMsgClose("Unknown Server Error");
             break;
         }
@@ -251,6 +237,56 @@ const usePresentationOwner = (
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [socketContext]);
+
+  React.useEffect(() => {
+    if (socketContext) {
+      // default: owner's package
+      let initPackage = {
+        cmd: WS_CMD.CREATE_ROOM_CMD,
+        room: id
+      };
+      if (group && group.trim().length > 0) {
+        initPackage.group = group.trim();
+      }
+      if (role === ROLE.owner && slide) {
+        initPackage.slide = slide;
+      }
+
+      if (role === ROLE.co_owner) {
+        initPackage = {
+          cmd: WS_CMD.JOIN_AS_CO_OWNER,
+          room: id
+        };
+      }
+
+      socketContext.on(WS_CMD.CLOSE_PREV_PRESENTATION, (arg) => {
+        console.log("Presentation ended");
+        if (!arg || typeof arg === "undefined") {
+          setHasPrevPresentation(true);
+        }
+
+        setMsgClose(
+          "Phải hiện popup hỏi có tắt cái presentation cũ trong group này ko, có nút yes/no "
+        );
+        if (hasPrevPresentation && arg && typeof arg !== "undefined") {
+          setHasPrevPresentation(false);
+          socketContext.emit(WS_EVENT.INIT_CONNECTION_EVENT, initPackage);
+          console.log("re-init event");
+        }
+
+        setIsConnected(false);
+        // Nhấn Yes phải làm 3 thứ:
+        // 1/ socketContext.emit(WS_CMD.CLOSE_PREV_PRESENTATION, WS_DATA.ALLOW_CLOSE_PREV_PRESENTATION)
+        // 2/ chờ nhận event từ server: socketContext.on(WS_CMD.CLOSE_PREV_PRESENTATION), nhận đc event này thì mới làm bước 3,
+        // nếu ko nhận thì ko đc sang bước 3
+        // 3/ gửi lại socketContext.emit(WS_EVENT.INIT_CONNECTION_EVENT, initPackage);
+        // Nhấn No: socketContext.emit(WS_CMD.CLOSE_PREV_PRESENTATION, WS_DATA.DENIED_CLOSE_PREV_PRESENTATION),
+        // bước này t trả về cho m presentationId cũ ở trong group, để m điều hướng user về trang present đó
+        // nhận event ở socketContext.emit(WS_EVENT.RECEIVE_PREV_PRESENTATION, ({presentationId}) => {})
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [socketContext, hasPrevPresentation]);
 
   React.useEffect(() => {
     if (ws) {
@@ -298,7 +334,8 @@ const usePresentationOwner = (
     handlePrevSlide,
     handleSendComment,
     curQuesType,
-    userShortInfoList
+    userShortInfoList,
+    hasPrevPresentation
   };
 };
 

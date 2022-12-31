@@ -594,7 +594,9 @@ export default {
         matches.delete(roomId);
         console.log("deleted roomId=", roomId);
       }, 1000 * inSeconds); // 120 seconds
-      matchInfo.timeout = timeoutDelete;
+      if (inSeconds !== 0) {
+        matchInfo.timeout = timeoutDelete;
+      }
     }
   },
 
@@ -784,10 +786,6 @@ export default {
     }
     const matchInfo = matches.get(roomId);
     if (matchInfo && matchInfo.owner === userId) {
-      socket.emit(
-        EventModel.CLOSE_PREV_PRESENTATION,
-        EventModel.REASON_CLOSE_PREV_PRESENTATION
-      );
       ws.to(roomId).emit(
         EventModel.CLOSE_REASON,
         EventModel.REASON_CLOSE_PREV_PRESENTATION
@@ -798,7 +796,13 @@ export default {
       matchInfo.members.forEach((member) => {
         SocketModel.removeSocketConn(member.id);
       });
+      SocketModel.removeSocketConn(matchInfo.owner);
+
       this.timeoutDeleteMatch(userId, roomId, 0);
+      socket.emit(
+        EventModel.CLOSE_PREV_PRESENTATION,
+        EventModel.REASON_CLOSE_PREV_PRESENTATION
+      );
     }
   }
 };

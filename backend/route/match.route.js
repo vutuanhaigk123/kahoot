@@ -327,7 +327,8 @@ export default async (ws) => {
       socket.leave(roomId);
       MatchModel.leaveLobby(userId, roomId, ws);
       if (reason === "transport close") {
-        SocketModel.removeSocketConn(userId);
+        // SocketModel.removeSocketConn(userId);
+        SocketModel.removeSocketConnIfNotStored(userId, socket);
       }
       console.log("closed");
     });
