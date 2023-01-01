@@ -39,6 +39,15 @@ const PresentationOwnerPage = () => {
     hasPrevPresentation
   } = usePresentationOwner(socketContext, setSocketContext, id, slide, group);
 
+  const handleNavPrvPresentation = () => {
+    console.log("handle navigate to prev presentation");
+    socketContext.emit(
+      WS_CMD.CLOSE_PREV_PRESENTATION,
+      WS_DATA.DENIED_CLOSE_PREV_PRESENTATION
+    );
+    handleCloseConfirmPopup();
+  };
+
   React.useEffect(() => {
     if (hasPrevPresentation) {
       handleOpenConfirmPopup();
@@ -63,11 +72,10 @@ const PresentationOwnerPage = () => {
         curQuesType={curQuesType}
         userShortInfoList={userShortInfoList}
       />
+
       <ConfirmPopup
         isOpen={openConfirm}
-        handleClose={() => {
-          console.log("handle navigate to prev presentation");
-        }}
+        handleRedirect={handleNavPrvPresentation}
         handleConfirm={() => {
           console.log("handle close prev presentation");
           socketContext.emit(
@@ -75,6 +83,7 @@ const PresentationOwnerPage = () => {
             WS_DATA.ALLOW_CLOSE_PREV_PRESENTATION
           );
         }}
+        noBtnLabel="Redirect"
       >
         Do you want to close previous presentation
       </ConfirmPopup>

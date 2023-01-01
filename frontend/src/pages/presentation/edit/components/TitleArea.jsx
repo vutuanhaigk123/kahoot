@@ -161,8 +161,10 @@ const TitleArea = ({ refetch, slideIndex }) => {
         />
         <ConfirmPopup
           isOpen={openConfirm}
-          handleClose={handleRedirect}
+          handleClose={handleCloseConfirmPopup}
+          handleRedirect={handleRedirect}
           handleConfirm={handleClosePrvPresentation}
+          noBtnLabel="Redirect"
         >
           Do you want to close previous presentation
         </ConfirmPopup>

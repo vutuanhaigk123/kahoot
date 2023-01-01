@@ -236,7 +236,7 @@ const usePresentationOwner = (
       };
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [socketContext]);
+  }, [socketContext, id]);
 
   React.useEffect(() => {
     if (socketContext) {
@@ -260,7 +260,7 @@ const usePresentationOwner = (
       }
 
       socketContext.on(WS_CMD.CLOSE_PREV_PRESENTATION, (arg) => {
-        console.log("Presentation ended");
+        console.log("Presentation end confirming");
         if (!arg || typeof arg === "undefined") {
           setHasPrevPresentation(true);
         }
@@ -274,7 +274,7 @@ const usePresentationOwner = (
           console.log("re-init event");
         }
 
-        setIsConnected(false);
+        // setIsConnected(false);
         // Nhấn Yes phải làm 3 thứ:
         // 1/ socketContext.emit(WS_CMD.CLOSE_PREV_PRESENTATION, WS_DATA.ALLOW_CLOSE_PREV_PRESENTATION)
         // 2/ chờ nhận event từ server: socketContext.on(WS_CMD.CLOSE_PREV_PRESENTATION), nhận đc event này thì mới làm bước 3,
@@ -284,6 +284,9 @@ const usePresentationOwner = (
         // bước này t trả về cho m presentationId cũ ở trong group, để m điều hướng user về trang present đó
         // nhận event ở socketContext.emit(WS_EVENT.RECEIVE_PREV_PRESENTATION, ({presentationId}) => {})
       });
+      return () => {
+        socketContext.off(WS_CMD.CLOSE_PREV_PRESENTATION);
+      };
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [socketContext, hasPrevPresentation]);

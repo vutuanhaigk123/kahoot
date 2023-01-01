@@ -14,8 +14,10 @@ const ConfirmPopup = ({
   isOpen,
   handleClose,
   handleConfirm,
+  handleRedirect = handleClose,
   isConfirming,
-  children
+  children,
+  noBtnLabel = "No"
 }) => {
   return (
     <Dialog
@@ -41,10 +43,10 @@ const ConfirmPopup = ({
         </BasicButton>
         <BasicButton
           variant="contained"
-          onClick={handleClose}
+          onClick={handleRedirect}
           loading={isConfirming}
         >
-          No
+          {noBtnLabel}
         </BasicButton>
       </DialogActions>
     </Dialog>
