@@ -589,6 +589,12 @@ export default {
     const matchInfo = matches.get(roomId);
     if (matchInfo && matchInfo.owner === userId) {
       const timeoutDelete = setTimeout(() => {
+        matchInfo.coOwners.forEach((coOwner) => {
+          SocketModel.removeSocketConn(coOwner.id);
+        });
+        matchInfo.members.forEach((member) => {
+          SocketModel.removeSocketConn(member.id);
+        });
         groupMap.delete(matchInfo.groupId);
         console.log("deleted groupId in groupMap");
         matches.delete(roomId);
@@ -790,15 +796,11 @@ export default {
         EventModel.CLOSE_REASON,
         EventModel.REASON_CLOSE_PREV_PRESENTATION
       );
-      matchInfo.coOwners.forEach((coOwner) => {
-        SocketModel.removeSocketConn(coOwner.id);
-      });
-      matchInfo.members.forEach((member) => {
-        SocketModel.removeSocketConn(member.id);
-      });
-      SocketModel.removeSocketConn(matchInfo.owner);
 
+      const ownerId = matchInfo.owner;
       this.timeoutDeleteMatch(userId, roomId, 0);
+      SocketModel.removeSocketConn(ownerId);
+
       socket.emit(
         EventModel.CLOSE_PREV_PRESENTATION,
         EventModel.REASON_CLOSE_PREV_PRESENTATION
