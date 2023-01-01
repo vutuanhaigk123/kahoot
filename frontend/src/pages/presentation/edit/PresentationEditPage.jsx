@@ -12,6 +12,7 @@ import Loading from "./../../../components/Loading";
 import { useDispatch } from "react-redux";
 import { clear, set } from "../../../redux-toolkit/presentationSlice";
 import TitleArea from "./components/TitleArea";
+import NotFound from "../../NotFound";
 
 const PresentationEditPage = () => {
   const { id: presentationId } = useParams();
@@ -33,6 +34,8 @@ const PresentationEditPage = () => {
   const [slideIndex, setSlideIndex] = React.useState(0);
 
   if (error) return "An error has occurred: " + error.message;
+
+  if (!data?.info && !isLoading) return <NotFound />;
 
   return (
     <BackgroundContainer>

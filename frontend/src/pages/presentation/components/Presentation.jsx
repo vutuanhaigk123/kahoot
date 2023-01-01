@@ -41,7 +41,8 @@ const Presentation = ({
   handlePrevSlide,
   handleNextSlide,
   curQuesType,
-  userShortInfoList
+  userShortInfoList,
+  canEnd = true
 }) => {
   const [isCopy, setIsCopy] = React.useState(false);
 
@@ -91,14 +92,16 @@ const Presentation = ({
     <BackgroundContainer>
       {isConnected && id ? (
         <>
-          <ArrowBack
-            sx={[
-              iconButton,
-              iconHover("primary.light"),
-              { bgcolor: "primary.main", color: "white" }
-            ]}
-            onClick={handleOpenConfirmMsg}
-          />
+          {canEnd ? (
+            <ArrowBack
+              sx={[
+                iconButton,
+                iconHover("primary.light"),
+                { bgcolor: "primary.main", color: "white" }
+              ]}
+              onClick={handleOpenConfirmMsg}
+            />
+          ) : null}
           <Paper
             elevation={10}
             sx={{
@@ -239,9 +242,10 @@ const Presentation = ({
         {/* Connection modal */}
         <PopupMsg
           isOpen={!isConnected && !ws}
-          hasOk={false}
+          // hasOk={false}
           status={SUBMIT_STATUS.ERROR}
           handleClosePopup={() => console.log()}
+          navOnErr={true}
         >
           {msgClose}
         </PopupMsg>

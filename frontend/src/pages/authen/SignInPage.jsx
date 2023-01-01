@@ -28,7 +28,10 @@ const SignInPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  // Loading login
+  const [isLogining, setIsLogining] = React.useState(false);
   async function handleCredentialResponse(response) {
+    setIsLogining(true);
     console.log(
       "🚀 ~ file: SignInPage.jsx ~ line 47 ~ handleCredentialResponse ~ response",
       response
@@ -50,6 +53,7 @@ const SignInPage = () => {
         error
       );
     }
+    setIsLogining(false);
   }
 
   // Form
@@ -72,7 +76,6 @@ const SignInPage = () => {
     handleClosePopup: handleCloseLoginPopup,
     handleOpenPopup: handleOpenLoginPopup
   } = usePopup();
-  const [isLogining, setIsLogining] = React.useState(false);
   const onSubmit = async (data) => {
     setIsLogining(true);
     const resp = await handlePost(API.LOGIN, data);
@@ -173,18 +176,20 @@ const SignInPage = () => {
             Login
           </BasicButton>
           {/* Continue as google */}
-          <GoogleLogin
-            text="continue_with"
-            size="medium"
-            theme="outlined"
-            onSuccess={(credentialResponse) => {
-              console.log(credentialResponse);
-              handleCredentialResponse(credentialResponse);
-            }}
-            onError={() => {
-              console.log("Login Failed");
-            }}
-          ></GoogleLogin>
+          {isLogining ? null : (
+            <GoogleLogin
+              text="continue_with"
+              size="medium"
+              theme="outlined"
+              onSuccess={(credentialResponse) => {
+                console.log(credentialResponse);
+                handleCredentialResponse(credentialResponse);
+              }}
+              onError={() => {
+                console.log("Login Failed");
+              }}
+            ></GoogleLogin>
+          )}
         </FormContent>
       </form>
     </BasicForm>

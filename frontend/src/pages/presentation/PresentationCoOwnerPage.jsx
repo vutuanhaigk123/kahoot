@@ -50,6 +50,7 @@ const PresentationOwnerPage = () => {
       ws={ws}
       curQuesType={curQuesType}
       userShortInfoList={userShortInfoList}
+      canEnd={false}
     />
   );
 };
