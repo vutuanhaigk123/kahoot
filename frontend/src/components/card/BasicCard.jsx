@@ -20,6 +20,7 @@ import { API } from "../../commons/constants";
 import useStatus from "../../hooks/useStatus";
 import usePopup from "../../hooks/usePopup";
 import PopupMsg from "../notification/PopupMsg";
+import ConfirmPopup from "./../notification/ConfirmPopup";
 
 const BasicCard = ({
   data,
@@ -45,7 +46,7 @@ const BasicCard = ({
 
     // Handle delete
     if (option.handleFunc) {
-      option.handleFunc(data._id);
+      option.handleFunc();
       handleCloseMenu();
     }
   };
@@ -55,6 +56,11 @@ const BasicCard = ({
     open: openDeleteMsg,
     handleOpenPopup: handleOpenDeleteMsg,
     handleClosePopup: handleCloseDeleteMsg
+  } = usePopup();
+  const {
+    open: openConfirm,
+    handleOpenPopup: handleOpenConfirm,
+    handleClosePopup: handleCloseConfirm
   } = usePopup();
   const handleDeleteGroup = async (groupId) => {
     setIsHandling(true);
@@ -79,7 +85,7 @@ const BasicCard = ({
 
   const options = [
     { link: navigateTo, text: "View", icon: <Groups /> },
-    { handleFunc: handleDeleteGroup, text: "Delete", icon: <Delete /> }
+    { handleFunc: handleOpenConfirm, text: "Delete", icon: <Delete /> }
   ];
 
   return (
@@ -153,6 +159,14 @@ const BasicCard = ({
         >
           {status.msg}
         </PopupMsg>
+        <ConfirmPopup
+          isOpen={openConfirm}
+          handleClose={handleCloseConfirm}
+          handleConfirm={() => handleDeleteGroup(data._id)}
+          isConfirming={isHandling}
+        >
+          Are you sure you want to delete
+        </ConfirmPopup>
       </div>
     </>
   );

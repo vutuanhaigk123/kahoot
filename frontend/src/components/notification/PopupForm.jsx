@@ -47,7 +47,9 @@ const PopupForm = ({
     resolver: yupResolver(schema)
   });
   const { status, handleStatus } = useStatus();
+  const [isHandling, setIsHandling] = React.useState(false);
   const onSubmit = async (data) => {
+    setIsHandling(true);
     // Handle data
     const submitData = {
       ...otherField,
@@ -83,6 +85,7 @@ const PopupForm = ({
     } else {
       console.log(data);
     }
+    setIsHandling(false);
   };
 
   return (
@@ -101,8 +104,12 @@ const PopupForm = ({
               control={control}
             />
             <DialogActions sx={{ justifyContent: "center" }}>
-              <BasicButton onClick={handleClose}>Cancel</BasicButton>
-              <BasicButton type="submit">{buttonLabel}</BasicButton>
+              <BasicButton onClick={handleClose} loading={isHandling}>
+                Cancel
+              </BasicButton>
+              <BasicButton type="submit" loading={isHandling}>
+                {buttonLabel}
+              </BasicButton>
             </DialogActions>
           </form>
         </DialogContent>

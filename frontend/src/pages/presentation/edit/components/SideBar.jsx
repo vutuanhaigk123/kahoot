@@ -10,6 +10,7 @@ import useStatus from "../../../../hooks/useStatus";
 import { handlePost } from "../../../../utils/fetch";
 import PopupMsg from "../../../../components/notification/PopupMsg";
 import { iconButton, iconHover } from "../../../../commons/globalStyles";
+import ConfirmPopup from "../../../../components/notification/ConfirmPopup";
 
 const SideBar = ({ refetch, setSlideIndex, slideIndex }) => {
   const { open, handleOpenPopup, handleClosePopup } = usePopup();
@@ -25,7 +26,15 @@ const SideBar = ({ refetch, setSlideIndex, slideIndex }) => {
     handleOpenPopup: handleOpenSlideDeletePopup,
     handleClosePopup: handleCloseSlideDeletePopup
   } = usePopup();
+  const {
+    open: openConfirm,
+    handleOpenPopup: handleOpenConfirm,
+    handleClosePopup: handleCloseConfirm
+  } = usePopup();
+  const [delItem, setDelItem] = React.useState(null);
+  const [isDeleting, setIsDeleting] = React.useState(false);
   const handleDelete = async (slideId) => {
+    setIsDeleting(true);
     // Create data to post
     const data_post = {
       presentationId: data._id,
@@ -36,7 +45,9 @@ const SideBar = ({ refetch, setSlideIndex, slideIndex }) => {
     handleDeleteSlideStatus(resp);
     handleOpenSlideDeletePopup(); // Open popup
     setSlideIndex(0);
-    refetch(); // Refetch data};
+    refetch(); // Refetch data;
+    handleCloseConfirm();
+    setIsDeleting(false);
   };
 
   return (
@@ -81,7 +92,10 @@ const SideBar = ({ refetch, setSlideIndex, slideIndex }) => {
                   iconButton,
                   iconHover("error.main")
                 ]}
-                onClick={() => handleDelete(slide._id)}
+                onClick={() => {
+                  setDelItem(slide._id);
+                  handleOpenConfirm();
+                }}
               />
             </Paper>
           ))
@@ -102,21 +116,32 @@ const SideBar = ({ refetch, setSlideIndex, slideIndex }) => {
       >
         <AddCircle sx={{ m: "auto", color: grey[500] }} />
       </Paper>
-      {/* Create slide form */}
-      <CreateSlideForm
-        isOpen={open}
-        handleClose={handleClosePopup}
-        refetch={refetch}
-      ></CreateSlideForm>
-      {/* Delete slide popup */}
-      <PopupMsg
-        status={deleteSlideStatus.type}
-        isOpen={openSlideDeletePopup}
-        handleClosePopup={handleCloseSlideDeletePopup}
-        hideOnSuccess={true}
-      >
-        {deleteSlideStatus.msg}
-      </PopupMsg>
+      <div className="modal-slide">
+        {/* Create slide form */}
+        <CreateSlideForm
+          isOpen={open}
+          handleClose={handleClosePopup}
+          refetch={refetch}
+        ></CreateSlideForm>
+        {/* Delete slide popup */}
+        <PopupMsg
+          status={deleteSlideStatus.type}
+          isOpen={openSlideDeletePopup}
+          handleClosePopup={handleCloseSlideDeletePopup}
+          hideOnSuccess={true}
+        >
+          {deleteSlideStatus.msg}
+        </PopupMsg>
+        {/* Confirm popup */}
+        <ConfirmPopup
+          isOpen={openConfirm}
+          handleClose={handleCloseConfirm}
+          handleConfirm={() => handleDelete(delItem)}
+          isConfirming={isDeleting}
+        >
+          Are you sure you want to delete
+        </ConfirmPopup>
+      </div>
     </Paper>
   );
 };

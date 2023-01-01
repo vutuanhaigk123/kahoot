@@ -15,6 +15,7 @@ import useToggle from "../../../../../hooks/useToggle";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import TextBox from "../../../../../components/input/TextBox";
+import ConfirmPopup from "../../../../../components/notification/ConfirmPopup";
 
 const MultiChoiceOptions = ({ slideIndex, refetch }) => {
   const presentation = useSelector((state) => state.presentation);
@@ -32,7 +33,9 @@ const MultiChoiceOptions = ({ slideIndex, refetch }) => {
     handleOpenPopup: handleOpenAnswerDeletePopup,
     handleClosePopup: handleCloseAnswerDeletePopup
   } = usePopup();
+  const [isDeleting, setIsDeleting] = React.useState(false);
   const handleDelete = async (answerId) => {
+    setIsDeleting(true);
     // Create data to post
     const data = {
       answerId,
@@ -48,6 +51,7 @@ const MultiChoiceOptions = ({ slideIndex, refetch }) => {
     handleStatus(resp);
     handleOpenAnswerDeletePopup(); // Open popup
     refetch(); // Refetch data
+    setIsDeleting(false);
   };
   return (
     <>
@@ -70,6 +74,7 @@ const MultiChoiceOptions = ({ slideIndex, refetch }) => {
             handleDelete={handleDelete}
             slideIndex={slideIndex}
             refetch={refetch}
+            isDeleting={isDeleting}
           />
         </Box>
       ))}
@@ -120,7 +125,8 @@ const AnswerTextBox = ({
   answerIndex,
   slideIndex,
   handleDelete,
-  refetch
+  refetch,
+  isDeleting
 }) => {
   const { value: disabled, toggleValue: toggleTextBox } = useToggle(true);
   const [isEdit, setIsEdit] = React.useState(false);
@@ -167,6 +173,13 @@ const AnswerTextBox = ({
     toggleTextBox();
     setIsEdit((prv) => !prv);
   };
+
+  const {
+    open: openConfirm,
+    handleOpenPopup: handleOpenConfirm,
+    handleClosePopup: handleCloseConfirm
+  } = usePopup();
+  const [delItem, setDelItem] = React.useState(null);
 
   return (
     <>
@@ -242,17 +255,31 @@ const AnswerTextBox = ({
           iconButton
         ]}
         fontSize="small"
-        onClick={() => handleDelete(answer._id)}
+        onClick={() => {
+          handleOpenConfirm();
+          setDelItem(answer._id);
+        }}
       />
-      {/* Update answer popup */}
-      <PopupMsg
-        status={editStatus.type}
-        isOpen={openAnswerUpdatePopup}
-        handleClosePopup={handleCloseAnswerUpdatePopup}
-        hideOnSuccess={true}
-      >
-        {editStatus.msg}
-      </PopupMsg>
+      <div className="modal-multi-choice">
+        {/* Update answer popup */}
+        <PopupMsg
+          status={editStatus.type}
+          isOpen={openAnswerUpdatePopup}
+          handleClosePopup={handleCloseAnswerUpdatePopup}
+          hideOnSuccess={true}
+        >
+          {editStatus.msg}
+        </PopupMsg>
+        {/* Confirm modal */}
+        <ConfirmPopup
+          isOpen={openConfirm}
+          handleClose={handleCloseConfirm}
+          handleConfirm={() => handleDelete(delItem)}
+          isConfirming={isDeleting}
+        >
+          Are you sure you want to delete
+        </ConfirmPopup>
+      </div>
     </>
   );
 };
