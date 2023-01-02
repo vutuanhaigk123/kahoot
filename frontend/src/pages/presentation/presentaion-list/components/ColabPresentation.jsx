@@ -6,6 +6,7 @@ import {
   CardActions,
   CardMedia,
   CircularProgress,
+  List,
   Paper,
   Typography
 } from "@mui/material";
@@ -23,10 +24,6 @@ const ColabPresentation = () => {
   const { isLoading, error, data } = useQuery("presentationListColab", () =>
     handleGet(API.PRESENTATION_LIST_COLLAB)
   );
-  console.log(
-    "🚀 ~ file: ColabPresentation.jsx:24 ~ ColabPresentation ~ data",
-    data
-  );
 
   if (error) return "An error has occurred: " + error.message;
 
@@ -37,76 +34,80 @@ const ColabPresentation = () => {
         display: "flex",
         justifyContent: "center",
         flexDirection: "column",
-        width: "100%",
+        maxWidth: "100%",
         margin: "auto",
-        gap: 2
+        gap: 2,
+        maxHeight: "60vh"
       }}
       elevation={5}
     >
       {/* Slide item */}
       {data?.info?.length > 0 ? (
-        data.info.map((item) => (
-          <Card
-            key={item.id}
-            sx={{
-              display: "flex",
-              width: "100%",
-              justifyContent: "space-between",
-              boxShadow: 4
-            }}
-          >
-            {/* Left side */}
-            <Box sx={{ display: "flex", gap: 2 }}>
-              {/* Slide img */}
-              <CardMedia
-                component="img"
-                sx={{ width: 200 }}
-                image="/Slides/SlidesList.png"
-                alt="Slides image"
-              />
+        <List sx={{ maxHeight: "100%", overflowY: "scroll" }}>
+          {data.info.map((item) => (
+            <Card
+              key={item.id}
+              sx={{
+                display: "flex",
+                width: "100%",
+                justifyContent: "space-between",
+                boxShadow: 4,
+                mb: 2
+              }}
+            >
+              {/* Left side */}
+              <Box sx={{ display: "flex", gap: 2 }}>
+                {/* Slide img */}
+                <CardMedia
+                  component="img"
+                  sx={{ width: 200 }}
+                  image="/Slides/SlidesList.png"
+                  alt="Slides image"
+                />
+                <Box
+                  sx={{
+                    display: "flex",
+                    gap: 2,
+                    flexDirection: "column",
+                    justifyContent: "space-between",
+                    // margin: "auto",
+                    p: "20px 0 20px 0"
+                  }}
+                >
+                  <Typography variant="h5">{item.title}</Typography>
+                  <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+                    <Avatar></Avatar>
+                    <Typography variant="h7">{item.ownerName}</Typography>
+                  </Box>
+                </Box>
+              </Box>
+
+              {/* Right side */}
               <Box
                 sx={{
                   display: "flex",
-                  gap: 2,
                   flexDirection: "column",
-                  justifyContent: "space-between",
-                  // margin: "auto",
-                  p: "20px 0 20px 0"
+                  justifyContent: "space-between"
                 }}
               >
-                <Typography variant="h5">{item.title}</Typography>
-                <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
-                  <Avatar></Avatar>
-                  <Typography variant="h7">{item.ownerName}</Typography>
-                </Box>
+                <CardActions sx={{ alignSelf: "end" }}></CardActions>
+                <CardActions>
+                  <BasicButton
+                    size="small"
+                    width="100%"
+                    icon={<Edit />}
+                    variant="contained"
+                    onClick={() =>
+                      navigate(PAGE_ROUTES.PRESENTATION + `/${item.id}`)
+                    }
+                  >
+                    Edit
+                  </BasicButton>
+                </CardActions>
               </Box>
-            </Box>
-
-            {/* Right side */}
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "space-between"
-              }}
-            >
-              <CardActions sx={{ alignSelf: "end" }}></CardActions>
-              <CardActions>
-                <BasicButton
-                  size="small"
-                  width="100%"
-                  icon={<Edit />}
-                  variant="contained"
-                  onClick={() =>
-                    navigate(PAGE_ROUTES.PRESENTATION + `/${item.id}`)
-                  }
-                >
-                  Edit
-                </BasicButton>
-              </CardActions>
-            </Box>
-          </Card>
-        ))
+            </Card>
+          ))}
+        </List>
       ) : isLoading ? (
         <CircularProgress sx={{ m: "auto" }} />
       ) : (

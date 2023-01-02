@@ -6,6 +6,7 @@ import {
   CardActions,
   CardMedia,
   CircularProgress,
+  List,
   Paper,
   Typography
 } from "@mui/material";
@@ -66,85 +67,89 @@ const OwnedPresentation = () => {
           display: "flex",
           justifyContent: "center",
           flexDirection: "column",
-          width: "100%",
+          maxWidth: "100%",
           margin: "auto",
-          gap: 2
+          gap: 2,
+          maxHeight: "60vh"
         }}
         elevation={5}
       >
         {/* Slide item */}
         {data?.info?.length > 0 ? (
-          data.info.map((item) => (
-            <Card
-              key={item._id}
-              sx={{
-                display: "flex",
-                width: "100%",
-                justifyContent: "space-between",
-                boxShadow: 4
-              }}
-            >
-              {/* Left side */}
-              <Box sx={{ display: "flex", gap: 2 }}>
-                {/* Slide img */}
-                <CardMedia
-                  component="img"
-                  sx={{ width: 200 }}
-                  image="/Slides/SlidesList.png"
-                  alt="Slides image"
-                />
+          <List sx={{ maxHeight: "100%", overflowY: "scroll" }}>
+            {data.info.map((item) => (
+              <Card
+                key={item._id}
+                sx={{
+                  display: "flex",
+                  width: "100%",
+                  justifyContent: "space-between",
+                  boxShadow: 4,
+                  mb: 2
+                }}
+              >
+                {/* Left side */}
+                <Box sx={{ display: "flex", gap: 2 }}>
+                  {/* Slide img */}
+                  <CardMedia
+                    component="img"
+                    sx={{ width: 200 }}
+                    image="/Slides/SlidesList.png"
+                    alt="Slides image"
+                  />
+                  <Box
+                    sx={{
+                      display: "flex",
+                      gap: 2,
+                      flexDirection: "column",
+                      justifyContent: "space-between",
+                      // margin: "auto",
+                      p: "20px 0 20px 0"
+                    }}
+                  >
+                    <Typography variant="h5">{item.title}</Typography>
+                    <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+                      <Avatar src={user.data?.picture}></Avatar>
+                      <Typography variant="h7">{user.data?.name}</Typography>
+                    </Box>
+                  </Box>
+                </Box>
+
+                {/* Right side */}
                 <Box
                   sx={{
                     display: "flex",
-                    gap: 2,
                     flexDirection: "column",
-                    justifyContent: "space-between",
-                    // margin: "auto",
-                    p: "20px 0 20px 0"
+                    justifyContent: "space-between"
                   }}
                 >
-                  <Typography variant="h5">{item.title}</Typography>
-                  <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
-                    <Avatar src={user.data?.picture}></Avatar>
-                    <Typography variant="h7">{user.data?.name}</Typography>
-                  </Box>
+                  <CardActions sx={{ alignSelf: "end" }}>
+                    <Delete
+                      sx={{ cursor: "pointer" }}
+                      color="error"
+                      onClick={() => {
+                        handleOpenConfirm();
+                        setDelItem(item._id);
+                      }}
+                    />
+                  </CardActions>
+                  <CardActions>
+                    <BasicButton
+                      size="small"
+                      width="100%"
+                      icon={<Edit />}
+                      variant="contained"
+                      onClick={() =>
+                        navigate(PAGE_ROUTES.PRESENTATION + `/${item._id}`)
+                      }
+                    >
+                      Edit
+                    </BasicButton>
+                  </CardActions>
                 </Box>
-              </Box>
-
-              {/* Right side */}
-              <Box
-                sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "space-between"
-                }}
-              >
-                <CardActions sx={{ alignSelf: "end" }}>
-                  <Delete
-                    sx={{ cursor: "pointer" }}
-                    color="error"
-                    onClick={() => {
-                      handleOpenConfirm();
-                      setDelItem(item._id);
-                    }}
-                  />
-                </CardActions>
-                <CardActions>
-                  <BasicButton
-                    size="small"
-                    width="100%"
-                    icon={<Edit />}
-                    variant="contained"
-                    onClick={() =>
-                      navigate(PAGE_ROUTES.PRESENTATION + `/${item._id}`)
-                    }
-                  >
-                    Edit
-                  </BasicButton>
-                </CardActions>
-              </Box>
-            </Card>
-          ))
+              </Card>
+            ))}
+          </List>
         ) : isLoading ? (
           <CircularProgress sx={{ m: "auto" }} />
         ) : (

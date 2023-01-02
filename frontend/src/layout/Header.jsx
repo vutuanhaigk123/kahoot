@@ -180,7 +180,7 @@ const Header = () => {
                     handleCloseUserMenu();
                     setTimeout(() => {
                       navigate(setting.link);
-                    }, 100);
+                    }, 500);
                   }}
                 >
                   <ListItemIcon>{setting.icon}</ListItemIcon>

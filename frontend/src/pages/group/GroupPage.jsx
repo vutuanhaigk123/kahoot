@@ -171,18 +171,18 @@ const Panel = ({
         {/* Group grid */}
         <Paper
           sx={{
-            p: 6,
+            p: 4,
             display: "flex",
-            justifyContent: "center"
+            justifyContent: "center",
+            pl: 8
           }}
           elevation={5}
         >
-          {data?.info ? (
+          {data?.info?.groups && data?.info?.groups?.length > 0 ? (
             <Grid
               container
               spacing={2}
-              maxHeight={"60vh"}
-              sx={{ overflowY: "scroll", pl: "20px" }}
+              sx={{ overflowY: "scroll", maxHeight: "60vh", p: 1 }}
             >
               {data.info.groups.map((item) => (
                 <Grid item key={item._id} xs={6}>

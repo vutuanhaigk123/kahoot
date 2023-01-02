@@ -15,7 +15,6 @@ import {
 import { CheckCircle, Warning } from "@mui/icons-material";
 import FormContent from "./FormContent";
 import TextBox from "./../input/TextBox";
-import FormButton from "../button/FormButton";
 import { useSelector } from "react-redux";
 import { STATUS_ACCOUNT, SUBMIT_STATUS } from "../../commons/constants";
 import { API } from "./../../commons/constants";
@@ -23,6 +22,7 @@ import { handlePost } from "./../../utils/fetch";
 import usePopup from "./../../hooks/usePopup";
 import PopupMsg from "./../notification/PopupMsg";
 import useToggle from "./../../hooks/useToggle";
+import BasicButton from "./../button/BasicButton";
 
 const EditProfileForm = ({ userInfo, refetch }) => {
   const [status, setStatus] = React.useState({});
@@ -43,7 +43,9 @@ const EditProfileForm = ({ userInfo, refetch }) => {
   } = useForm({
     resolver: yupResolver(schema)
   });
+  const [isHandling, setIsHandling] = React.useState(false);
   const onSubmit = async (data) => {
+    setIsHandling(true);
     console.log(
       "🚀 ~ file: EditProfileForm.jsx ~ line 50 ~ onSubmit ~ data",
       data
@@ -58,15 +60,13 @@ const EditProfileForm = ({ userInfo, refetch }) => {
           type: SUBMIT_STATUS.SUCCESS,
           msg: "Changes saved"
         });
+        toggleEditProfile(false);
         // Refresh data
         refetch();
       }
       handleOpenPopup();
     }
-  };
-
-  const handleSendEmail = () => {
-    console.log(userInfo.email);
+    setIsHandling(false);
   };
 
   return (
@@ -122,11 +122,6 @@ const EditProfileForm = ({ userInfo, refetch }) => {
               <Typography variant="subtitle1">{userInfo.email}</Typography>
             </Box>
           </Tooltip>
-          {userInfo.status === STATUS_ACCOUNT.verifying ? (
-            <Button variant="contained" onClick={handleSendEmail}>
-              Send verify email
-            </Button>
-          ) : null}
         </Grid>
         <Divider orientation="vertical" variant="middle" flexItem />
         {/* Edit space */}
@@ -141,7 +136,7 @@ const EditProfileForm = ({ userInfo, refetch }) => {
                 defaultValue={userInfo.name}
                 size="large"
                 control={control}
-                disabled={!isEditable}
+                disabled={isHandling ? isHandling : !isEditable}
               />
               {/* Address */}
               <TextBox
@@ -151,12 +146,12 @@ const EditProfileForm = ({ userInfo, refetch }) => {
                 defaultValue={userInfo.addr || ""}
                 size="large"
                 control={control}
-                disabled={!isEditable}
+                disabled={isHandling ? isHandling : !isEditable}
               />
               {isEditable ? (
-                <FormButton align="center" width="30%">
+                <BasicButton type="submit" loading={isHandling}>
                   Save
-                </FormButton>
+                </BasicButton>
               ) : (
                 <Button
                   variant="contained"
