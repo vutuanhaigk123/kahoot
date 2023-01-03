@@ -75,7 +75,8 @@ const PopupForm = ({
 
       if (setReturnData) {
         setReturnData(resp);
-        return;
+
+        return setIsHandling(false);
       }
 
       // Refetch groups data

@@ -20,8 +20,11 @@ import Empty from "./components/Empty";
 const FormType = { CREATE: "create", JOIN: "join" };
 
 const GroupPage = () => {
-  const [createdGroup, setCreatedGroup] = React.useState([]);
   const [respCreateGroup, setRespCreateGroup] = React.useState(null);
+  console.log(
+    "🚀 ~ file: GroupPage.jsx:24 ~ GroupPage ~ respCreateGroup",
+    respCreateGroup
+  );
   const [respDeleteGroup, setRespDeleteGroup] = React.useState(null);
   const [value, setValue] = React.useState("1");
 
@@ -35,6 +38,11 @@ const GroupPage = () => {
   } = useQuery("created-groups", () =>
     handleGet(`${API.CREATED_GROUP}?page=${0}&limit=${100}`)
   );
+  const [createdGroup, setCreatedGroup] = React.useState({});
+  console.log(
+    "🚀 ~ file: GroupPage.jsx:24 ~ GroupPage ~ createdGroup",
+    createdGroup
+  );
 
   React.useEffect(() => {
     if (data && data.info && data.info.groups) {
@@ -45,8 +53,16 @@ const GroupPage = () => {
   React.useEffect(() => {
     if (respCreateGroup && respCreateGroup.info) {
       const { gId, name } = respCreateGroup.info;
-      const createdGroupTmp = { ...createdGroup };
-      createdGroupTmp.info.groups.push({ _id: gId, name });
+      var createdGroupTmp = { ...createdGroup };
+      if (createdGroupTmp.info) {
+        createdGroupTmp.info.groups.push({ _id: gId, name });
+      } else {
+        const info = {
+          groups: [{ _id: gId, name }],
+          total: 1
+        };
+        createdGroupTmp.info = info;
+      }
       setCreatedGroup(createdGroupTmp);
     }
   }, [respCreateGroup]);
