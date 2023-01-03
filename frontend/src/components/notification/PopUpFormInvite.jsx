@@ -43,7 +43,7 @@ const PopupFormInvite = ({ isOpen, handleClose, inviteLink, groupId }) => {
           iconButton,
           iconHover("error.main")
         ]}
-        onClick={handleClose}
+        onClick={handleCLosePopUp}
       />
       {/* Close form when recieved resp */}
       {type === formType.inviteLink ? (

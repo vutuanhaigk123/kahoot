@@ -21,10 +21,6 @@ const FormType = { CREATE: "create", JOIN: "join" };
 
 const GroupPage = () => {
   const [respCreateGroup, setRespCreateGroup] = React.useState(null);
-  console.log(
-    "🚀 ~ file: GroupPage.jsx:24 ~ GroupPage ~ respCreateGroup",
-    respCreateGroup
-  );
   const [respDeleteGroup, setRespDeleteGroup] = React.useState(null);
   const [value, setValue] = React.useState("1");
 
@@ -39,10 +35,6 @@ const GroupPage = () => {
     handleGet(`${API.CREATED_GROUP}?page=${0}&limit=${100}`)
   );
   const [createdGroup, setCreatedGroup] = React.useState({});
-  console.log(
-    "🚀 ~ file: GroupPage.jsx:24 ~ GroupPage ~ createdGroup",
-    createdGroup
-  );
 
   React.useEffect(() => {
     if (data && data.info && data.info.groups) {
